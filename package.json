@@ -1,0 +1,20 @@
+{
+  "name": "disertatie",
+  "version": "1.0.0",
+  "description": "Teza disertatie",
+  "license": "GPL-3.0",
+  "author": "GenneratorX",
+  "main": "app/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GenneratorX/disertatie.git"
+  },
+  "bugs": {
+    "url": "https://github.com/GenneratorX/disertatie/issues",
+    "email": "contact@gennerator.com"
+  },
+  "homepage": "https://github.com/GenneratorX/disertatie#readme"
+}
