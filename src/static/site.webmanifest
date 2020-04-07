@@ -1,0 +1,35 @@
+{
+  "name": "GennIT Ticketing",
+  "short_name": "GennIT",
+  "start_url": "https://master.gennerator.com",
+  "orientation": "any",
+  "theme_color": "#363636",
+  "background_color": "#232323",
+  "display": "standalone",
+  "lang": "ro-RO",
+  "dir": "ltr",
+  "categories": ["security", "social", "utilities"],
+  "description": "GennIT Ticketing System",
+  "icons": [
+    {
+      "src": "/android-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

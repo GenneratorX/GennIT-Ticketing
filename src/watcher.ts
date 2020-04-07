@@ -130,7 +130,6 @@ function onchange(path: string): void {
         break;
       case '.ejs':
       case '.html':
-      case '.xml':
         log(`[HTMLmin] ${path}`);
         htmlMin(path)
           .then(min => {
