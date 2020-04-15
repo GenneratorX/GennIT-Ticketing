@@ -11,7 +11,7 @@ import crypto = require('crypto');
  */
 export function securityHeaders(req: express.Request, res: express.Response, next: express.NextFunction) {
   crypto.randomBytes(16, (error, buffer) => {
-    if (!error) {
+    if (error === null) {
       res.locals.cspNonce = buffer.toString('base64');
       res.setHeader('Content-Security-Policy',
         `default-src 'none'; ` +

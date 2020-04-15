@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ro">
+  <head>
+    <%- include('partials/header') %>
+    <title>Activare :: GennIT Ticketing</title>
+  </head>
+  <body>
+    <div class="content">
+      <script nonce="<%- cspNonce %>">
+        setTimeout(function () {
+          window.location.href = '/auth';
+        }, 3000);
+      </script>
+      <p class="inline">Contul a fost activat cu succes!</p>
+      Te trimitem pe pagina de log-in imediat!
+    </div>
+  </body>
+</html>

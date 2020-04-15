@@ -7,5 +7,190 @@
 
 body {
   color: #fff;
+  display: flex;
+  flex-direction: column;
   height: 100vh;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 200;
+}
+
+.content {
+  align-items: center;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  font-size: 2rem;
+  height: 100%;
+  justify-content: center;
+  text-align: center;
+}
+
+/* ===================== LOGIN ===================== */
+#lText {
+  margin-bottom: 1rem;
+}
+
+div.auth {
+  display: inline-block;
+  font-size: 1rem;
+  margin-top: 1rem;
+  user-select: none;
+}
+
+a.auth {
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+a.auth:hover,
+a.right:hover {
+  text-decoration: underline;
+}
+
+a.login {
+  font-size: 1.3rem;
+  margin: auto 0.5rem auto auto;
+  text-decoration: none;
+}
+
+input.login {
+  background: transparent;
+  border: 2px #363636 solid;
+  border-radius: 15px;
+  color: #fff;
+  display: block;
+  font-family: 'Raleway', Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  min-height: 3rem;
+  min-width: 17rem;
+  padding: 0.1rem 0.5rem 0.1rem 1.5rem;
+}
+
+input.login:focus {
+  box-shadow: 0 0 5px #363636;
+  outline: 0;
+}
+
+input.lRed {
+  border-color: #d3312e;
+}
+
+input.lGreen {
+  border-color: #09776c;
+}
+
+input.submitB {
+  background: #363636;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  height: 2em;
+  margin-top: 1em;
+  padding: 1rem;
+  width: 2em;
+}
+
+input.submitB:hover {
+  background: #09776c;
+}
+
+input.submitB:focus {
+  background: #09776c;
+  outline: 0;
+}
+
+.checkbox-label {
+  cursor: pointer;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+  user-select: none;
+}
+
+.checkbox-label:focus {
+  outline: 0;
+  text-shadow: 5px 5px 10px #09776c;
+}
+
+/* ============================== SNACKBAR ============================== */
+#snackbar {
+  align-items: center;
+  bottom: 2rem;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  user-select: none;
+  visibility: hidden;
+}
+
+#snackC {
+  border-radius: 2px;
+  color: white;
+  max-height: 80%;
+  max-width: 80%;
+  padding: 1.3rem;
+  white-space: pre-line;
+}
+
+#snackbar.show {
+  animation: fadein 0.5s, fadeout 0.5s 3.5s;
+  visibility: visible;
+}
+
+#snackC.green {
+  background: #09776c;
+}
+
+#snackC.orange {
+  background: #ed9c27;
+}
+
+#snackC.red {
+  background: #d3312e;
+}
+
+#snackC.blue {
+  background: #3098b8;
+}
+
+@keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+
+  to {
+    bottom: 2rem;
+    opacity: 1;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    bottom: 2rem;
+    opacity: 1;
+  }
+
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
+}
+
+.inline {
+  display: inline-block;
+}
+
+.bold {
+  font-weight: 700;
 }

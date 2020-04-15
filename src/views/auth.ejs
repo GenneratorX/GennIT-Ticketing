@@ -8,9 +8,18 @@
     <meta property="og:url" content="https://master.gennerator.com/auth">
     <meta property="og:image" content="https://static.gennerator.com/android-512.png">
     <meta property="og:description" content="Autentificare utilizator, creare cont utilizator și recuperare credențiale.">
+    <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/auth.js" defer></script>
   </head>
   <body>
     <%- include('partials/noJS') %>
-    Auth
+    <form id="auth" class="content">
+      <h1 id="lText">Login</h1>
+      <input type="text" name="username" class="login" maxlength="40" spellcheck="false" placeholder="Nume utilizator" id="username" autocomplete="username" tabindex="1" required>
+      <input type="password" name="password" class="login" placeholder="Parola" id="password" autocomplete="current-password" tabindex="2" required>
+      <input id="submitB" type="submit" class="submitB" value="&rtrif;">
+      <div class="auth">
+        <a class="auth" id="forgotPass">Ai uitat parola?</a> | <a class="auth" id="createAcc">Nu ai cont? Creează unul!</a>
+      </div>
+    </form>
   </body>
 </html>
