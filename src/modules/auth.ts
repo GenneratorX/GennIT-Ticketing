@@ -1,11 +1,13 @@
 'use strict';
 
-import util = require('util');
 import argon2 = require('argon2');
-import crypto = require('crypto');
-import querystring = require('querystring');
 import nodemailer = require('nodemailer');
 import ejs = require('ejs');
+import Redis = require('ioredis');
+
+import util = require('util');
+import crypto = require('crypto');
+import querystring = require('querystring');
 
 import env = require('../env');
 import db = require('./db');
@@ -19,6 +21,7 @@ const emailRegexp = new RegExp(
   '([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$');
 
 const transporter = nodemailer.createTransport(env.EMAIL_CONFIG);
+const redis = new Redis(env.REDIS_CONFIG);
 
 /**
  * Adds a user to the database
@@ -74,8 +77,11 @@ export async function loginUser(userName: string, password: string) {
   if (query.length === 1) {
     if (query[0].active === true) {
       if ((await argon2.verify(query[0].password, password) === true)) {
+        const rand = await randomBytes(128);
+        const sessionID = rand.toString('base64');
         db.query('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE LOWER(username) = LOWER($1)', [userName]);
-        return { response: true, userName: query[0].username };
+        await redis.set(`session:${sessionID}`, JSON.stringify({ userName: query[0].username }), 'EX', 43200);
+        return { response: true, userName: query[0].username, sessionID: sessionID };
       } else {
         return { response: false, error: 'username or password not found' };
       }
@@ -85,6 +91,19 @@ export async function loginUser(userName: string, password: string) {
   } else {
     return { response: false, error: 'username or password not found' };
   }
+}
+
+/**
+ * Checks if the sessionID matches the one stored in the database
+ * @param sessionID Session ID
+ * @returns Status of sessionID
+ */
+export async function verifySessionID(sessionID: string) {
+  const query = await redis.get(`session:${sessionID}`);
+  if (query !== null) {
+    return JSON.parse(query);
+  }
+  return { error: 'invalid session id' };
 }
 
 /**

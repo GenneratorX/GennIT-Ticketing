@@ -1,6 +1,7 @@
 'use strict';
 
 import express = require('express');
+import cookieParser = require('cookie-parser');
 
 import env = require('./env');
 import util = require('./modules/util');
@@ -11,7 +12,9 @@ app.set('view engine', 'ejs');
 app.set('views', 'app/views');
 app.set('etag', false);
 app.set('x-powered-by', false);
+
 app.use(express.json());
+app.use(cookieParser(env.COOKIE_SECRET));
 
 app.post('/signup', function(req, res) {
   if (
@@ -38,7 +41,12 @@ app.post('/signin', function(req, res) {
   if (typeof req.body.username === 'string' && typeof req.body.password === 'string') {
     auth.loginUser(req.body.username, req.body.password)
       .then(loggedIn => {
-        res.json(loggedIn);
+        res.cookie('__Host-sessionID', loggedIn.sessionID, {
+          signed: true,
+          httpOnly: true,
+          secure: true,
+          sameSite: 'strict',
+        }).json({ response: loggedIn.response, userName: loggedIn.userName });
       })
       .catch(error => {
         console.log(error);
@@ -83,12 +91,41 @@ app.post('/emailExists', function(req, res) {
  * Check if user is logged in and redirect him to the login page if hes not
  */
 app.use(function(req, res, next) {
-  if (app.locals.userName === undefined && req.path !== '/auth') {
-    //res.redirect('/auth');
-    res.setHeader('location', '/auth');
-    res.status(302).end();
+  if (typeof req.signedCookies['__Host-sessionID'] === 'string') {
+    auth.verifySessionID(req.signedCookies['__Host-sessionID'])
+      .then(session => {
+        if (session.error === undefined) {
+          app.locals.userName = session.userName;
+          if (req.path === '/auth') {
+            console.log(req.header('referer'));
+            res.setHeader('location', '/');
+            res.status(302).end();
+          } else {
+            next();
+          }
+        } else {
+          // Remove invalid/expired cookie
+          res.clearCookie('__Host-sessionID', {
+            path: '/',
+            httpOnly: true,
+            secure: true,
+            sameSite: true,
+          });
+          res.setHeader('location', '/auth');
+          res.status(302).end();
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      });
   } else {
-    next();
+    if (req.path !== '/auth') {
+      //res.redirect('/auth');
+      res.setHeader('location', '/auth');
+      res.status(302).end();
+    } else {
+      next();
+    }
   }
 });
 /**
@@ -107,8 +144,7 @@ app.get('/auth', function(req, res) {
         if (activated === true) {
           res.render('activation');
         } else {
-          res.setHeader('location', '/auth');
-          res.status(302).end();
+          res.render('auth');
         }
       })
       .catch(error => {
