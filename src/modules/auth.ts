@@ -93,6 +93,19 @@ export async function loginUser(userName: string, password: string) {
 }
 
 /**
+ * Removes the sessionID from the database
+ * @param sessionID Session ID
+ * @returns Status of the removal of the session ID
+ */
+export async function removeSessionID(sessionID: string) {
+  const query = await redis.del(`session:${sessionID}`);
+  if (query === 1) {
+    return true;
+  }
+  return false;
+}
+
+/**
  * Checks if the sessionID matches the one stored in the database
  * @param sessionID Session ID
  * @returns Status of sessionID

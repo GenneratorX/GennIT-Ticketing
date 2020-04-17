@@ -120,6 +120,125 @@ input.submitB:focus {
   text-shadow: 5px 5px 10px #09776c;
 }
 
+/* =========================== NAVIGATION BAR =========================== */
+.navbar {
+  background: #363636;
+  height: 100%;
+  position: fixed;
+  transition: width 200ms ease;
+  width: 5rem;
+}
+
+.navbar-items {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  list-style: none;
+}
+
+.nav-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.3ch;
+  margin-bottom: 1rem;
+  text-align: center;
+  width: 100%;
+}
+
+.nav-logo img {
+  transform: rotate(0deg);
+  transition: 600ms;
+}
+
+.nav-item {
+  width: 100%;
+}
+
+.nav-item:last-child {
+  margin-top: auto;
+}
+
+.nav-link {
+  align-items: center;
+  color: #fff;
+  display: flex;
+  filter: grayscale(100%) opacity(0.6);
+  height: 5rem;
+  text-decoration: none;
+  transition: 600ms;
+}
+
+.nav-link img {
+  /* Using min and max width/height because Firefox likes to resize the images when hovering over them */
+  min-height: 2rem;
+  max-height: 2rem;
+  margin: 0 1.5rem;
+  min-width: 2rem;
+  max-width: 2rem;
+}
+
+.nav-link-text {
+  display: none;
+  font-size: 1.3rem;
+  margin-left: 1rem;
+}
+
+.navbar:hover {
+  width: 16rem;
+}
+
+.navbar:hover .nav-logo img {
+  transform: rotate(-180deg);
+}
+
+.nav-link:hover {
+  background: #09776c;
+  color: #fff;
+  filter: grayscale(0%) opacity(1);
+}
+
+.navbar:hover .nav-link-text {
+  display: block;
+}
+
+div.main {
+  margin-left: 5rem;
+  padding: 1rem;
+}
+
+@media only screen and (max-width: 576px) {
+  .navbar {
+    bottom: 0;
+    height: 5rem;
+    width: 100%;
+  }
+
+  .navbar-items {
+    flex-direction: row;
+  }
+
+  .nav-logo {
+    display: none;
+  }
+
+  .nav-link {
+    justify-content: center;
+  }
+
+  div.main {
+    margin-left: 0;
+  }
+
+  .navbar:hover {
+    width: 100%;
+  }
+
+  .navbar:hover .nav-link-text {
+    display: none;
+  }
+}
+
 /* ============================== SNACKBAR ============================== */
 #snackbar {
   align-items: center;

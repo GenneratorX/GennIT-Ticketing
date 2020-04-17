@@ -128,6 +128,29 @@ app.use(function(req, res, next) {
     }
   }
 });
+
+app.get('/logout', function(req, res) {
+  auth.removeSessionID(req.signedCookies['__Host-sessionID'])
+    .then(removed => {
+      if (removed === true) {
+        res.clearCookie('__Host-sessionID', {
+          path: '/',
+          httpOnly: true,
+          secure: true,
+          sameSite: true,
+        });
+        res.setHeader('location', '/auth');
+        res.status(302).end();
+      } else {
+        res.status(500).json({ error: 'internal error' });
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      res.status(500).json({ error: 'internal error' });
+    });
+});
+
 /**
  * Add security headers
  */
