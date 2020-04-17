@@ -77,16 +77,7 @@ export async function loginUser(userName: string, password: string) {
   if (query.length === 1) {
     if (query[0].active === true) {
       if ((await argon2.verify(query[0].password, password) === true)) {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        const rand = await randomBytes(128);
-        const sessionID = rand.toString('base64');
-=======
         const sessionID = (await randomBytes(128)).toString('base64');
->>>>>>> Stashed changes
-=======
-        const sessionID = (await randomBytes(128)).toString('base64');
->>>>>>> Stashed changes
         db.query('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE LOWER(username) = LOWER($1)', [userName]);
         await redis.set(`session:${sessionID}`, JSON.stringify({ userName: query[0].username }), 'EX', 43200);
         return { response: true, userName: query[0].username, sessionID: sessionID };
