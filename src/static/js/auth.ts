@@ -26,11 +26,11 @@ const emailRegexp = new RegExp(
   '([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$');
 
 forgotPass.onclick = function(): void {
-  snackbar('Asta e! 🤷‍♂️', 0);
+  snackbar('Asta e! 🤷‍♂️', 'green');
 };
 
 createAcc.onclick = function(): void {
-  if (!repeatBoxEnabled) {
+  if (repeatBoxEnabled === false) {
     const repeatPass = document.createElement('input');
     setAttributes(repeatPass, {
       'class': 'login',
@@ -109,7 +109,7 @@ passBox.onkeyup = passBoxKeyUp;
 // EventHandler functions
 
 function userBoxKeyUp(): void {
-  if (userRegexp.test(userBox.value)) {
+  if (userRegexp.test(userBox.value) === true) {
     userBox.className = green;
   } else {
     if (userBox.value.length !== 0) {
@@ -120,9 +120,9 @@ function userBoxKeyUp(): void {
   }
 }
 
-function userBoxKeyDown(e: KeyboardEvent): void {
-  if (e.key === ' ') {
-    e.preventDefault();
+function userBoxKeyDown(event: KeyboardEvent): void {
+  if (event.key === ' ') {
+    event.preventDefault();
   }
 }
 
@@ -130,17 +130,17 @@ function userBoxBlur(): void {
   if (repeatBoxEnabled) {
     if (userBox.className === green) {
       request('POST', '/usernameExists', { 'username': userBox.value })
-        .then(res => {
-          if (res['response'] === true) {
+        .then(response => {
+          if (response['response'] === true) {
             userBox.className = red;
           }
         })
-        .catch(err => {
+        .catch(error => {
           userBox.className = red;
-          if (err.message === '502') {
-            snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 2);
+          if (error.message === '502') {
+            snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
           } else {
-            snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 2);
+            snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
           }
         });
     }
@@ -150,9 +150,9 @@ function userBoxBlur(): void {
 }
 
 function passBoxKeyUp(): void {
-  if (passCheck(passBox.value) === true) {
+  if (passwordCheck(passBox.value) === true) {
     passBox.className = green;
-    if (repeatBoxEnabled) {
+    if (repeatBoxEnabled === true) {
       repeatBoxKeyUp();
     }
   } else {
@@ -160,7 +160,7 @@ function passBoxKeyUp(): void {
       passBox.className = red;
     } else {
       passBox.className = gray;
-      if (repeatBoxEnabled) {
+      if (repeatBoxEnabled === true) {
         repeatBoxKeyUp();
       }
     }
@@ -180,7 +180,7 @@ function repeatBoxKeyUp(): void {
 }
 
 function emailBoxKeyUp(): void {
-  if (emailRegexp.test(emailBox.value)) {
+  if (emailRegexp.test(emailBox.value) === true) {
     emailBox.className = green;
   } else {
     if (emailBox.value.length !== 0) {
@@ -194,32 +194,32 @@ function emailBoxKeyUp(): void {
 function emailBoxBlur(): void {
   if (emailBox.className === green) {
     request('POST', '/emailExists', { 'email': emailBox.value })
-      .then(res => {
-        if (res['response'] === true) {
+      .then(response => {
+        if (response['response'] === true) {
           emailBox.className = red;
         }
       })
-      .catch(err => {
+      .catch(error => {
         emailBox.className = red;
-        if (err.message === '502') {
-          snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 2);
+        if (error.message === '502') {
+          snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
         } else {
-          snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 2);
+          snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
         }
       });
   }
 }
 
-function emailBoxKeyDown(e: KeyboardEvent): void {
-  if (e.key === ' ') {
-    e.preventDefault();
+function emailBoxKeyDown(event: KeyboardEvent): void {
+  if (event.key === ' ') {
+    event.preventDefault();
   }
 }
 
-submitForm.addEventListener('submit', function(e) {
+submitForm.addEventListener('submit', function(event) {
   if (userBox.className === green) {
     if (passBox.className === green) {
-      if (repeatBoxEnabled) {
+      if (repeatBoxEnabled === true) {
         if (repeatBox.className === green) {
           if (emailBox.className === green) {
             request('POST', '/signup', {
@@ -234,23 +234,23 @@ submitForm.addEventListener('submit', function(e) {
                   submitForm.reset();
                   userBox.className = gray;
                   passBox.className = gray;
-                  snackbar('Cont creat cu succes!', 0);
+                  snackbar('Cont creat cu succes!', 'green');
                 } else {
                   switch (response['error']) {
                     case 'invalid username':
-                      snackbar('Numele de utilizator este invalid!', 2);
+                      snackbar('Numele de utilizator este invalid!', 'red');
                       break;
                     case 'invalid password':
-                      snackbar('Parola este invalidă!', 2);
+                      snackbar('Parola este invalidă!', 'red');
                       break;
                     case 'invalid email':
-                      snackbar('Adresa de e-mail este invalidă!', 2);
+                      snackbar('Adresa de e-mail este invalidă!', 'red');
                       break;
                     case 'username exists':
-                      snackbar('Numele de utilizator există deja!', 2);
+                      snackbar('Numele de utilizator există deja!', 'red');
                       break;
                     case 'email exists':
-                      snackbar('Adresa e-mail există deja!', 2);
+                      snackbar('Adresa e-mail există deja!', 'red');
                       break;
                   }
                 }
@@ -258,22 +258,22 @@ submitForm.addEventListener('submit', function(e) {
               .catch(error => {
                 switch (error.message) {
                   case '502':
-                    snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 2);
+                    snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
                     break;
                   default:
-                    snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 2);
+                    snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
                 }
               });
           } else {
-            if (emailRegexp.test(emailBox.value)) {
-              snackbar('Adresa e-mail există deja!', 2);
+            if (emailRegexp.test(emailBox.value) === true) {
+              snackbar('Adresa e-mail există deja!', 'red');
             } else {
-              snackbar('Adresa e-mail nu este validă!', 2);
+              snackbar('Adresa e-mail nu este validă!', 'red');
             }
           }
         } else {
           if (repeatBox.value !== passBox.value) {
-            snackbar('Parolele trebuie să fie identice!', 2);
+            snackbar('Parolele trebuie să fie identice!', 'red');
           }
         }
       } else {
@@ -296,10 +296,10 @@ submitForm.addEventListener('submit', function(e) {
             } else {
               switch (response['error']) {
                 case 'username or password not found':
-                  snackbar('Numele de utilizator sau parola sunt incorecte!', 2);
+                  snackbar('Numele de utilizator sau parola sunt incorecte!', 'red');
                   break;
                 case 'user disabled':
-                  snackbar('Contul este dezactivat. Verifică adresa de e-mail înregistrată pentru activare!', 3);
+                  snackbar('Contul este dezactivat. Verifică adresa de e-mail înregistrată pentru activare!', 'blue');
                   break;
               }
             }
@@ -307,79 +307,79 @@ submitForm.addEventListener('submit', function(e) {
           .catch(error => {
             switch (error.message) {
               case '502':
-                snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 2);
+                snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
                 break;
               default:
-                snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 2);
+                snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
             }
           });
       }
     } else {
-      const chk = passCheck(passBox.value);
-      if (chk !== true) {
-        if (!chk[0]) {
-          snackbar('Parola trebuie să conțină minim 8 caractere!', 2);
+      const check = passwordCheck(passBox.value);
+      if (check !== true) {
+        if (check[0] === false) {
+          snackbar('Parola trebuie să conțină minim 8 caractere!', 'red');
         } else {
-          let err = 'Parola trebuie să conțină cel puțin:\n';
-          if (!chk[1]) err += '- un caracter majuscul\n';
-          if (!chk[2]) err += '- un caracter minuscul\n';
-          if (!chk[3]) err += '- o cifră\n';
-          if (!chk[4]) err += '- un caracter special\n';
-          snackbar(err, 2);
+          let errorMessage = 'Parola trebuie să conțină cel puțin:\n';
+          if (!check[1]) errorMessage += '- un caracter majuscul\n';
+          if (!check[2]) errorMessage += '- un caracter minuscul\n';
+          if (!check[3]) errorMessage += '- o cifră\n';
+          if (!check[4]) errorMessage += '- un caracter special\n';
+          snackbar(errorMessage, 'red');
         }
       }
     }
   } else {
-    if (userRegexp.test(userBox.value)) {
-      if (repeatBoxEnabled) {
-        snackbar('Numele de utilizator există deja!', 2);
+    if (userRegexp.test(userBox.value) === true) {
+      if (repeatBoxEnabled === true) {
+        snackbar('Numele de utilizator există deja!', 'red');
       }
     } else {
       snackbar(
         'Numele de utilizator trebuie să conțină minim 6 caractere și să înceapă cu un caracter alfanumeric. ' +
-        'Simbolurile acceptate sunt: !?$^&*._-', 2);
+        'Simbolurile acceptate sunt: !?$^&*._-', 'red');
     }
   }
-  e.preventDefault();
+  event.preventDefault();
 });
 
 /**
  * Checks if the password requirements are met
- * @param pass The password
+ * @param password The password
  * @returns True if password is valid, boolean array with all check results otherwise
  */
-function passCheck(pass: string): true | boolean[] {
+function passwordCheck(password: string): true | boolean[] {
   let length = false;
   let uppercase = false;
   let lowercase = false;
   let digit = false;
   let special = false;
-  if (pass.length >= MIN_PASSWORD_LENGTH) {
+  if (password.length >= MIN_PASSWORD_LENGTH) {
     length = true;
-    for (let i = 0; i < pass.length; i++) {
-      const c = pass.charAt(i);
-      if (uppercase && lowercase && digit && special) {
+    for (let i = 0; i < password.length; i++) {
+      const c = password.charAt(i);
+      if (uppercase === true && lowercase === true && digit === true && special === true) {
         return true;
       } else {
-        if (!uppercase && c >= 'A' && c <= 'Z') {
+        if (uppercase === false && c >= 'A' && c <= 'Z') {
           uppercase = true;
           continue;
         }
-        if (!lowercase && c >= 'a' && c <= 'z') {
+        if (lowercase === false && c >= 'a' && c <= 'z') {
           lowercase = true;
           continue;
         }
-        if (!digit && c >= '0' && c <= '9') {
+        if (digit === false && c >= '0' && c <= '9') {
           digit = true;
           continue;
         }
-        if (!special && (c < 'A' || c > 'Z') && (c < 'a' || c > 'z') && (c < '0' || c > '9')) {
+        if (special === false && (c < 'A' || c > 'Z') && (c < 'a' || c > 'z') && (c < '0' || c > '9')) {
           special = true;
         }
       }
     }
   }
-  if (uppercase && lowercase && digit && special) {
+  if (uppercase === true && lowercase === true && digit === true && special === true) {
     return true;
   }
   return [length, uppercase, lowercase, digit, special];

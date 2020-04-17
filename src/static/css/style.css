@@ -194,3 +194,10 @@ input.submitB:focus {
 .bold {
   font-weight: 700;
 }
+
+html {
+  opacity: 1;
+  overflow: auto;
+  scrollbar-color: #363636 transparent;
+  visibility: visible;
+}
