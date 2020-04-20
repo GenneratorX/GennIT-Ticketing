@@ -127,17 +127,17 @@ function userBoxKeyDown(event: KeyboardEvent): void {
 }
 
 function userBoxBlur(): void {
-  if (repeatBoxEnabled) {
+  if (repeatBoxEnabled === true) {
     if (userBox.className === green) {
       request('POST', '/usernameExists', { 'username': userBox.value })
         .then(response => {
-          if (response['response'] === true) {
+          if (response['responseStatusCode'] !== 200 || response['response'] === true) {
             userBox.className = red;
           }
         })
-        .catch(error => {
+        .catch((error: Error) => {
           userBox.className = red;
-          if (error.message === '502') {
+          if (error.message === 'network error' || error.message === 'invalid json') {
             snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
           } else {
             snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
@@ -195,13 +195,13 @@ function emailBoxBlur(): void {
   if (emailBox.className === green) {
     request('POST', '/emailExists', { 'email': emailBox.value })
       .then(response => {
-        if (response['response'] === true) {
+        if (response['responseStatusCode'] !== 200 || response['response'] === true) {
           emailBox.className = red;
         }
       })
-      .catch(error => {
+      .catch((error: Error) => {
         emailBox.className = red;
-        if (error.message === '502') {
+        if (error.message === 'network error' || error.message === 'invalid json') {
           snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
         } else {
           snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
@@ -252,16 +252,17 @@ submitForm.addEventListener('submit', function(event) {
                     case 'email exists':
                       snackbar('Adresa e-mail există deja!', 'red');
                       break;
+                    case 'internal error':
+                      snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+                      break;
                   }
                 }
               })
-              .catch(error => {
-                switch (error.message) {
-                  case '502':
-                    snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
-                    break;
-                  default:
-                    snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+              .catch((error: Error) => {
+                if (error.message === 'network error' || error.message === 'invalid json') {
+                  snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
+                } else {
+                  snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
                 }
               });
           } else {
@@ -301,16 +302,17 @@ submitForm.addEventListener('submit', function(event) {
                 case 'user disabled':
                   snackbar('Contul este dezactivat. Verifică adresa de e-mail înregistrată pentru activare!', 'blue');
                   break;
+                case 'internal error':
+                  snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+                  break;
               }
             }
           })
-          .catch(error => {
-            switch (error.message) {
-              case '502':
-                snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
-                break;
-              default:
-                snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+          .catch((error: Error) => {
+            if (error.message === 'network error' || error.message === 'invalid json') {
+              snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
+            } else {
+              snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
             }
           });
       }

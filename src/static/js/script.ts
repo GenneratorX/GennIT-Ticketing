@@ -60,27 +60,52 @@ function snackbar(message: string, color: 'green' | 'orange' | 'red' | 'blue'): 
  * @param url URL to send the request to
  * @param body Request body
  * @param fetchOptions Fetch API request options
- * @returns Response object if the request was successful (code 200) or error code otherwise
+ * @returns Response body object
  */
-function request(method: 'GET' | 'POST', url: string, body?: { [property: string]: any }, fetchOptions?: RequestInit) {
+function request(
+  method: 'GET' | 'POST',
+  url: string,
+  body?: { [property: string]: any },
+  fetchOptions?: RequestInit
+): Promise<{ [property: string]: any, responseStatusCode: number }> {
+
   let requestParameters: RequestInit = {
     method: method,
     mode: 'same-origin',
     credentials: 'same-origin',
+    referrerPolicy: 'same-origin',
     headers: {
+      'accept': 'application/json',
       'content-type': 'application/json; charset=utf-8',
     },
-    body: JSON.stringify(body),
   };
+  if (method === 'POST') {
+    requestParameters.body = JSON.stringify(body);
+  }
 
   requestParameters = { ...requestParameters, ...fetchOptions };
 
   return fetch(url, requestParameters)
     .then(response => {
-      if (response.ok === true) {
-        return response.json();
+      const statusCode = response.status;
+      const body = response.json();
+      return Promise.all([body, statusCode]);
+    })
+    .then(fullResponse => ({ ...fullResponse[0], ...{ 'responseStatusCode': fullResponse[1] } }))
+    .catch((error: Error) => {
+      switch (error.name) {
+        case 'TypeError':
+          if (error.message === 'Failed to fetch') {
+            throw new Error('network error');
+          }
+          break;
+        case 'SyntaxError':
+          if (error.message.includes('in JSON at position') === true) {
+            throw new Error('invalid json');
+          }
+          break;
+        default: throw error;
       }
-      throw new Error(response.status.toString());
     });
 }
 

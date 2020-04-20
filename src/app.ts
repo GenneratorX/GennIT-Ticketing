@@ -41,12 +41,16 @@ app.post('/signin', function(req, res) {
   if (typeof req.body.username === 'string' && typeof req.body.password === 'string') {
     auth.loginUser(req.body.username, req.body.password)
       .then(loggedIn => {
-        res.cookie('__Host-sessionID', loggedIn.sessionID, {
-          signed: true,
-          httpOnly: true,
-          secure: true,
-          sameSite: 'strict',
-        }).json({ response: loggedIn.response, userName: loggedIn.userName });
+        if (loggedIn.response === true) {
+          res.cookie('__Host-sessionID', loggedIn.sessionID, {
+            signed: true,
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+          }).json({ response: loggedIn.response, userName: loggedIn.userName });
+        } else {
+          res.json(loggedIn);
+        }
       })
       .catch(error => {
         console.log(error);
@@ -97,7 +101,6 @@ app.use(function(req, res, next) {
         if (session.error === undefined) {
           app.locals.userName = session.userName;
           if (req.path === '/auth') {
-            console.log(req.header('referer'));
             res.setHeader('location', '/');
             res.status(302).end();
           } else {
