@@ -138,11 +138,9 @@ app.get('/logout', function(req, res) {
           httpOnly: true,
           secure: true,
           sameSite: true,
-        });
-        res.setHeader('location', '/auth');
-        res.status(302).end();
+        }).json({ response: true });
       } else {
-        res.status(500).json({ error: 'internal error' });
+        res.status(500).json({ response: false, error: 'logout failed' });
       }
     })
     .catch(error => {

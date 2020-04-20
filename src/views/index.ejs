@@ -3,41 +3,42 @@
   <head>
     <%- include('partials/header') %>
     <title>Acasă :: GennIT Ticketing</title>
+    <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/index.js" defer></script>
   </head>
   <body>
     <nav class="navbar">
       <ul class="navbar-items">
 
         <li class="nav-logo">
-          <a href="#" class="nav-link">
+          <a class="nav-link">
             <span class="nav-link-text">GennIT</span>
             <img src="https://static.gennerator.com/img/svg/right-chevron.svg" alt="Deschidere meniu">
           </a>
         </li>
 
         <li class="nav-item">
-          <a href="#" class="nav-link">
+          <a class="nav-link">
             <img src="https://static.gennerator.com/img/svg/home.svg" alt="Acasă">
             <span class="nav-link-text">Acasă</span>
           </a>
         </li>
 
         <li class="nav-item">
-          <a href="#" class="nav-link">
+          <a class="nav-link">
             <img src="https://static.gennerator.com/img/svg/ticket.svg" alt="Tichete">
             <span class="nav-link-text">Tichete</span>
           </a>
         </li>
 
         <li class="nav-item">
-          <a href="#" class="nav-link">
+          <a class="nav-link">
             <img src="https://static.gennerator.com/img/svg/calendar.svg" alt="Planificator">
             <span class="nav-link-text">Planificator</span>
           </a>
         </li>
 
         <li class="nav-item">
-          <a href="/logout" class="nav-link">
+          <a class="nav-link" id="logoutButton">
             <img src="https://static.gennerator.com/img/svg/logout.svg" alt="Deconectare">
             <span class="nav-link-text">Deconectare</span>
           </a>

@@ -62,7 +62,7 @@ function snackbar(message: string, color: 'green' | 'orange' | 'red' | 'blue'): 
  * @param fetchOptions Fetch API request options
  * @returns Response object if the request was successful (code 200) or error code otherwise
  */
-function request(method: 'GET' | 'POST', url: string, body: { [property: string]: any }, fetchOptions?: RequestInit) {
+function request(method: 'GET' | 'POST', url: string, body?: { [property: string]: any }, fetchOptions?: RequestInit) {
   let requestParameters: RequestInit = {
     method: method,
     mode: 'same-origin',
