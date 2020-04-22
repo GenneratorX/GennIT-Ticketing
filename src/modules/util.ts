@@ -70,3 +70,12 @@ export function securityHeaders(req: express.Request, res: express.Response, nex
     }
   });
 }
+
+export function checkJsonHeader(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const contentType = req.get('content-type');
+  if (contentType === 'application/json; charset=utf-8') {
+    next();
+  } else {
+    res.status(415).json({ error: 'wrong \'Content-Type\' header. use \'application/json; charset=utf-8\'' });
+  }
+}

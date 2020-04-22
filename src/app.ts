@@ -14,9 +14,17 @@ app.set('etag', false);
 app.set('x-powered-by', false);
 
 app.use(express.json());
+app.use(function(error: Error, req: express.Request, res: express.Response, next: express.NextFunction) {
+  if (error instanceof SyntaxError) {
+    res.status(400).json({ error: 'invalid json' });
+  } else {
+    next();
+  }
+});
+
 app.use(cookieParser(env.COOKIE_SECRET));
 
-app.post('/signup', function(req, res) {
+app.post('/signup', util.checkJsonHeader, function(req, res) {
   if (
     typeof req.body.username === 'string' &&
     typeof req.body.password === 'string' &&
@@ -33,11 +41,11 @@ app.post('/signup', function(req, res) {
         res.status(500).json({ error: 'internal error' });
       });
   } else {
-    res.status(400).json({ error: 'invalid request body' });
+    res.status(422).json({ error: 'invalid request body' });
   }
 });
 
-app.post('/signin', function(req, res) {
+app.post('/signin', util.checkJsonHeader, function(req, res) {
   if (typeof req.body.username === 'string' && typeof req.body.password === 'string') {
     auth.loginUser(req.body.username, req.body.password)
       .then(loggedIn => {
@@ -57,11 +65,11 @@ app.post('/signin', function(req, res) {
         res.status(500).json({ error: 'internal error' });
       });
   } else {
-    res.status(400).json({ error: 'invalid request body' });
+    res.status(422).json({ error: 'invalid request body' });
   }
 });
 
-app.post('/usernameExists', function(req, res) {
+app.post('/usernameExists', util.checkJsonHeader, function(req, res) {
   if (typeof req.body.username === 'string') {
     auth.usernameExists(req.body.username)
       .then(exists => {
@@ -72,11 +80,11 @@ app.post('/usernameExists', function(req, res) {
         res.status(500).json({ error: 'internal error' });
       });
   } else {
-    res.status(400).json({ error: 'invalid username' });
+    res.status(422).json({ error: 'invalid username' });
   }
 });
 
-app.post('/emailExists', function(req, res) {
+app.post('/emailExists', util.checkJsonHeader, function(req, res) {
   if (typeof req.body.email === 'string') {
     auth.emailExists(req.body.email)
       .then(exists => {
@@ -87,7 +95,7 @@ app.post('/emailExists', function(req, res) {
         res.status(500).json({ error: 'internal error' });
       });
   } else {
-    res.status(400).json({ error: 'invalid email' });
+    res.status(422).json({ error: 'invalid email' });
   }
 });
 
@@ -182,6 +190,12 @@ app.get('/auth', function(req, res) {
 
 app.use(function(req, res) {
   res.status(404).render('404');
+});
+
+// eslint-disable-next-line no-unused-vars
+app.use(function(err: Error, req: express.Request, res: express.Response, next: express.NextFunction) {
+  console.log(err);
+  res.status(500).render('500');
 });
 
 app.listen(env.APP_PORT, () => console.log(`Aplicatia ruleaza pe portul ${env.APP_PORT}`));
