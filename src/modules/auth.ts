@@ -75,17 +75,17 @@ export async function loginUser(userName: string, password: string) {
     [userName]
   );
   if (query.length === 1) {
-    if (query[0].active === true) {
-      if ((await argon2.verify(query[0].password, password) === true)) {
+    if ((await argon2.verify(query[0].password, password)) === true) {
+      if (query[0].active === true) {
         const sessionID = (await randomBytes(128)).toString('base64');
         db.query('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE LOWER(username) = LOWER($1)', [userName]);
         await redis.set(`session:${sessionID}`, JSON.stringify({ userName: query[0].username }), 'EX', 43200);
         return { response: true, userName: query[0].username, sessionID: sessionID };
       } else {
-        return { response: false, error: 'username or password not found' };
+        return { response: false, error: 'user disabled' };
       }
     } else {
-      return { response: false, error: 'user disabled' };
+      return { response: false, error: 'username or password not found' };
     }
   } else {
     return { response: false, error: 'username or password not found' };
@@ -139,8 +139,8 @@ export async function activateUser(activationCode: string): Promise<boolean> {
  * @returns True if the username exists, false otherwise
  */
 export async function usernameExists(username: string): Promise<boolean> {
-  const query = await db.query('SELECT COUNT(username) FROM users WHERE LOWER(username) = LOWER($1);', [username]);
-  if (query.length === 1 && query[0].count === '1') {
+  const query = await db.query('SELECT username FROM users WHERE LOWER(username) = LOWER($1);', [username]);
+  if (query.length === 1) {
     return true;
   }
   return false;
@@ -152,24 +152,40 @@ export async function usernameExists(username: string): Promise<boolean> {
  * @returns True if the email address exists, false otherwise
  */
 export async function emailExists(email: string): Promise<boolean> {
-  const query = await db.query('SELECT COUNT(email) FROM users WHERE LOWER(email) = LOWER($1);', [email]);
-  if (query.length === 1 && query[0].count === '1') {
+  const query = await db.query('SELECT email FROM users WHERE LOWER(email) = LOWER($1);', [email]);
+  if (query.length === 1) {
     return true;
   }
   return false;
 }
 
 /**
- * Generates a unique base64 URL safe value to use as a user id
- * @returns Base64 URL safe string that is unique to the application
+ * Generates a unique base64 encoded URL safe string to use as a user ID
+ * @returns Base64 encoded URL safe string that is a unique user ID
  */
 async function genRandomUserID(): Promise<string> {
   while (true) { // eslint-disable-line no-constant-condition
-    const rand = await randomBytes(9);
-    const userID = rand.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    const query = await db.query('SELECT COUNT(user_id) FROM users WHERE user_id = $1;', [userID]);
-    if (query.length === 1 && query[0].count === '0') {
+    const userID = (await randomBytes(9)).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const query = await db.query('SELECT user_id FROM users WHERE user_id = $1;', [userID]);
+    if (query.length === 0) {
       return userID;
+    }
+  }
+}
+
+/**
+ * Generates a unique base64 encoded string to use as an activation code
+ * @returns Base64 encoded string that is a unique activation code
+ */
+async function genRandomActivationCode(): Promise<string> {
+  while (true) { // eslint-disable-line no-constant-condition
+    const activationCode = (await randomBytes(128)).toString('base64');
+    const query = await db.query(
+      'SELECT activation_code FROM users_activation WHERE activation_code = $1;',
+      [activationCode]
+    );
+    if (query.length === 0) {
+      return activationCode;
     }
   }
 }
@@ -181,7 +197,7 @@ async function genRandomUserID(): Promise<string> {
  * @param email E-mail address
  */
 async function sendActivationEmail(userID: string, userName: string, email: string) {
-  const activationCode = (await randomBytes(128)).toString('base64');
+  const activationCode = await genRandomActivationCode();
   await db.query('INSERT INTO users_activation VALUES ($1, $2);', [userID, activationCode]);
   ejs.renderFile('app/views/emails/activation.ejs', {
     userName: userName,

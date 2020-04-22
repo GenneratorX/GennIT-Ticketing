@@ -16,11 +16,11 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
-ALTER TABLE ONLY gennit.users_activation DROP CONSTRAINT users_activation_user_id_fkey;
 ALTER TABLE ONLY gennit.users DROP CONSTRAINT users_username_key;
 ALTER TABLE ONLY gennit.users DROP CONSTRAINT users_pkey;
 ALTER TABLE ONLY gennit.users DROP CONSTRAINT users_email_key;
 ALTER TABLE ONLY gennit.users_activation DROP CONSTRAINT users_activation_pkey;
+ALTER TABLE ONLY gennit.users_activation DROP CONSTRAINT users_activation_activation_code_key;
 DROP TABLE gennit.users_activation;
 DROP TABLE gennit.users;
 DROP SCHEMA gennit;
@@ -68,6 +68,14 @@ CREATE TABLE gennit.users_activation (
 ALTER TABLE gennit.users_activation OWNER TO "Gennerator";
 
 --
+-- Name: users_activation users_activation_activation_code_key; Type: CONSTRAINT; Schema: gennit; Owner: Gennerator
+--
+
+ALTER TABLE ONLY gennit.users_activation
+    ADD CONSTRAINT users_activation_activation_code_key UNIQUE (activation_code);
+
+
+--
 -- Name: users_activation users_activation_pkey; Type: CONSTRAINT; Schema: gennit; Owner: Gennerator
 --
 
@@ -97,14 +105,6 @@ ALTER TABLE ONLY gennit.users
 
 ALTER TABLE ONLY gennit.users
     ADD CONSTRAINT users_username_key UNIQUE (username);
-
-
---
--- Name: users_activation users_activation_user_id_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: Gennerator
---
-
-ALTER TABLE ONLY gennit.users_activation
-    ADD CONSTRAINT users_activation_user_id_fkey FOREIGN KEY (user_id) REFERENCES gennit.users(user_id) ON DELETE CASCADE;
 
 
 --
