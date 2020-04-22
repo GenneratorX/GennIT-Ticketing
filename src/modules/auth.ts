@@ -123,7 +123,7 @@ export async function verifySessionID(sessionID: string) {
  * @param activationKey Activation key
  * @returns True if the activation was successful, false otherwise
  */
-export async function activateUser(activationCode: string): Promise<boolean> {
+export async function activateUser(activationCode: string) {
   const query = await db.query('SELECT user_id FROM users_activation WHERE activation_code = $1;', [activationCode]);
   if (query.length === 1) {
     db.query('UPDATE users SET active = true WHERE user_id = $1', [query[0].user_id]);
@@ -138,12 +138,12 @@ export async function activateUser(activationCode: string): Promise<boolean> {
  * @param username Username
  * @returns True if the username exists, false otherwise
  */
-export async function usernameExists(username: string): Promise<boolean> {
+export async function usernameExists(username: string) {
   const query = await db.query('SELECT username FROM users WHERE LOWER(username) = LOWER($1);', [username]);
-  if (query.length === 1) {
-    return true;
+  if (query.length === 0) {
+    return false;
   }
-  return false;
+  return true;
 }
 
 /**
@@ -151,19 +151,19 @@ export async function usernameExists(username: string): Promise<boolean> {
  * @param email Email address
  * @returns True if the email address exists, false otherwise
  */
-export async function emailExists(email: string): Promise<boolean> {
+export async function emailExists(email: string) {
   const query = await db.query('SELECT email FROM users WHERE LOWER(email) = LOWER($1);', [email]);
-  if (query.length === 1) {
-    return true;
+  if (query.length === 0) {
+    return false;
   }
-  return false;
+  return true;
 }
 
 /**
  * Generates a unique base64 encoded URL safe string to use as a user ID
  * @returns Base64 encoded URL safe string that is a unique user ID
  */
-async function genRandomUserID(): Promise<string> {
+async function genRandomUserID() {
   while (true) { // eslint-disable-line no-constant-condition
     const userID = (await randomBytes(9)).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     const query = await db.query('SELECT user_id FROM users WHERE user_id = $1;', [userID]);
@@ -177,7 +177,7 @@ async function genRandomUserID(): Promise<string> {
  * Generates a unique base64 encoded string to use as an activation code
  * @returns Base64 encoded string that is a unique activation code
  */
-async function genRandomActivationCode(): Promise<string> {
+async function genRandomActivationCode() {
   while (true) { // eslint-disable-line no-constant-condition
     const activationCode = (await randomBytes(128)).toString('base64');
     const query = await db.query(
