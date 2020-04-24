@@ -29,22 +29,44 @@ h1 {
 }
 
 /* ===================== LOGIN ===================== */
-#lText {
-  margin-bottom: 1rem;
+#auth #username {
+  background: url(https://static.gennerator.com/img/svg/username.svg) no-repeat 0.7rem 50%/1.4rem 1.4rem;
+}
+
+#auth #password {
+  background: url(https://static.gennerator.com/img/svg/password.svg) no-repeat 0.7rem 50%/1.4rem 1.4rem;
+}
+
+#auth #repeatPassword {
+  background: url(https://static.gennerator.com/img/svg/password.svg) no-repeat 0.7rem 50%/1.4rem 1.4rem;
+}
+
+#auth #email {
+  background: url(https://static.gennerator.com/img/svg/email.svg) no-repeat 0.7rem 50%/1.4rem 1.4rem;
+}
+
+#auth input.green {
+  border-color: #09776c;
+}
+
+#auth input.red {
+  border-color: #d3312e;
 }
 
 div.auth {
   display: inline-block;
   font-size: 1rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   user-select: none;
 }
 
 a.auth {
   color: #fff;
   cursor: pointer;
+  display: block;
   font-size: 1.1rem;
   font-weight: 700;
+  margin-top: 0.5rem;
 }
 
 a.auth:hover,
@@ -70,20 +92,12 @@ input.login {
   margin-top: 1rem;
   min-height: 3rem;
   min-width: 17rem;
-  padding: 0.1rem 0.5rem 0.1rem 1.5rem;
+  padding: 0.1rem 0.5rem 0.1rem 2.7rem;
 }
 
 input.login:focus {
   box-shadow: 0 0 5px #363636;
   outline: 0;
-}
-
-input.lRed {
-  border-color: #d3312e;
-}
-
-input.lGreen {
-  border-color: #09776c;
 }
 
 input.submitB {
@@ -94,7 +108,7 @@ input.submitB {
   font-size: 2rem;
   font-weight: 700;
   height: 2em;
-  margin-top: 1em;
+  margin-top: 2rem;
   padding: 1rem;
   width: 2em;
 }

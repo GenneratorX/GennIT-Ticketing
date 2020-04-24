@@ -210,10 +210,11 @@ async function sendActivationEmail(userID: string, userName: string, email: stri
         replyTo: `"Contact" <${env.EMAIL_REPLYTO}>`,
         subject: 'Confirmare creare cont',
         html: html,
+      }).catch(error => {
+        console.log(error);
       });
     } else {
       console.log(error);
     }
   });
 }
-

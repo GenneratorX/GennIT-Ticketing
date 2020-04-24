@@ -71,6 +71,12 @@ export function securityHeaders(req: express.Request, res: express.Response, nex
   });
 }
 
+/**
+ * Checks if the Content-Type is valid
+ * @param req Request object
+ * @param res Response object
+ * @param next Next function
+ */
 export function checkJsonHeader(req: express.Request, res: express.Response, next: express.NextFunction) {
   const contentType = req.get('content-type');
   if (contentType === 'application/json; charset=utf-8') {

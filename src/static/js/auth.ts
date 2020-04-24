@@ -1,287 +1,433 @@
 'use strict';
 
-const submitForm = document.getElementById('auth') as HTMLFormElement;
+const authElements = {
+  /**
+   * Form title
+   */
+  authTitle: document.getElementById('authTitle') as HTMLHeadingElement,
+  /**
+   * Form
+   */
+  submitForm: document.getElementById('auth') as HTMLFormElement,
+  /**
+   * Form submit button
+   */
+  submitButton: document.getElementById('submitB') as HTMLInputElement,
+  /**
+   * Form menu item 1
+   */
+  authMenuItem1: document.getElementById('authMenuItem1') as HTMLAnchorElement,
+  /**
+   * Form menu item 1
+   */
+  authMenuItem2: document.getElementById('authMenuItem2') as HTMLAnchorElement,
+  /**
+   * Username input
+   */
+  usernameInput: document.getElementById('username') as HTMLInputElement,
+  /**
+   * Password input
+   */
+  passwordInput: document.getElementById('password') as HTMLInputElement,
+  /**
+   * Retype password input
+   */
+  repeatPasswordInput: document.getElementById('repeatPassword') as HTMLInputElement,
+  /**
+   * Email input
+   */
+  emailInput: document.getElementById('email') as HTMLInputElement,
+  /**
+   * Agreement button
+   */
+  checkBoxLabel: document.getElementById('chkLabel') as HTMLLabelElement,
+};
 
-const userBox = document.getElementById('username') as HTMLInputElement;
-const passBox = document.getElementById('password') as HTMLInputElement;
-
-const createAcc = document.getElementById('createAcc') as HTMLAnchorElement;
-const forgotPass = document.getElementById('forgotPass') as HTMLAnchorElement;
-const lText = document.getElementById('lText') as HTMLHeadingElement;
-
-const MIN_PASSWORD_LENGTH = 8;
-
-let repeatBox: HTMLInputElement;
-let emailBox: HTMLInputElement;
-let checkLabel: HTMLLabelElement;
-let repeatBoxEnabled = false;
-
-const green = 'login lGreen';
-const red = 'login lRed';
-const gray = 'login';
+const greenBorder = 'login green';
 
 const userRegexp = /^[a-zA-Z\d][a-zA-Z\d!?$^&*._-]{5,39}$/;
 const emailRegexp = new RegExp(
   '^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&\'*+/0-9=?A-Z^_`a-z{|}~]+(\\.[-!#$%&\'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]' +
   '([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$');
 
-forgotPass.onclick = function(): void {
-  snackbar('Asta e! 🤷‍♂️', 'green');
-};
+let currentWindow: 'signIn' | 'signUp' | 'forgotPassword' | 'resendActivationMail' = 'signIn';
 
-createAcc.onclick = function(): void {
-  if (repeatBoxEnabled === false) {
-    const repeatPass = document.createElement('input');
-    setAttributes(repeatPass, {
-      'class': 'login',
-      'id': 'repeatPassword',
-      'autocomplete': 'new-password',
-      'maxlength': '100',
-      'placeholder': 'Repetă parola',
-      'required': '',
-      'tabindex': '3',
-      'type': 'password',
-    });
+/**
+ * Displays the sign in menu
+ */
+function displaySignIn() {
+  switch (currentWindow) {
+    case 'signUp': {
+      const {
+        authMenuItem1,
+        authMenuItem2,
+        authTitle,
+        checkBoxLabel,
+        emailInput,
+        passwordInput,
+        repeatPasswordInput,
+        submitForm,
+      } = authElements;
 
-    const email = document.createElement('input');
-    setAttributes(email, {
-      'class': 'login',
-      'id': 'email',
-      'autocomplete': 'email',
-      'maxlength': '254',
-      'name': 'email',
-      'placeholder': 'E-mail',
-      'required': '',
-      'tabindex': '4',
-      'type': 'email',
-      'spellcheck': 'false',
-    });
+      submitForm.removeChild(repeatPasswordInput);
+      submitForm.removeChild(emailInput);
+      submitForm.removeChild(checkBoxLabel);
 
-    const chkLabel = document.createElement('label');
-    setAttributes(chkLabel, {
-      'class': 'checkbox-label',
-      'id': 'chkLabel',
-      'tabindex': '5',
-    });
-    chkLabel.textContent = 'Accept termenii și condițiile';
+      passwordInput.setAttribute('autocomplete', 'current-password');
 
-    const chkBox = document.createElement('input');
-    setAttributes(chkBox, {
-      'id': 'chkBox',
-      'name': 'chkBox',
-      'required': '',
-      'type': 'checkbox',
-    });
+      authTitle.textContent = 'Autentificare';
+      authMenuItem1.textContent = 'Ai uitat parola?';
+      authMenuItem1.onclick = displayForgotPassword;
+      authMenuItem2.textContent = 'Nu ai cont? Creează unul!';
+      authMenuItem2.onclick = displaySignUp;
+      break;
+    }
+    case 'forgotPassword': {
+      const {
+        authMenuItem1,
+        authMenuItem2,
+        authTitle,
+        emailInput,
+        submitButton,
+        submitForm,
+      } = authElements;
 
-    const submitButton = document.getElementById('submitB') as HTMLInputElement;
+      submitForm.removeChild(emailInput);
 
-    submitForm.insertBefore(repeatPass, submitButton);
-    submitForm.insertBefore(email, submitButton);
-    submitForm.insertBefore(chkLabel, submitButton);
-    chkLabel.insertAdjacentElement('afterbegin', chkBox);
+      const usernameInput = document.createElement('input');
+      setAttributes(usernameInput, {
+        'type': 'text',
+        'name': 'username',
+        'class': 'login',
+        'maxlength': '40',
+        'spellcheck': 'false',
+        'placeholder': 'Nume utilizator',
+        'id': 'username',
+        'autocomplete': 'username',
+        'tabindex': '1',
+        'required': '',
+      });
+      usernameInput.onkeyup = usernameInputKeyUp;
+      authElements.usernameInput = usernameInput;
 
-    setAttributes(passBox, { 'autocomplete': 'new-password' });
+      const passwordInput = document.createElement('input');
+      setAttributes(passwordInput, {
+        'type': 'password',
+        'name': 'password',
+        'class': 'login',
+        'placeholder': 'Parola',
+        'id': 'password',
+        'autocomplete': 'current-password',
+        'tabindex': '2',
+        'required': '',
+      });
+      passwordInput.onkeyup = passwordInputKeyUp;
+      authElements.passwordInput = passwordInput;
 
-    lText.textContent = 'Creare cont';
-    createAcc.textContent = 'Ai cont? Loghează-te!';
+      submitForm.insertBefore(usernameInput, submitButton);
+      submitForm.insertBefore(passwordInput, submitButton);
 
-    repeatBox = document.getElementById('repeatPassword') as HTMLInputElement;
-    emailBox = document.getElementById('email') as HTMLInputElement;
-    checkLabel = document.getElementById('chkLabel') as HTMLLabelElement;
-
-    repeatBox.onkeyup = repeatBoxKeyUp;
-    emailBox.onkeyup = emailBoxKeyUp;
-    emailBox.onblur = emailBoxBlur;
-    emailBox.onkeydown = emailBoxKeyDown;
-
-    repeatBoxEnabled = true;
-    userBoxBlur();
-  } else {
-    removeCreateUser();
+      authTitle.textContent = 'Autentificare';
+      authMenuItem1.textContent = 'Ai uitat parola?';
+      authMenuItem1.onclick = displayForgotPassword;
+      authMenuItem2.textContent = 'Nu ai cont? Creează unul!';
+      authMenuItem2.onclick = displaySignUp;
+      break;
+    }
+    case 'resendActivationMail':
+      break;
   }
-};
+  currentWindow = 'signIn';
 
-userBox.onkeyup = userBoxKeyUp;
-userBox.onblur = userBoxBlur;
-userBox.onkeydown = userBoxKeyDown;
-passBox.onkeyup = passBoxKeyUp;
+  usernameInputKeyUp();
+}
+
+/**
+ * Displays the sign up menu
+ */
+function displaySignUp() {
+  const {
+    authMenuItem1,
+    authMenuItem2,
+    authTitle,
+    passwordInput,
+    submitButton,
+    submitForm,
+  } = authElements;
+
+  const repeatPasswordInput = document.createElement('input');
+  setAttributes(repeatPasswordInput, {
+    'class': 'login',
+    'id': 'repeatPassword',
+    'autocomplete': 'new-password',
+    'placeholder': 'Repetă parola',
+    'required': '',
+    'tabindex': '3',
+    'type': 'password',
+  });
+  authElements.repeatPasswordInput = repeatPasswordInput;
+
+  const emailInput = document.createElement('input');
+  setAttributes(emailInput, {
+    'class': 'login',
+    'id': 'email',
+    'autocomplete': 'email',
+    'maxlength': '254',
+    'name': 'email',
+    'placeholder': 'E-mail',
+    'required': '',
+    'tabindex': '4',
+    'type': 'email',
+    'spellcheck': 'false',
+  });
+  authElements.emailInput = emailInput;
+
+  const checkBoxLabel = document.createElement('label');
+  setAttributes(checkBoxLabel, {
+    'class': 'checkbox-label',
+    'id': 'chkLabel',
+    'tabindex': '5',
+  });
+  checkBoxLabel.textContent = 'Accept termenii și condițiile';
+  authElements.checkBoxLabel = checkBoxLabel;
+
+  const checkBoxInput = document.createElement('input');
+  setAttributes(checkBoxInput, {
+    'id': 'chkBox',
+    'name': 'chkBox',
+    'required': '',
+    'type': 'checkbox',
+  });
+
+  submitForm.insertBefore(repeatPasswordInput, submitButton);
+  submitForm.insertBefore(emailInput, submitButton);
+  submitForm.insertBefore(checkBoxLabel, submitButton);
+  checkBoxLabel.insertAdjacentElement('afterbegin', checkBoxInput);
+
+  passwordInput.setAttribute('autocomplete', 'new-password');
+
+  authTitle.textContent = 'Creare cont';
+  authMenuItem1.textContent = 'Ai cont? Loghează-te!';
+  authMenuItem2.textContent = '';
+  authMenuItem1.onclick = displaySignIn;
+
+  repeatPasswordInput.onkeyup = repeatPasswordInputKeyUp;
+  emailInput.onkeyup = emailInputKeyUp;
+
+  currentWindow = 'signUp';
+
+  usernameInputKeyUp();
+  repeatPasswordInputKeyUp();
+}
+
+/**
+ * Displays the forgot password menu
+ */
+function displayForgotPassword() {
+  const {
+    authMenuItem1,
+    authMenuItem2,
+    authTitle,
+    passwordInput,
+    submitButton,
+    submitForm,
+    usernameInput,
+  } = authElements;
+
+  submitForm.removeChild(usernameInput);
+  submitForm.removeChild(passwordInput);
+
+  const emailInput = document.createElement('input');
+  setAttributes(emailInput, {
+    'class': 'login',
+    'id': 'email',
+    'autocomplete': 'email',
+    'maxlength': '254',
+    'name': 'email',
+    'placeholder': 'E-mail',
+    'required': '',
+    'tabindex': '1',
+    'type': 'email',
+    'spellcheck': 'false',
+  });
+  emailInput.onkeyup = emailInputKeyUp;
+  authElements.emailInput = emailInput;
+
+  submitForm.insertBefore(emailInput, submitButton);
+
+  authTitle.textContent = 'Recuperare parolă';
+  authMenuItem1.textContent = 'Înapoi';
+  authMenuItem1.onclick = displaySignIn;
+  authMenuItem2.textContent = '';
+
+  currentWindow = 'forgotPassword';
+}
+
+/**
+ * Displays the resend activation email menu
+ */
+function displayResendActivationMail() {
+  const {
+    authMenuItem1,
+    authMenuItem2,
+    authTitle,
+    passwordInput,
+    submitButton,
+    submitForm,
+    usernameInput,
+  } = authElements;
+
+  submitForm.removeChild(usernameInput);
+  submitForm.removeChild(passwordInput);
+
+  const emailInput = document.createElement('input');
+  setAttributes(emailInput, {
+    'class': 'login',
+    'id': 'email',
+    'autocomplete': 'email',
+    'maxlength': '254',
+    'name': 'email',
+    'placeholder': 'E-mail',
+    'required': '',
+    'tabindex': '1',
+    'type': 'email',
+    'spellcheck': 'false',
+  });
+  authElements.emailInput = emailInput;
+  submitForm.insertBefore(emailInput, submitButton);
+
+  authTitle.textContent = 'Retrimite e-mail de activare';
+  authMenuItem1.textContent = 'Înapoi';
+  authMenuItem1.onclick = displaySignIn;
+  authMenuItem2.textContent = '';
+  currentWindow = 'resendActivationMail';
+}
+
+authElements.authMenuItem1.onclick = displayForgotPassword;
+authElements.authMenuItem2.onclick = displaySignUp;
+
+authElements.usernameInput.onkeyup = usernameInputKeyUp;
+authElements.passwordInput.onkeyup = passwordInputKeyUp;
 
 // EventHandler functions
 
-function userBoxKeyUp(): void {
-  if (userRegexp.test(userBox.value) === true) {
-    userBox.className = green;
-  } else {
-    if (userBox.value.length !== 0) {
-      userBox.className = red;
-    } else {
-      userBox.className = gray;
-    }
-  }
-}
+let delay: NodeJS.Timeout;
+const delayTime = 500;
 
-function userBoxKeyDown(event: KeyboardEvent): void {
-  if (event.key === ' ') {
-    event.preventDefault();
-  }
-}
-
-function userBoxBlur(): void {
-  if (repeatBoxEnabled === true) {
-    if (userBox.className === green) {
-      request('POST', '/usernameExists', { 'username': userBox.value })
-        .then(response => {
-          if (response['responseStatusCode'] !== 200 || response['response'] === true) {
-            userBox.className = red;
-          }
-        })
-        .catch((error: Error) => {
-          userBox.className = red;
-          if (error.message === 'network error' || error.message === 'invalid json') {
-            snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
-          } else {
-            snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
-          }
-        });
-    }
-  } else {
-    userBoxKeyUp();
-  }
-}
-
-function passBoxKeyUp(): void {
-  if (passwordCheck(passBox.value) === true) {
-    passBox.className = green;
-    if (repeatBoxEnabled === true) {
-      repeatBoxKeyUp();
-    }
-  } else {
-    if (passBox.value.length !== 0) {
-      passBox.className = red;
-    } else {
-      passBox.className = gray;
-      if (repeatBoxEnabled === true) {
-        repeatBoxKeyUp();
-      }
-    }
-  }
-}
-
-function repeatBoxKeyUp(): void {
-  if (passBox.className === green) {
-    if (passBox.value === repeatBox.value) {
-      repeatBox.className = green;
-    } else {
-      repeatBox.className = red;
-    }
-  } else {
-    repeatBox.className = gray;
-  }
-}
-
-function emailBoxKeyUp(): void {
-  if (emailRegexp.test(emailBox.value) === true) {
-    emailBox.className = green;
-  } else {
-    if (emailBox.value.length !== 0) {
-      emailBox.className = red;
-    } else {
-      emailBox.className = gray;
-    }
-  }
-}
-
-function emailBoxBlur(): void {
-  if (emailBox.className === green) {
-    request('POST', '/emailExists', { 'email': emailBox.value })
-      .then(response => {
-        if (response['responseStatusCode'] !== 200 || response['response'] === true) {
-          emailBox.className = red;
-        }
-      })
-      .catch((error: Error) => {
-        emailBox.className = red;
-        if (error.message === 'network error' || error.message === 'invalid json') {
-          snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
-        } else {
-          snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
-        }
-      });
-  }
-}
-
-function emailBoxKeyDown(event: KeyboardEvent): void {
-  if (event.key === ' ') {
-    event.preventDefault();
-  }
-}
-
-submitForm.addEventListener('submit', function(event) {
-  if (userBox.className === green) {
-    if (passBox.className === green) {
-      if (repeatBoxEnabled === true) {
-        if (repeatBox.className === green) {
-          if (emailBox.className === green) {
-            request('POST', '/signup', {
-              'username': userBox.value,
-              'password': passBox.value,
-              'email': emailBox.value,
-              'policy': (document.getElementById('chkBox') as HTMLInputElement).checked,
+function usernameInputKeyUp() {
+  const { usernameInput } = authElements;
+  clearTimeout(delay);
+  if (userRegexp.test(usernameInput.value) === true) {
+    switch (currentWindow) {
+      case 'signIn':
+        setBorderColor(usernameInput, 'green');
+        break;
+      case 'signUp':
+        delay = setTimeout(() => {
+          request('POST', '/usernameExists', { 'username': usernameInput.value })
+            .then(response => {
+              if (response['response'] === false) {
+                setBorderColor(usernameInput, 'green');
+              } else {
+                setBorderColor(usernameInput, 'red');
+              }
             })
-              .then(response => {
-                if (response['response'] === true) {
-                  removeCreateUser();
-                  submitForm.reset();
-                  userBox.className = gray;
-                  passBox.className = gray;
-                  snackbar('Cont creat cu succes!', 'green');
-                } else {
-                  switch (response['error']) {
-                    case 'invalid username':
-                      snackbar('Numele de utilizator este invalid!', 'red');
-                      break;
-                    case 'invalid password':
-                      snackbar('Parola este invalidă!', 'red');
-                      break;
-                    case 'invalid email':
-                      snackbar('Adresa de e-mail este invalidă!', 'red');
-                      break;
-                    case 'username exists':
-                      snackbar('Numele de utilizator există deja!', 'red');
-                      break;
-                    case 'email exists':
-                      snackbar('Adresa e-mail există deja!', 'red');
-                      break;
-                    case 'internal error':
-                      snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
-                      break;
-                  }
-                }
-              })
-              .catch((error: Error) => {
-                if (error.message === 'network error' || error.message === 'invalid json') {
-                  snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
-                } else {
-                  snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
-                }
-              });
-          } else {
-            if (emailRegexp.test(emailBox.value) === true) {
-              snackbar('Adresa e-mail există deja!', 'red');
-            } else {
-              snackbar('Adresa e-mail nu este validă!', 'red');
-            }
-          }
-        } else {
-          if (repeatBox.value !== passBox.value) {
-            snackbar('Parolele trebuie să fie identice!', 'red');
-          }
-        }
-      } else {
-        request('POST', '/signin', {
-          'username': userBox.value,
-          'password': passBox.value,
-        })
+            .catch(() => {
+              setBorderColor(usernameInput, 'red');
+              snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+            });
+        }, delayTime);
+        break;
+    }
+  } else {
+    if (usernameInput.value.length === 0) {
+      setBorderColor(usernameInput);
+    } else {
+      setBorderColor(usernameInput, 'red');
+    }
+  }
+}
+
+function passwordInputKeyUp() {
+  const { passwordInput, repeatPasswordInput } = authElements;
+  if (passwordCheck(passwordInput.value).valid === true) {
+    switch (currentWindow) {
+      case 'signIn':
+        setBorderColor(passwordInput, 'green');
+        break;
+      case 'signUp':
+        setBorderColor(passwordInput, 'green');
+        repeatPasswordInputKeyUp();
+        break;
+    }
+  } else {
+    if (passwordInput.value.length === 0) {
+      setBorderColor(passwordInput);
+    } else {
+      setBorderColor(passwordInput, 'red');
+    }
+    if (currentWindow === 'signUp') {
+      setBorderColor(repeatPasswordInput);
+    }
+  }
+}
+
+function repeatPasswordInputKeyUp() {
+  const { passwordInput, repeatPasswordInput } = authElements;
+  if (passwordCheck(passwordInput.value).valid === true) {
+    if (repeatPasswordInput.value === passwordInput.value) {
+      setBorderColor(repeatPasswordInput, 'green');
+    } else {
+      setBorderColor(repeatPasswordInput, 'red');
+    }
+  } else {
+    setBorderColor(repeatPasswordInput);
+  }
+}
+
+function emailInputKeyUp() {
+  const { emailInput } = authElements;
+  clearTimeout(delay);
+  if (emailRegexp.test(emailInput.value) === true) {
+    switch (currentWindow) {
+      case 'signUp':
+        delay = setTimeout(() => {
+          request('POST', '/emailExists', { 'email': emailInput.value })
+            .then(response => {
+              if (response['response'] === false) {
+                setBorderColor(emailInput, 'green');
+              } else {
+                setBorderColor(emailInput, 'red');
+              }
+            })
+            .catch(() => {
+              setBorderColor(emailInput, 'red');
+              snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+            });
+        }, delayTime);
+        break;
+      case 'forgotPassword':
+        setBorderColor(emailInput, 'green');
+        break;
+      case 'resendActivationMail':
+        setBorderColor(emailInput, 'green');
+        break;
+    }
+  } else {
+    if (emailInput.value.length === 0) {
+      setBorderColor(emailInput);
+    } else {
+      setBorderColor(emailInput, 'red');
+    }
+  }
+}
+
+authElements.submitForm.addEventListener('submit', event => {
+  const { usernameInput, passwordInput, repeatPasswordInput, emailInput, submitForm } = authElements;
+  switch (currentWindow) {
+    case 'signIn': {
+      if (usernameInput.className === greenBorder && passwordInput.className === greenBorder) {
+        request('POST', '/signin', { 'username': usernameInput.value, 'password': passwordInput.value })
           .then(response => {
             if (response['response'] === true) {
               document.body.innerHTML = `` +
@@ -293,7 +439,7 @@ submitForm.addEventListener('submit', function(event) {
                 `</div>`;
               setTimeout(function() {
                 window.location.href = '/';
-              }, 3000);
+              }, 2500);
             } else {
               switch (response['error']) {
                 case 'username or password not found':
@@ -308,38 +454,70 @@ submitForm.addEventListener('submit', function(event) {
               }
             }
           })
-          .catch((error: Error) => {
-            if (error.message === 'network error' || error.message === 'invalid json') {
-              snackbar('Nu s-a putut realiza conexiunea la server. Încearcă mai târziu!', 'red');
-            } else {
-              snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
-            }
+          .catch(() => {
+            snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
           });
+      } else {
+        snackbar('Datele introduse sunt incorecte!', 'red');
       }
-    } else {
-      const check = passwordCheck(passBox.value);
-      if (check !== true) {
-        if (check[0] === false) {
-          snackbar('Parola trebuie să conțină minim 8 caractere!', 'red');
-        } else {
-          let errorMessage = 'Parola trebuie să conțină cel puțin:\n';
-          if (!check[1]) errorMessage += '- un caracter majuscul\n';
-          if (!check[2]) errorMessage += '- un caracter minuscul\n';
-          if (!check[3]) errorMessage += '- o cifră\n';
-          if (!check[4]) errorMessage += '- un caracter special\n';
-          snackbar(errorMessage, 'red');
-        }
-      }
+      break;
     }
-  } else {
-    if (userRegexp.test(userBox.value) === true) {
-      if (repeatBoxEnabled === true) {
-        snackbar('Numele de utilizator există deja!', 'red');
+    case 'signUp': {
+      if (
+        usernameInput.className === greenBorder &&
+        passwordInput.className === greenBorder &&
+        repeatPasswordInput.className === greenBorder &&
+        emailInput.className === greenBorder
+      ) {
+        request('POST', '/signup', {
+          'username': usernameInput.value,
+          'password': passwordInput.value,
+          'email': emailInput.value,
+          'policy': (document.getElementById('chkBox') as HTMLInputElement).checked,
+        })
+          .then(response => {
+            if (response['response'] === true) {
+              snackbar('Cont creat cu succes!', 'green');
+              displaySignIn();
+              submitForm.reset();
+              setBorderColor(usernameInput);
+              setBorderColor(passwordInput);
+            } else {
+              switch (response['error']) {
+                case 'invalid username':
+                  snackbar('Numele de utilizator este invalid!', 'red');
+                  break;
+                case 'invalid password':
+                  snackbar('Parola este invalidă!', 'red');
+                  break;
+                case 'invalid email':
+                  snackbar('Adresa de e-mail este invalidă!', 'red');
+                  break;
+                case 'username exists':
+                  snackbar('Numele de utilizator există deja!', 'red');
+                  break;
+                case 'email exists':
+                  snackbar('Adresa e-mail există deja!', 'red');
+                  break;
+                case 'internal error':
+                  snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+                  break;
+              }
+            }
+          })
+          .catch(() => {
+            snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+          });
+      } else {
+        snackbar('Datele introduse sunt incorecte!', 'red');
       }
-    } else {
-      snackbar(
-        'Numele de utilizator trebuie să conțină minim 6 caractere și să înceapă cu un caracter alfanumeric. ' +
-        'Simbolurile acceptate sunt: !?$^&*._-', 'red');
+      break;
+    }
+    case 'forgotPassword': {
+      break;
+    }
+    case 'resendActivationMail': {
+      break;
     }
   }
   event.preventDefault();
@@ -347,21 +525,21 @@ submitForm.addEventListener('submit', function(event) {
 
 /**
  * Checks if the password requirements are met
- * @param password The password
- * @returns True if password is valid, boolean array with all check results otherwise
+ * @param password Password
+ * @returns Password check result
  */
-function passwordCheck(password: string): true | boolean[] {
+function passwordCheck(password: string) {
   let length = false;
   let uppercase = false;
   let lowercase = false;
   let digit = false;
   let special = false;
-  if (password.length >= MIN_PASSWORD_LENGTH) {
+  if (password.length >= 8) {
     length = true;
     for (let i = 0; i < password.length; i++) {
       const c = password.charAt(i);
       if (uppercase === true && lowercase === true && digit === true && special === true) {
-        return true;
+        return { valid: true };
       } else {
         if (uppercase === false && c >= 'A' && c <= 'Z') {
           uppercase = true;
@@ -382,25 +560,27 @@ function passwordCheck(password: string): true | boolean[] {
     }
   }
   if (uppercase === true && lowercase === true && digit === true && special === true) {
-    return true;
+    return { valid: true };
   }
-  return [length, uppercase, lowercase, digit, special];
+  return {
+    valid: false,
+    length: length,
+    uppercase: uppercase,
+    lowercase: lowercase,
+    digit: digit,
+    special: special,
+  };
 }
 
 /**
- * Removes the inputs used for creating an account
+ * Sets the border color of a HTML input element
+ * @param inputElement HTML input element to set the border color
+ * @param color Border color
  */
-function removeCreateUser(): void {
-  submitForm.removeChild(repeatBox);
-  submitForm.removeChild(emailBox);
-  submitForm.removeChild(checkLabel);
-
-  repeatBoxEnabled = false;
-
-  setAttributes(passBox, { 'autocomplete': 'current-password' });
-
-  lText.textContent = 'Login';
-  createAcc.textContent = 'Nu ai cont? Creează unul!';
-
-  userBoxBlur();
+function setBorderColor(inputElement: HTMLInputElement, color?: 'red' | 'green') {
+  switch (color) {
+    case 'green': inputElement.className = greenBorder; break;
+    case 'red': inputElement.className = 'login red'; break;
+    default: inputElement.className = 'login';
+  }
 }
