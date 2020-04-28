@@ -164,8 +164,8 @@ export async function emailExists(email: string) {
  * @param email Email address
  */
 export async function sendResetPasswordEmail(email: string) {
-  const query = await db.query('SELECT user_id, username, email FROM users WHERE email = $1;', [email]);
-  if (query.length === 1) {
+  const query = await db.query('SELECT user_id, username, email, active FROM users WHERE email = $1;', [email]);
+  if (query.length === 1 && query[0].active === true) {
     if ((await db.query('SELECT user_id FROM users_reset WHERE user_id = $1;', [query[0].user_id])).length === 1) {
       await db.query('DELETE FROM users_reset WHERE user_id = $1;', [query[0].user_id]);
     }
