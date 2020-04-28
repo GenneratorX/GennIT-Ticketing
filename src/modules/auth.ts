@@ -39,7 +39,7 @@ export async function createUser(userName: string, password: string, email: stri
         if ((await usernameExists(userName)) === false) {
           if ((await emailExists(email)) === false) {
             const passwordHash = argon2.hash(password, env.ARGON2_CONFIG);
-            const userID = await genRandomUserID();
+            const userID = await generateCode('userID');
             await db.query(
               'INSERT INTO users VALUES ($1, $2, $3, $4, $5, DEFAULT, NULL, $6);',
               [userID, userName, await passwordHash, email.toLowerCase(), active, admin]
@@ -160,32 +160,104 @@ export async function emailExists(email: string) {
 }
 
 /**
- * Generates a unique base64 encoded URL safe string to use as a user ID
- * @returns Base64 encoded URL safe string that is a unique user ID
+ * Sends an email containing a reset password code
+ * @param email Email address
  */
-async function genRandomUserID() {
-  while (true) { // eslint-disable-line no-constant-condition
-    const userID = (await randomBytes(9)).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    const query = await db.query('SELECT user_id FROM users WHERE user_id = $1;', [userID]);
-    if (query.length === 0) {
-      return userID;
+export async function sendResetPasswordEmail(email: string) {
+  const query = await db.query('SELECT user_id, username, email FROM users WHERE email = $1;', [email]);
+  if (query.length === 1) {
+    if ((await db.query('SELECT user_id FROM users_reset WHERE user_id = $1;', [query[0].user_id])).length === 1) {
+      await db.query('DELETE FROM users_reset WHERE user_id = $1;', [query[0].user_id]);
     }
+    const resetCode = await generateCode('resetPasswordCode');
+    await db.query('INSERT INTO users_reset VALUES ($1, $2);', [query[0].user_id, resetCode]);
+    ejs.renderFile('app/views/emails/resetPassword.ejs', {
+      userName: query[0].username,
+      resetCode: querystring.escape(resetCode),
+    }, (error, html) => {
+      if (error === null) {
+        transporter.sendMail({
+          from: `"Gennerator" <${env.EMAIL_CONFIG.auth.user}>`,
+          to: `"${query[0].username}" <${email}>`,
+          replyTo: `"Contact" <${env.EMAIL_REPLYTO}>`,
+          subject: 'Resetare parolă',
+          html: html,
+        }).catch(error => {
+          console.log(error);
+        });
+      } else {
+        console.log(error);
+      }
+    });
   }
 }
 
 /**
- * Generates a unique base64 encoded string to use as an activation code
- * @returns Base64 encoded string that is a unique activation code
+ * Resets a user password based on a reset code
+ * @param resetCode Reset password code
+ * @param newPassword New password
+ * @returns Status of the reset password
  */
-async function genRandomActivationCode() {
-  while (true) { // eslint-disable-line no-constant-condition
-    const activationCode = (await randomBytes(128)).toString('base64');
-    const query = await db.query(
-      'SELECT activation_code FROM users_activation WHERE activation_code = $1;',
-      [activationCode]
-    );
-    if (query.length === 0) {
-      return activationCode;
+export async function resetPasswordByEmail(resetCode: string, newPassword: string) {
+  if (passwordRegexp.test(newPassword) === true) {
+    const query = await db.query('SELECT user_id, reset_code FROM users_reset WHERE reset_code = $1;', [resetCode]);
+    if (query.length === 1) {
+      const passwordHash = argon2.hash(newPassword, env.ARGON2_CONFIG);
+      db.query('DELETE FROM users_reset WHERE reset_code = $1;', [resetCode]);
+      await db.query('UPDATE users SET password = $1 WHERE user_id = $2;', [await passwordHash, query[0].user_id]);
+      return { response: true };
+    } else {
+      return { response: false, error: 'invalid reset code' };
+    }
+  } else {
+    return { response: false, error: 'invalid password' };
+  }
+}
+
+/**
+ * Generates a unique base64 encoded string
+ * @param type Type of code to generate
+ * @returns Base64 encoded string that is unique to the database
+ */
+async function generateCode(type: 'userID' | 'activationCode' | 'resetPasswordCode') {
+  switch (type) {
+    case 'userID': {
+      while (true) { // eslint-disable-line no-constant-condition
+        const userID =
+          (await randomBytes(9))
+            .toString('base64')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+        const query = await db.query('SELECT user_id FROM users WHERE user_id = $1;', [userID]);
+        if (query.length === 0) {
+          return userID;
+        }
+      }
+    }
+    case 'activationCode': {
+      while (true) { // eslint-disable-line no-constant-condition
+        const activationCode = (await randomBytes(128)).toString('base64');
+        const query = await db.query(
+          'SELECT activation_code FROM users_activation WHERE activation_code = $1;',
+          [activationCode]
+        );
+        if (query.length === 0) {
+          return activationCode;
+        }
+      }
+    }
+    case 'resetPasswordCode': {
+      while (true) { // eslint-disable-line no-constant-condition
+        const activationCode = (await randomBytes(128)).toString('base64');
+        const query = await db.query(
+          'SELECT reset_code FROM users_reset WHERE reset_code = $1;',
+          [activationCode]
+        );
+        if (query.length === 0) {
+          return activationCode;
+        }
+      }
     }
   }
 }
@@ -197,7 +269,7 @@ async function genRandomActivationCode() {
  * @param email E-mail address
  */
 async function sendActivationEmail(userID: string, userName: string, email: string) {
-  const activationCode = await genRandomActivationCode();
+  const activationCode = await generateCode('activationCode');
   await db.query('INSERT INTO users_activation VALUES ($1, $2);', [userID, activationCode]);
   ejs.renderFile('app/views/emails/activation.ejs', {
     userName: userName,

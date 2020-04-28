@@ -50,7 +50,7 @@ const emailRegexp = new RegExp(
   '^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&\'*+/0-9=?A-Z^_`a-z{|}~]+(\\.[-!#$%&\'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]' +
   '([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$');
 
-let currentWindow: 'signIn' | 'signUp' | 'forgotPassword' | 'resendActivationMail' = 'signIn';
+let currentWindow: 'signIn' | 'signUp' | 'forgotPassword' | 'resendActivationMail' | 'resetPassword' = 'signIn';
 
 /**
  * Displays the sign in menu
@@ -136,6 +136,43 @@ function displaySignIn() {
     }
     case 'resendActivationMail':
       break;
+    case 'resetPassword': {
+      const {
+        authMenuItem1,
+        authMenuItem2,
+        authTitle,
+        passwordInput,
+        repeatPasswordInput,
+        submitForm,
+      } = authElements;
+
+      submitForm.removeChild(repeatPasswordInput);
+
+      const usernameInput = document.createElement('input');
+      setAttributes(usernameInput, {
+        'type': 'text',
+        'name': 'username',
+        'class': 'login',
+        'maxlength': '40',
+        'spellcheck': 'false',
+        'placeholder': 'Nume utilizator',
+        'id': 'username',
+        'autocomplete': 'username',
+        'tabindex': '1',
+        'required': '',
+      });
+      usernameInput.onkeyup = usernameInputKeyUp;
+      authElements.usernameInput = usernameInput;
+
+      submitForm.insertBefore(usernameInput, passwordInput);
+
+      authTitle.textContent = 'Autentificare';
+      authMenuItem1.textContent = 'Ai uitat parola?';
+      authMenuItem1.onclick = displayForgotPassword;
+      authMenuItem2.textContent = 'Nu ai cont? Creează unul!';
+      authMenuItem2.onclick = displaySignUp;
+      break;
+    }
   }
   currentWindow = 'signIn';
 
@@ -303,11 +340,53 @@ function displayResendActivationMail() {
   currentWindow = 'resendActivationMail';
 }
 
+/**
+ * Displays the reset password menu
+ */
+function displayResetPassword() {
+  const {
+    authMenuItem1,
+    authMenuItem2,
+    authTitle,
+    submitForm,
+    submitButton,
+    usernameInput,
+  } = authElements;
+
+  submitForm.removeChild(usernameInput);
+
+  const repeatPasswordInput = document.createElement('input');
+  setAttributes(repeatPasswordInput, {
+    'class': 'login',
+    'id': 'repeatPassword',
+    'autocomplete': 'new-password',
+    'placeholder': 'Repetă parola',
+    'required': '',
+    'tabindex': '3',
+    'type': 'password',
+  });
+  authElements.repeatPasswordInput = repeatPasswordInput;
+  submitForm.insertBefore(repeatPasswordInput, submitButton);
+
+  authTitle.textContent = 'Resetare parolă';
+  authMenuItem1.textContent = '';
+  authMenuItem2.textContent = '';
+
+  repeatPasswordInput.onkeyup = repeatPasswordInputKeyUp;
+
+  currentWindow = 'resetPassword';
+}
+
 authElements.authMenuItem1.onclick = displayForgotPassword;
 authElements.authMenuItem2.onclick = displaySignUp;
 
 authElements.usernameInput.onkeyup = usernameInputKeyUp;
 authElements.passwordInput.onkeyup = passwordInputKeyUp;
+
+const resetCode = new URLSearchParams(window.location.search).get('reset');
+if (resetCode !== null && resetCode.length === 172) {
+  displayResetPassword();
+}
 
 // EventHandler functions
 
@@ -359,6 +438,10 @@ function passwordInputKeyUp() {
         setBorderColor(passwordInput, 'green');
         repeatPasswordInputKeyUp();
         break;
+      case 'resetPassword':
+        setBorderColor(passwordInput, 'green');
+        repeatPasswordInputKeyUp();
+        break;
     }
   } else {
     if (passwordInput.value.length === 0) {
@@ -366,7 +449,7 @@ function passwordInputKeyUp() {
     } else {
       setBorderColor(passwordInput, 'red');
     }
-    if (currentWindow === 'signUp') {
+    if (currentWindow === 'signUp' || currentWindow === 'resetPassword') {
       setBorderColor(repeatPasswordInput);
     }
   }
@@ -514,9 +597,52 @@ authElements.submitForm.addEventListener('submit', event => {
       break;
     }
     case 'forgotPassword': {
+      if (emailInput.className === greenBorder) {
+        request('POST', '/forgotPassword', { email: emailInput.value })
+          .then(response => {
+            if (response['response'] === true) {
+              snackbar('Verificați adresa e-mail introdusă pentru instrucțiunile de resetare a parolei!', 'blue');
+              displaySignIn();
+            } else {
+              snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+            }
+          })
+          .catch(() => {
+            snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+          });
+      }
       break;
     }
     case 'resendActivationMail': {
+      break;
+    }
+    case 'resetPassword': {
+      if (passwordInput.className === greenBorder && repeatPasswordInput.className === greenBorder) {
+        request('POST', '/resetPasswordByEmail', { password: passwordInput.value, 'resetCode': resetCode })
+          .then(response => {
+            if (response['response'] === true) {
+              snackbar('Parola a fost resetată cu success!', 'green');
+              displaySignIn();
+              submitForm.reset();
+              setBorderColor(passwordInput);
+            } else {
+              switch (response['error']) {
+                case 'invalid password':
+                  snackbar('Parola este invalidă!', 'red');
+                  break;
+                case 'invalid reset code':
+                  snackbar('Codul de resetare al parolei este invalid/expirat!', 'red');
+                  break;
+                case 'internal error':
+                  snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+                  break;
+              }
+            }
+          })
+          .catch(() => {
+            snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+          });
+      }
       break;
     }
   }

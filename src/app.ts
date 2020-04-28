@@ -99,6 +99,36 @@ app.post('/emailExists', util.checkJsonHeader, function(req, res) {
   }
 });
 
+app.post('/forgotPassword', util.checkJsonHeader, function(req, res) {
+  if (typeof req.body.email === 'string') {
+    auth.sendResetPasswordEmail(req.body.email)
+      .then(() => {
+        res.json({ response: true });
+      })
+      .catch(error => {
+        console.log(error);
+        res.status(500).json({ error: 'internal error' });
+      });
+  } else {
+    res.status(422).json({ error: 'invalid email' });
+  }
+});
+
+app.post('/resetPasswordByEmail', util.checkJsonHeader, function(req, res) {
+  if (typeof req.body.password === 'string' && typeof req.body.resetCode === 'string') {
+    auth.resetPasswordByEmail(req.body.resetCode, req.body.password)
+      .then(resetStatus => {
+        res.json(resetStatus);
+      })
+      .catch(error => {
+        console.log(error);
+        res.status(500).json({ error: 'internal error' });
+      });
+  } else {
+    res.status(422).json({ error: 'invalid password or reset code' });
+  }
+});
+
 /**
  * Check if user is logged in and redirect him to the login page if hes not
  */
