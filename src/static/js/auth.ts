@@ -56,121 +56,47 @@ let currentWindow: 'signIn' | 'signUp' | 'forgotPassword' | 'resendActivationMai
  * Displays the sign in menu
  */
 function displaySignIn() {
-  switch (currentWindow) {
-    case 'signUp': {
-      const {
-        authMenuItem1,
-        authMenuItem2,
-        authTitle,
-        checkBoxLabel,
-        emailInput,
-        passwordInput,
-        repeatPasswordInput,
-        submitForm,
-      } = authElements;
+  const {
+    authTitle,
+    authMenuItem1,
+    authMenuItem2,
+    checkBoxLabel,
+    emailInput,
+    passwordInput,
+    repeatPasswordInput,
+    submitButton,
+    submitForm,
+    usernameInput,
+  } = authElements;
 
+  switch (currentWindow) {
+    case 'signUp':
       submitForm.removeChild(repeatPasswordInput);
       submitForm.removeChild(emailInput);
       submitForm.removeChild(checkBoxLabel);
-
       passwordInput.setAttribute('autocomplete', 'current-password');
-
-      authTitle.textContent = 'Autentificare';
-      authMenuItem1.textContent = 'Ai uitat parola?';
-      authMenuItem1.onclick = displayForgotPassword;
-      authMenuItem2.textContent = 'Nu ai cont? Creează unul!';
-      authMenuItem2.onclick = displaySignUp;
       break;
-    }
-    case 'forgotPassword': {
-      const {
-        authMenuItem1,
-        authMenuItem2,
-        authTitle,
-        emailInput,
-        submitButton,
-        submitForm,
-      } = authElements;
-
+    case 'forgotPassword':
       submitForm.removeChild(emailInput);
-
-      const usernameInput = document.createElement('input');
-      setAttributes(usernameInput, {
-        'type': 'text',
-        'class': 'login',
-        'maxlength': '40',
-        'spellcheck': 'false',
-        'placeholder': 'Nume utilizator',
-        'id': 'username',
-        'autocomplete': 'username',
-        'required': '',
-      });
-      usernameInput.onkeyup = usernameInputKeyUp;
-      authElements.usernameInput = usernameInput;
-
-      const passwordInput = document.createElement('input');
-      setAttributes(passwordInput, {
-        'type': 'password',
-        'class': 'login',
-        'placeholder': 'Parola',
-        'id': 'password',
-        'autocomplete': 'current-password',
-        'required': '',
-      });
-      passwordInput.onkeyup = passwordInputKeyUp;
-      authElements.passwordInput = passwordInput;
-
       submitForm.insertBefore(usernameInput, submitButton);
       submitForm.insertBefore(passwordInput, submitButton);
-
-      authTitle.textContent = 'Autentificare';
-      authMenuItem1.textContent = 'Ai uitat parola?';
-      authMenuItem1.onclick = displayForgotPassword;
-      authMenuItem2.textContent = 'Nu ai cont? Creează unul!';
-      authMenuItem2.onclick = displaySignUp;
       break;
-    }
     case 'resendActivationMail':
       break;
-    case 'resetPassword': {
-      const {
-        authMenuItem1,
-        authMenuItem2,
-        authTitle,
-        passwordInput,
-        repeatPasswordInput,
-        submitForm,
-      } = authElements;
-
+    case 'resetPassword':
       submitForm.removeChild(repeatPasswordInput);
-
-      const usernameInput = document.createElement('input');
-      setAttributes(usernameInput, {
-        'type': 'text',
-        'class': 'login',
-        'maxlength': '40',
-        'spellcheck': 'false',
-        'placeholder': 'Nume utilizator',
-        'id': 'username',
-        'autocomplete': 'username',
-        'required': '',
-      });
-      usernameInput.onkeyup = usernameInputKeyUp;
-      authElements.usernameInput = usernameInput;
-
       submitForm.insertBefore(usernameInput, passwordInput);
-
-      authTitle.textContent = 'Autentificare';
-      authMenuItem1.textContent = 'Ai uitat parola?';
-      authMenuItem1.onclick = displayForgotPassword;
-      authMenuItem2.textContent = 'Nu ai cont? Creează unul!';
-      authMenuItem2.onclick = displaySignUp;
       break;
-    }
   }
-  currentWindow = 'signIn';
 
+  authTitle.textContent = 'Autentificare';
+  authMenuItem1.textContent = 'Ai uitat parola?';
+  authMenuItem2.textContent = 'Nu ai cont? Creează unul!';
+  authMenuItem1.onclick = displayForgotPassword;
+  authMenuItem2.onclick = displaySignUp;
   usernameInputKeyUp();
+
+  currentWindow = 'signIn';
 }
 
 /**
@@ -186,29 +112,8 @@ function displaySignUp() {
     submitForm,
   } = authElements;
 
-  const repeatPasswordInput = document.createElement('input');
-  setAttributes(repeatPasswordInput, {
-    'class': 'login',
-    'id': 'repeatPassword',
-    'autocomplete': 'new-password',
-    'placeholder': 'Repetă parola',
-    'required': '',
-    'type': 'password',
-  });
-  authElements.repeatPasswordInput = repeatPasswordInput;
-
-  const emailInput = document.createElement('input');
-  setAttributes(emailInput, {
-    'class': 'login',
-    'id': 'email',
-    'autocomplete': 'email',
-    'maxlength': '254',
-    'placeholder': 'E-mail',
-    'required': '',
-    'type': 'email',
-    'spellcheck': 'false',
-  });
-  authElements.emailInput = emailInput;
+  addRepeatPasswordInput();
+  addEmailInput();
 
   const checkBoxLabel = document.createElement('label');
   setAttributes(checkBoxLabel, {
@@ -225,8 +130,6 @@ function displaySignUp() {
     'type': 'checkbox',
   });
 
-  submitForm.insertBefore(repeatPasswordInput, submitButton);
-  submitForm.insertBefore(emailInput, submitButton);
   submitForm.insertBefore(checkBoxLabel, submitButton);
   checkBoxLabel.insertAdjacentElement('afterbegin', checkBoxInput);
 
@@ -236,14 +139,10 @@ function displaySignUp() {
   authMenuItem1.textContent = 'Ai cont? Loghează-te!';
   authMenuItem2.textContent = '';
   authMenuItem1.onclick = displaySignIn;
-
-  repeatPasswordInput.onkeyup = repeatPasswordInputKeyUp;
-  emailInput.onkeyup = emailInputKeyUp;
-
-  currentWindow = 'signUp';
-
   usernameInputKeyUp();
   repeatPasswordInputKeyUp();
+
+  currentWindow = 'signUp';
 }
 
 /**
@@ -255,7 +154,6 @@ function displayForgotPassword() {
     authMenuItem2,
     authTitle,
     passwordInput,
-    submitButton,
     submitForm,
     usernameInput,
   } = authElements;
@@ -263,21 +161,7 @@ function displayForgotPassword() {
   submitForm.removeChild(usernameInput);
   submitForm.removeChild(passwordInput);
 
-  const emailInput = document.createElement('input');
-  setAttributes(emailInput, {
-    'class': 'login',
-    'id': 'email',
-    'autocomplete': 'email',
-    'maxlength': '254',
-    'placeholder': 'E-mail',
-    'required': '',
-    'type': 'email',
-    'spellcheck': 'false',
-  });
-  emailInput.onkeyup = emailInputKeyUp;
-  authElements.emailInput = emailInput;
-
-  submitForm.insertBefore(emailInput, submitButton);
+  addEmailInput();
 
   authTitle.textContent = 'Recuperare parolă';
   authMenuItem1.textContent = 'Înapoi';
@@ -296,7 +180,6 @@ function displayResendActivationMail() {
     authMenuItem2,
     authTitle,
     passwordInput,
-    submitButton,
     submitForm,
     usernameInput,
   } = authElements;
@@ -304,24 +187,13 @@ function displayResendActivationMail() {
   submitForm.removeChild(usernameInput);
   submitForm.removeChild(passwordInput);
 
-  const emailInput = document.createElement('input');
-  setAttributes(emailInput, {
-    'class': 'login',
-    'id': 'email',
-    'autocomplete': 'email',
-    'maxlength': '254',
-    'placeholder': 'E-mail',
-    'required': '',
-    'type': 'email',
-    'spellcheck': 'false',
-  });
-  authElements.emailInput = emailInput;
-  submitForm.insertBefore(emailInput, submitButton);
+  addEmailInput();
 
   authTitle.textContent = 'Retrimite e-mail de activare';
   authMenuItem1.textContent = 'Înapoi';
   authMenuItem1.onclick = displaySignIn;
   authMenuItem2.textContent = '';
+
   currentWindow = 'resendActivationMail';
 }
 
@@ -334,31 +206,64 @@ function displayResetPassword() {
     authMenuItem2,
     authTitle,
     submitForm,
-    submitButton,
     usernameInput,
   } = authElements;
 
   submitForm.removeChild(usernameInput);
 
-  const repeatPasswordInput = document.createElement('input');
-  setAttributes(repeatPasswordInput, {
-    'class': 'login',
-    'id': 'repeatPassword',
-    'autocomplete': 'new-password',
-    'placeholder': 'Repetă parola',
-    'required': '',
-    'type': 'password',
-  });
-  authElements.repeatPasswordInput = repeatPasswordInput;
-  submitForm.insertBefore(repeatPasswordInput, submitButton);
+  addRepeatPasswordInput();
 
   authTitle.textContent = 'Resetare parolă';
   authMenuItem1.textContent = '';
   authMenuItem2.textContent = '';
 
-  repeatPasswordInput.onkeyup = repeatPasswordInputKeyUp;
-
   currentWindow = 'resetPassword';
+}
+
+/**
+ * Adds an e-mail input box
+ */
+function addEmailInput() {
+  if (authElements.emailInput === null) {
+    const emailInput = document.createElement('input');
+    setAttributes(emailInput, {
+      'class': 'login',
+      'id': 'email',
+      'autocomplete': 'email',
+      'maxlength': '254',
+      'placeholder': 'E-mail',
+      'required': '',
+      'type': 'email',
+      'spellcheck': 'false',
+    });
+    emailInput.onkeyup = emailInputKeyUp;
+    authElements.emailInput = emailInput;
+    authElements.submitForm.insertBefore(emailInput, authElements.submitButton);
+  } else {
+    authElements.submitForm.insertBefore(authElements.emailInput, authElements.submitButton);
+  }
+}
+
+/**
+ * Adds a repeat password input box
+ */
+function addRepeatPasswordInput() {
+  if (authElements.repeatPasswordInput === null) {
+    const repeatPasswordInput = document.createElement('input');
+    setAttributes(repeatPasswordInput, {
+      'class': 'login',
+      'id': 'repeatPassword',
+      'autocomplete': 'new-password',
+      'placeholder': 'Repetă parola',
+      'required': '',
+      'type': 'password',
+    });
+    repeatPasswordInput.onkeyup = repeatPasswordInputKeyUp;
+    authElements.repeatPasswordInput = repeatPasswordInput;
+    authElements.submitForm.insertBefore(repeatPasswordInput, authElements.submitButton);
+  } else {
+    authElements.submitForm.insertBefore(authElements.repeatPasswordInput, authElements.submitButton);
+  }
 }
 
 authElements.authMenuItem1.onclick = displayForgotPassword;
