@@ -97,14 +97,12 @@ function displaySignIn() {
       const usernameInput = document.createElement('input');
       setAttributes(usernameInput, {
         'type': 'text',
-        'name': 'username',
         'class': 'login',
         'maxlength': '40',
         'spellcheck': 'false',
         'placeholder': 'Nume utilizator',
         'id': 'username',
         'autocomplete': 'username',
-        'tabindex': '1',
         'required': '',
       });
       usernameInput.onkeyup = usernameInputKeyUp;
@@ -113,12 +111,10 @@ function displaySignIn() {
       const passwordInput = document.createElement('input');
       setAttributes(passwordInput, {
         'type': 'password',
-        'name': 'password',
         'class': 'login',
         'placeholder': 'Parola',
         'id': 'password',
         'autocomplete': 'current-password',
-        'tabindex': '2',
         'required': '',
       });
       passwordInput.onkeyup = passwordInputKeyUp;
@@ -151,14 +147,12 @@ function displaySignIn() {
       const usernameInput = document.createElement('input');
       setAttributes(usernameInput, {
         'type': 'text',
-        'name': 'username',
         'class': 'login',
         'maxlength': '40',
         'spellcheck': 'false',
         'placeholder': 'Nume utilizator',
         'id': 'username',
         'autocomplete': 'username',
-        'tabindex': '1',
         'required': '',
       });
       usernameInput.onkeyup = usernameInputKeyUp;
@@ -199,7 +193,6 @@ function displaySignUp() {
     'autocomplete': 'new-password',
     'placeholder': 'Repetă parola',
     'required': '',
-    'tabindex': '3',
     'type': 'password',
   });
   authElements.repeatPasswordInput = repeatPasswordInput;
@@ -210,10 +203,8 @@ function displaySignUp() {
     'id': 'email',
     'autocomplete': 'email',
     'maxlength': '254',
-    'name': 'email',
     'placeholder': 'E-mail',
     'required': '',
-    'tabindex': '4',
     'type': 'email',
     'spellcheck': 'false',
   });
@@ -223,7 +214,6 @@ function displaySignUp() {
   setAttributes(checkBoxLabel, {
     'class': 'checkbox-label',
     'id': 'chkLabel',
-    'tabindex': '5',
   });
   checkBoxLabel.textContent = 'Accept termenii și condițiile';
   authElements.checkBoxLabel = checkBoxLabel;
@@ -231,7 +221,6 @@ function displaySignUp() {
   const checkBoxInput = document.createElement('input');
   setAttributes(checkBoxInput, {
     'id': 'chkBox',
-    'name': 'chkBox',
     'required': '',
     'type': 'checkbox',
   });
@@ -280,10 +269,8 @@ function displayForgotPassword() {
     'id': 'email',
     'autocomplete': 'email',
     'maxlength': '254',
-    'name': 'email',
     'placeholder': 'E-mail',
     'required': '',
-    'tabindex': '1',
     'type': 'email',
     'spellcheck': 'false',
   });
@@ -323,10 +310,8 @@ function displayResendActivationMail() {
     'id': 'email',
     'autocomplete': 'email',
     'maxlength': '254',
-    'name': 'email',
     'placeholder': 'E-mail',
     'required': '',
-    'tabindex': '1',
     'type': 'email',
     'spellcheck': 'false',
   });
@@ -362,7 +347,6 @@ function displayResetPassword() {
     'autocomplete': 'new-password',
     'placeholder': 'Repetă parola',
     'required': '',
-    'tabindex': '3',
     'type': 'password',
   });
   authElements.repeatPasswordInput = repeatPasswordInput;
