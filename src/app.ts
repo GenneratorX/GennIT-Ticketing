@@ -24,7 +24,7 @@ app.use(function(error: Error, req: express.Request, res: express.Response, next
 
 app.use(cookieParser(env.COOKIE_SECRET));
 
-app.post('/signup', util.checkJsonHeader, function(req, res) {
+app.post('/signup', util.checkJsonHeader, function(req, res, next) {
   if (
     typeof req.body.username === 'string' &&
     typeof req.body.password === 'string' &&
@@ -45,7 +45,7 @@ app.post('/signup', util.checkJsonHeader, function(req, res) {
   }
 });
 
-app.post('/signin', util.checkJsonHeader, function(req, res) {
+app.post('/signin', util.checkJsonHeader, function(req, res, next) {
   if (typeof req.body.username === 'string' && typeof req.body.password === 'string') {
     auth.loginUser(req.body.username, req.body.password)
       .then(loggedIn => {
@@ -60,70 +60,55 @@ app.post('/signin', util.checkJsonHeader, function(req, res) {
           res.json(loggedIn);
         }
       })
-      .catch(error => {
-        console.log(error);
-        res.status(500).json({ error: 'internal error' });
-      });
+      .catch(next);
   } else {
     res.status(422).json({ error: 'invalid request body' });
   }
 });
 
-app.post('/usernameExists', util.checkJsonHeader, function(req, res) {
+app.post('/usernameExists', util.checkJsonHeader, function(req, res, next) {
   if (typeof req.body.username === 'string') {
     auth.usernameExists(req.body.username)
       .then(exists => {
         res.json({ response: exists });
       })
-      .catch(error => {
-        console.log(error);
-        res.status(500).json({ error: 'internal error' });
-      });
+      .catch(next);
   } else {
     res.status(422).json({ error: 'invalid username' });
   }
 });
 
-app.post('/emailExists', util.checkJsonHeader, function(req, res) {
+app.post('/emailExists', util.checkJsonHeader, function(req, res, next) {
   if (typeof req.body.email === 'string') {
     auth.emailExists(req.body.email)
       .then(exists => {
         res.json({ response: exists });
       })
-      .catch(error => {
-        console.log(error);
-        res.status(500).json({ error: 'internal error' });
-      });
+      .catch(next);
   } else {
     res.status(422).json({ error: 'invalid email' });
   }
 });
 
-app.post('/forgotPassword', util.checkJsonHeader, function(req, res) {
+app.post('/forgotPassword', util.checkJsonHeader, function(req, res, next) {
   if (typeof req.body.email === 'string') {
     auth.sendResetPasswordEmail(req.body.email)
       .then(() => {
         res.json({ response: true });
       })
-      .catch(error => {
-        console.log(error);
-        res.status(500).json({ error: 'internal error' });
-      });
+      .catch(next);
   } else {
     res.status(422).json({ error: 'invalid email' });
   }
 });
 
-app.post('/resetPasswordByEmail', util.checkJsonHeader, function(req, res) {
+app.post('/resetPasswordByEmail', util.checkJsonHeader, function(req, res, next) {
   if (typeof req.body.password === 'string' && typeof req.body.resetCode === 'string') {
     auth.resetPasswordByEmail(req.body.resetCode, req.body.password)
       .then(resetStatus => {
         res.json(resetStatus);
       })
-      .catch(error => {
-        console.log(error);
-        res.status(500).json({ error: 'internal error' });
-      });
+      .catch(next);
   } else {
     res.status(422).json({ error: 'invalid password or reset code' });
   }
@@ -156,9 +141,7 @@ app.use(function(req, res, next) {
           res.status(302).end();
         }
       })
-      .catch(error => {
-        console.log(error);
-      });
+      .catch(next);
   } else {
     if (req.path !== '/auth') {
       //res.redirect('/auth');
@@ -170,7 +153,7 @@ app.use(function(req, res, next) {
   }
 });
 
-app.get('/logout', function(req, res) {
+app.get('/logout', function(req, res, next) {
   auth.removeSessionID(req.signedCookies['__Host-sessionID'])
     .then(removed => {
       if (removed === true) {
@@ -184,10 +167,7 @@ app.get('/logout', function(req, res) {
         res.status(500).json({ response: false, error: 'logout failed' });
       }
     })
-    .catch(error => {
-      console.log(error);
-      res.status(500).json({ error: 'internal error' });
-    });
+    .catch(next);
 });
 
 /**
@@ -199,7 +179,7 @@ app.get('/', function(req, res) {
   res.render('index');
 });
 
-app.get('/auth', function(req, res) {
+app.get('/auth', function(req, res, next) {
   if (typeof req.query.activation === 'string') {
     auth.activateUser(req.query.activation)
       .then(activated => {
@@ -209,10 +189,7 @@ app.get('/auth', function(req, res) {
           res.render('auth');
         }
       })
-      .catch(error => {
-        console.log(error);
-        res.status(500).json({ error: 'internal error' });
-      });
+      .catch(next);
   } else {
     res.render('auth');
   }
@@ -225,7 +202,7 @@ app.use(function(req, res) {
 // eslint-disable-next-line no-unused-vars
 app.use(function(err: Error, req: express.Request, res: express.Response, next: express.NextFunction) {
   console.log(err);
-  res.status(500).render('500');
+  res.status(500).json({ error: 'internal error' });
 });
 
 app.listen(env.APP_PORT, () => console.log(`Aplicatia ruleaza pe portul ${env.APP_PORT}`));

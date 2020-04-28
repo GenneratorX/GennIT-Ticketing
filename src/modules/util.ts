@@ -65,8 +65,7 @@ export function securityHeaders(req: express.Request, res: express.Response, nex
       res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
       next();
     } else {
-      console.log(error);
-      res.status(500).render('500');
+      next(error);
     }
   });
 }
