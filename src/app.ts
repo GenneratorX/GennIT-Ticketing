@@ -36,10 +36,7 @@ app.post('/signup', util.checkJsonHeader, function(req, res, next) {
       .then(created => {
         res.json(created);
       })
-      .catch(error => {
-        console.log(error);
-        res.status(500).json({ error: 'internal error' });
-      });
+      .catch(next);
   } else {
     res.status(422).json({ error: 'invalid request body' });
   }
@@ -153,7 +150,7 @@ app.use(function(req, res, next) {
   }
 });
 
-app.get('/logout', function(req, res, next) {
+app.post('/logout', function(req, res, next) {
   auth.removeSessionID(req.signedCookies['__Host-sessionID'])
     .then(removed => {
       if (removed === true) {
