@@ -300,12 +300,12 @@ function addInfoBox() {
     infoContent.setAttribute('class', 'info-content');
     infoContent.textContent = 'Introdu adresa de e-mail asociată contului pentru a trimite un nou e-mail de activare!';
 
-    authElements.infoBox = info;
-
     info.appendChild(infoContent);
+
+    authElements.infoBox = info;
     authElements.submitForm.insertBefore(info, authElements.submitButton);
   } else {
-    authElements.infoBox.insertBefore(authElements.infoBox, authElements.submitButton);
+    authElements.submitForm.insertBefore(authElements.infoBox, authElements.submitButton);
   }
 }
 
@@ -547,6 +547,7 @@ authElements.submitForm.addEventListener('submit', event => {
       break;
     }
     case 'resendActivationMail': {
+
       break;
     }
     case 'resetPassword': {

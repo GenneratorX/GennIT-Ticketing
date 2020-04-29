@@ -77,7 +77,7 @@ export async function loginUser(userName: string, password: string) {
   if (query.length === 1) {
     if ((await argon2.verify(query[0].password, password)) === true) {
       if (query[0].active === true) {
-        const sessionID = (await randomBytes(128)).toString('base64');
+        const sessionID = await generateCode('sessionID');
         db.query('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE LOWER(username) = LOWER($1)', [userName]);
         await redis.set(`session:${sessionID}`, JSON.stringify({ userName: query[0].username }), 'EX', 43200);
         return { response: true, userName: query[0].username, sessionID: sessionID };
@@ -219,7 +219,7 @@ export async function resetPasswordByEmail(resetCode: string, newPassword: strin
  * @param type Type of code to generate
  * @returns Base64 encoded string that is unique to the database
  */
-async function generateCode(type: 'userID' | 'activationCode' | 'resetPasswordCode') {
+async function generateCode(type: 'userID' | 'sessionID' | 'activationCode' | 'resetPasswordCode') {
   switch (type) {
     case 'userID': {
       while (true) { // eslint-disable-line no-constant-condition
@@ -232,6 +232,15 @@ async function generateCode(type: 'userID' | 'activationCode' | 'resetPasswordCo
         const query = await db.query('SELECT user_id FROM users WHERE user_id = $1;', [userID]);
         if (query.length === 0) {
           return userID;
+        }
+      }
+    }
+    case 'sessionID': {
+      while (true) { // eslint-disable-line no-constant-condition
+        const sessionID = (await randomBytes(128)).toString('base64');
+        const query = await redis.get(`session:${sessionID}`);
+        if (query === null) {
+          return sessionID;
         }
       }
     }
@@ -249,13 +258,13 @@ async function generateCode(type: 'userID' | 'activationCode' | 'resetPasswordCo
     }
     case 'resetPasswordCode': {
       while (true) { // eslint-disable-line no-constant-condition
-        const activationCode = (await randomBytes(128)).toString('base64');
+        const resetCode = (await randomBytes(128)).toString('base64');
         const query = await db.query(
           'SELECT reset_code FROM users_reset WHERE reset_code = $1;',
-          [activationCode]
+          [resetCode]
         );
         if (query.length === 0) {
-          return activationCode;
+          return resetCode;
         }
       }
     }
