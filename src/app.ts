@@ -141,7 +141,6 @@ app.use(function(req, res, next) {
       .catch(next);
   } else {
     if (req.path !== '/auth') {
-      //res.redirect('/auth');
       res.setHeader('location', '/auth');
       res.status(302).end();
     } else {

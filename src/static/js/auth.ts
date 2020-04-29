@@ -41,6 +41,10 @@ const authElements = {
    * Agreement button
    */
   checkBoxLabel: document.getElementById('chkLabel') as HTMLLabelElement,
+  /**
+   * Information box
+   */
+  infoBox: document.getElementById('info') as HTMLSpanElement,
 };
 
 const greenBorder = 'login green';
@@ -62,6 +66,7 @@ function displaySignIn() {
     authMenuItem2,
     checkBoxLabel,
     emailInput,
+    infoBox,
     passwordInput,
     repeatPasswordInput,
     submitButton,
@@ -82,6 +87,10 @@ function displaySignIn() {
       submitForm.insertBefore(passwordInput, submitButton);
       break;
     case 'resendActivationMail':
+      submitForm.removeChild(infoBox);
+      submitForm.removeChild(emailInput);
+      submitForm.insertBefore(usernameInput, submitButton);
+      submitForm.insertBefore(passwordInput, submitButton);
       break;
     case 'resetPassword':
       submitForm.removeChild(repeatPasswordInput);
@@ -94,9 +103,9 @@ function displaySignIn() {
   authMenuItem2.textContent = 'Nu ai cont? Creează unul!';
   authMenuItem1.onclick = displayForgotPassword;
   authMenuItem2.onclick = displaySignUp;
-  usernameInputKeyUp();
 
   currentWindow = 'signIn';
+  usernameInputKeyUp();
 }
 
 /**
@@ -108,30 +117,11 @@ function displaySignUp() {
     authMenuItem2,
     authTitle,
     passwordInput,
-    submitButton,
-    submitForm,
   } = authElements;
 
   addRepeatPasswordInput();
   addEmailInput();
-
-  const checkBoxLabel = document.createElement('label');
-  setAttributes(checkBoxLabel, {
-    'class': 'checkbox-label',
-    'id': 'chkLabel',
-  });
-  checkBoxLabel.textContent = 'Accept termenii și condițiile';
-  authElements.checkBoxLabel = checkBoxLabel;
-
-  const checkBoxInput = document.createElement('input');
-  setAttributes(checkBoxInput, {
-    'id': 'chkBox',
-    'required': '',
-    'type': 'checkbox',
-  });
-
-  submitForm.insertBefore(checkBoxLabel, submitButton);
-  checkBoxLabel.insertAdjacentElement('afterbegin', checkBoxInput);
+  addAgreementCheckbox();
 
   passwordInput.setAttribute('autocomplete', 'new-password');
 
@@ -139,10 +129,10 @@ function displaySignUp() {
   authMenuItem1.textContent = 'Ai cont? Loghează-te!';
   authMenuItem2.textContent = '';
   authMenuItem1.onclick = displaySignIn;
-  usernameInputKeyUp();
-  repeatPasswordInputKeyUp();
 
   currentWindow = 'signUp';
+  usernameInputKeyUp();
+  repeatPasswordInputKeyUp();
 }
 
 /**
@@ -187,9 +177,10 @@ function displayResendActivationMail() {
   submitForm.removeChild(usernameInput);
   submitForm.removeChild(passwordInput);
 
+  addInfoBox();
   addEmailInput();
 
-  authTitle.textContent = 'Retrimite e-mail de activare';
+  authTitle.textContent = 'Activare cont';
   authMenuItem1.textContent = 'Înapoi';
   authMenuItem1.onclick = displaySignIn;
   authMenuItem2.textContent = '';
@@ -263,6 +254,58 @@ function addRepeatPasswordInput() {
     authElements.submitForm.insertBefore(repeatPasswordInput, authElements.submitButton);
   } else {
     authElements.submitForm.insertBefore(authElements.repeatPasswordInput, authElements.submitButton);
+  }
+}
+
+/**
+ * Adds an accept agreement checkbox
+ */
+function addAgreementCheckbox() {
+  if (authElements.checkBoxLabel === null) {
+    const checkBoxLabel = document.createElement('label');
+    setAttributes(checkBoxLabel, {
+      'class': 'checkbox-label',
+      'id': 'chkLabel',
+    });
+    checkBoxLabel.textContent = 'Accept termenii și condițiile';
+
+    const checkBoxInput = document.createElement('input');
+    setAttributes(checkBoxInput, {
+      'id': 'chkBox',
+      'required': '',
+      'type': 'checkbox',
+    });
+    checkBoxLabel.insertAdjacentElement('afterbegin', checkBoxInput);
+
+    authElements.checkBoxLabel = checkBoxLabel;
+    authElements.submitForm.insertBefore(checkBoxLabel, authElements.submitButton);
+  } else {
+    authElements.submitForm.insertBefore(authElements.checkBoxLabel, authElements.submitButton);
+  }
+}
+
+/**
+ * Adds an info box
+ */
+function addInfoBox() {
+  if (authElements.infoBox === null) {
+    const info = document.createElement('span');
+    setAttributes(info, {
+      'class': 'info',
+      'id': 'info',
+    });
+    info.textContent = 'Încă nu ai primit un e-mail de activare?';
+
+    const infoContent = document.createElement('span');
+    infoContent.setAttribute('class', 'info-content');
+    infoContent.textContent = 'Introdu adresa de e-mail asociată contului pentru a trimite un nou e-mail de activare!';
+
+    authElements.infoBox = info;
+
+    info.appendChild(infoContent);
+    authElements.submitForm.insertBefore(info, authElements.submitButton);
+  } else {
+    authElements.infoBox.insertBefore(authElements.infoBox, authElements.submitButton);
   }
 }
 
@@ -419,6 +462,7 @@ authElements.submitForm.addEventListener('submit', event => {
                   break;
                 case 'user disabled':
                   snackbar('Contul este dezactivat. Verifică adresa de e-mail înregistrată pentru activare!', 'blue');
+                  displayResendActivationMail();
                   break;
                 case 'internal error':
                   snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
@@ -487,7 +531,7 @@ authElements.submitForm.addEventListener('submit', event => {
     }
     case 'forgotPassword': {
       if (emailInput.className === greenBorder) {
-        request('POST', '/forgotPassword', { email: emailInput.value })
+        request('POST', '/forgotPassword', { 'email': emailInput.value })
           .then(response => {
             if (response['response'] === true) {
               snackbar('Verificați adresa e-mail introdusă pentru instrucțiunile de resetare a parolei!', 'blue');
@@ -507,7 +551,7 @@ authElements.submitForm.addEventListener('submit', event => {
     }
     case 'resetPassword': {
       if (passwordInput.className === greenBorder && repeatPasswordInput.className === greenBorder) {
-        request('POST', '/resetPasswordByEmail', { password: passwordInput.value, 'resetCode': resetCode })
+        request('POST', '/resetPasswordByEmail', { 'password': passwordInput.value, 'resetCode': resetCode })
           .then(response => {
             if (response['response'] === true) {
               snackbar('Parola a fost resetată cu success!', 'green');

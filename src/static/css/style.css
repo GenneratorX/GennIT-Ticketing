@@ -12,11 +12,6 @@ body {
   height: 100vh;
 }
 
-h1 {
-  font-size: 2rem;
-  font-weight: 200;
-}
-
 .content {
   align-items: safe center;
   color: #fff;
@@ -31,6 +26,12 @@ h1 {
 }
 
 /* ===================== LOGIN ===================== */
+#auth h1 {
+  font-size: 2rem;
+  font-weight: 200;
+  margin-top: 0;
+}
+
 #auth #username {
   background: url(https://static.gennerator.com/img/svg/username.svg) no-repeat 0.7rem 50%/1.4rem 1.4rem;
 }
@@ -53,6 +54,19 @@ h1 {
 
 #auth input.red {
   border-color: #d3312e;
+}
+
+#auth .info {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  max-width: 20rem;
+}
+
+#auth .info-content {
+  display: block;
+  font-weight: 200;
+  margin-top: 0.4rem;
 }
 
 div.auth {
@@ -93,7 +107,7 @@ input.login {
   font-weight: 700;
   margin-top: 1rem;
   min-height: 3rem;
-  min-width: 17rem;
+  min-width: 18rem;
   padding: 0.1rem 0.5rem 0.1rem 2.7rem;
 }
 
