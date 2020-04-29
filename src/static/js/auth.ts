@@ -547,7 +547,20 @@ authElements.submitForm.addEventListener('submit', event => {
       break;
     }
     case 'resendActivationMail': {
-
+      if (emailInput.className === greenBorder) {
+        request('POST', '/resendActivationMail', { 'email': emailInput.value })
+          .then(response => {
+            if (response['response'] === true) {
+              snackbar('Verificați adresa e-mail introdusă pentru activarea contului!', 'blue');
+              displaySignIn();
+            } else {
+              snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+            }
+          })
+          .catch(() => {
+            snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+          });
+      }
       break;
     }
     case 'resetPassword': {

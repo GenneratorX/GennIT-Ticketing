@@ -45,16 +45,26 @@ app.post('/signup', util.checkJsonHeader, function(req, res, next) {
 app.post('/signin', util.checkJsonHeader, function(req, res, next) {
   if (typeof req.body.username === 'string' && typeof req.body.password === 'string') {
     auth.loginUser(req.body.username, req.body.password)
-      .then(loggedIn => {
-        if (loggedIn.response === true) {
-          res.cookie('__Host-sessionID', loggedIn.sessionID, {
+      .then(login => {
+        if (login.response === true) {
+          res.cookie('__Host-sessionID', login.sessionID, {
             signed: true,
             httpOnly: true,
             secure: true,
             sameSite: 'strict',
-          }).json({ response: loggedIn.response, userName: loggedIn.userName });
+          }).json({ response: login.response, userName: login.userName });
         } else {
-          res.json(loggedIn);
+          if (login.error === 'user disabled') {
+            res.cookie('__Host-activationToken', login.activationToken, {
+              signed: true,
+              httpOnly: true,
+              secure: true,
+              sameSite: 'strict',
+              maxAge: 1800000, // 30 minutes
+            }).json({ response: login.response, error: login.error });
+          } else {
+            res.json(login);
+          }
         }
       })
       .catch(next);
@@ -108,6 +118,32 @@ app.post('/resetPasswordByEmail', util.checkJsonHeader, function(req, res, next)
       .catch(next);
   } else {
     res.status(422).json({ error: 'invalid password or reset code' });
+  }
+});
+
+app.post('/resendActivationMail', util.checkJsonHeader, function(req, res, next) {
+  if (typeof req.body.email === 'string') {
+    if (typeof req.signedCookies['__Host-activationToken'] === 'string') {
+      auth.resendActivationMail(req.signedCookies['__Host-activationToken'], req.body.email)
+        .then(response => {
+          res.clearCookie('__Host-activationToken', {
+            path: '/',
+            httpOnly: true,
+            secure: true,
+            sameSite: true,
+          });
+          if (response.error === 'invalid activation token') {
+            res.status(403).json(response.error);
+          } else {
+            res.json({ response: true });
+          }
+        })
+        .catch(next);
+    } else {
+      res.status(403).json({ error: 'invalid activation token' });
+    }
+  } else {
+    res.status(422).json({ error: 'invalid email' });
   }
 });
 

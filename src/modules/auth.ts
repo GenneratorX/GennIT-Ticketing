@@ -82,7 +82,13 @@ export async function loginUser(userName: string, password: string) {
         await redis.set(`session:${sessionID}`, JSON.stringify({ userName: query[0].username }), 'EX', 43200);
         return { response: true, userName: query[0].username, sessionID: sessionID };
       } else {
-        return { response: false, error: 'user disabled' };
+        const activationToken = await generateCode('activationToken');
+        await redis.set(
+          `activationToken:${activationToken}`,
+          JSON.stringify({ userName: query[0].username }),
+          'EX', 1800
+        );
+        return { response: false, error: 'user disabled', activationToken: activationToken };
       }
     } else {
       return { response: false, error: 'username or password not found' };
@@ -214,15 +220,35 @@ export async function resetPasswordByEmail(resetCode: string, newPassword: strin
   }
 }
 
+export async function resendActivationMail(activationToken: string, email: string) {
+  let query;
+  query = await redis.get(`activationToken:${activationToken}`);
+  if (query !== null) {
+    const username = JSON.parse(query).userName;
+    redis.del(`activationToken:${activationToken}`);
+    query = await db.query(
+      'SELECT user_id, username FROM users WHERE username = $1 AND LOWER(email) = LOWER($2);',
+      [username, email]
+    );
+    if (query.length === 1) {
+      sendActivationEmail(query[0].user_id, query[0].username, email);
+      return { response: true };
+    }
+    return { response: false, error: 'invalid email' };
+  }
+  return { response: false, error: 'invalid activation token' };
+}
+
+/* eslint-disable no-constant-condition */
 /**
  * Generates a unique base64 encoded string
  * @param type Type of code to generate
  * @returns Base64 encoded string that is unique to the database
  */
-async function generateCode(type: 'userID' | 'sessionID' | 'activationCode' | 'resetPasswordCode') {
+async function generateCode(type: 'userID' | 'sessionID' | 'activationCode' | 'activationToken' | 'resetPasswordCode') {
   switch (type) {
     case 'userID': {
-      while (true) { // eslint-disable-line no-constant-condition
+      while (true) {
         const userID =
           (await randomBytes(9))
             .toString('base64')
@@ -236,7 +262,7 @@ async function generateCode(type: 'userID' | 'sessionID' | 'activationCode' | 'r
       }
     }
     case 'sessionID': {
-      while (true) { // eslint-disable-line no-constant-condition
+      while (true) {
         const sessionID = (await randomBytes(128)).toString('base64');
         const query = await redis.get(`session:${sessionID}`);
         if (query === null) {
@@ -245,7 +271,7 @@ async function generateCode(type: 'userID' | 'sessionID' | 'activationCode' | 'r
       }
     }
     case 'activationCode': {
-      while (true) { // eslint-disable-line no-constant-condition
+      while (true) {
         const activationCode = (await randomBytes(128)).toString('base64');
         const query = await db.query(
           'SELECT activation_code FROM users_activation WHERE activation_code = $1;',
@@ -256,8 +282,18 @@ async function generateCode(type: 'userID' | 'sessionID' | 'activationCode' | 'r
         }
       }
     }
+    case 'activationToken': {
+      while (true) {
+        const activationToken = (await randomBytes(32)).toString('base64');
+        const query = await redis.get(`activationToken:${activationToken}`);
+        if (query === null) {
+          return activationToken;
+        }
+      }
+      break;
+    }
     case 'resetPasswordCode': {
-      while (true) { // eslint-disable-line no-constant-condition
+      while (true) {
         const resetCode = (await randomBytes(128)).toString('base64');
         const query = await db.query(
           'SELECT reset_code FROM users_reset WHERE reset_code = $1;',
@@ -270,6 +306,7 @@ async function generateCode(type: 'userID' | 'sessionID' | 'activationCode' | 'r
     }
   }
 }
+/* eslint-enable no-constant-condition */
 
 /**
  * Sends an activation mail to a user
@@ -278,6 +315,9 @@ async function generateCode(type: 'userID' | 'sessionID' | 'activationCode' | 'r
  * @param email E-mail address
  */
 async function sendActivationEmail(userID: string, userName: string, email: string) {
+  if ((await db.query('SELECT user_id FROM users_activation WHERE user_id = $1;', [userID])).length === 1) {
+    await db.query('DELETE FROM users_activation WHERE user_id = $1;', [userID]);
+  }
   const activationCode = await generateCode('activationCode');
   await db.query('INSERT INTO users_activation VALUES ($1, $2);', [userID, activationCode]);
   ejs.renderFile('app/views/emails/activation.ejs', {
