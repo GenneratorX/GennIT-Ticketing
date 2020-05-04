@@ -71,7 +71,7 @@ export function securityHeaders(req: express.Request, res: express.Response, nex
 }
 
 /**
- * Checks if the Content-Type is valid
+ * Checks if the Content-Type header is *application/json*
  * @param req Request object
  * @param res Response object
  * @param next Next function
@@ -83,4 +83,24 @@ export function checkJsonHeader(req: express.Request, res: express.Response, nex
   } else {
     res.status(415).json({ error: 'wrong \'Content-Type\' header. use \'application/json; charset=utf-8\'' });
   }
+}
+
+/**
+ * Sends a HTTP 405 Method not allowed on request methods other than GET/HEAD
+ * @param req Request object
+ * @param res Response object
+ */
+export function httpErrorAllowOnlyGet(req: express.Request, res: express.Response) {
+  res.setHeader('Allow', 'GET, HEAD');
+  res.status(405).json({ error: `request method ${req.method} is inappropriate for the URL ${req.url}` });
+}
+
+/**
+ * Sends a HTTP 405 Method not allowed on request methods other than POST
+ * @param req Request object
+ * @param res Response object
+ */
+export function httpErrorAllowOnlyPost(req: express.Request, res: express.Response) {
+  res.setHeader('Allow', 'POST');
+  res.status(405).json({ error: `request method ${req.method} is inappropriate for the URL ${req.url}` });
 }
