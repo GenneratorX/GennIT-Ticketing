@@ -41,7 +41,7 @@
     "chokidar": "^3.4.0",
     "crass": "^0.12.3",
     "eslint": "^6.8.0",
-    "google-closure-compiler": "^20200406.0.0",
+    "google-closure-compiler": "^20200426.0.0",
     "html-minifier": "^4.0.0",
     "nodemon": "^2.0.3",
     "stylelint": "^13.3.3",

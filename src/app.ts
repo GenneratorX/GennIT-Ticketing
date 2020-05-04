@@ -227,7 +227,7 @@ app.get('/auth', function(req, res, next) {
   }
 });
 
-app.use(function(req, res) {
+app.use(util.securityHeaders, function(req, res) {
   res.status(404).render('404');
 });
 

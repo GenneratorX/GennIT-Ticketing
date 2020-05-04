@@ -290,7 +290,6 @@ async function generateCode(type: 'userID' | 'sessionID' | 'activationCode' | 'a
           return activationToken;
         }
       }
-      break;
     }
     case 'resetPasswordCode': {
       while (true) {
