@@ -71,15 +71,23 @@ export async function createUser(userName: string, password: string, email: stri
  */
 export async function loginUser(userName: string, password: string) {
   const query = await db.query(
-    'SELECT username, password, active FROM users WHERE LOWER(username) = LOWER($1);',
+    'SELECT user_id, username, password, active FROM users WHERE LOWER(username) = LOWER($1);',
     [userName]
   );
   if (query.length === 1) {
     if ((await argon2.verify(query[0].password, password)) === true) {
       if (query[0].active === true) {
         const sessionID = await generateCode('sessionID');
-        db.query('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE LOWER(username) = LOWER($1)', [userName]);
-        await redis.set(`session:${sessionID}`, JSON.stringify({ userName: query[0].username }), 'EX', 43200);
+        db.query('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE LOWER(username) = LOWER($1);', [userName]);
+
+        await redis.set(`session:${sessionID}`,
+          JSON.stringify({
+            userId: query[0].user_id,
+            userName: query[0].username,
+          }),
+          'EX', 43200
+        );
+
         return { response: true, userName: query[0].username, sessionID: sessionID };
       } else {
         const activationToken = await generateCode('activationToken');
@@ -132,8 +140,8 @@ export async function verifySessionID(sessionID: string) {
 export async function activateUser(activationCode: string) {
   const query = await db.query('SELECT user_id FROM users_activation WHERE activation_code = $1;', [activationCode]);
   if (query.length === 1) {
-    db.query('UPDATE users SET active = true WHERE user_id = $1', [query[0].user_id]);
-    db.query('DELETE FROM users_activation WHERE user_id = $1', [query[0].user_id]);
+    db.query('UPDATE users SET active = true WHERE user_id = $1;', [query[0].user_id]);
+    db.query('DELETE FROM users_activation WHERE user_id = $1;', [query[0].user_id]);
     return true;
   }
   return false;

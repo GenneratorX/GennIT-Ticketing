@@ -7,6 +7,7 @@ import env = require('./env');
 import util = require('./modules/util');
 
 import { router as authRouter } from './routes/auth';
+import { router as userRouter } from './routes/user';
 
 export const app = express();
 app.set('view engine', 'ejs');
@@ -33,6 +34,7 @@ app.get('*', util.securityHeaders);
  * Routers
  */
 app.use(authRouter);
+app.use(userRouter);
 
 app.route('/')
   .get(function(req, res) {

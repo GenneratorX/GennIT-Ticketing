@@ -2,14 +2,14 @@
   <ul class="navbar-items">
 
     <li class="nav-logo">
-      <a class="nav-link">
+      <a class="nav-link" href="/">
         <span class="nav-link-text">GennIT</span>
         <img src="https://static.gennerator.com/img/svg/right-chevron.svg" alt="Deschidere meniu">
       </a>
     </li>
 
     <li class="nav-item">
-      <a class="nav-link">
+      <a class="nav-link" href="/">
         <img src="https://static.gennerator.com/img/svg/home.svg" alt="Acasă">
         <span class="nav-link-text">Acasă</span>
       </a>
@@ -26,6 +26,13 @@
       <a class="nav-link">
         <img src="https://static.gennerator.com/img/svg/calendar.svg" alt="Planificator">
         <span class="nav-link-text">Planificator</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" href="/user/<%- userData.userId %>">
+        <div class="nav-profile-picture"><%- userData.userName.charAt(0).toUpperCase(); %></div>
+        <span class="nav-link-text"><%- userData.userName %></span>
       </a>
     </li>
 

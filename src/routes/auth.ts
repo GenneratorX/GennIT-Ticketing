@@ -149,7 +149,7 @@ router.use(function(req, res, next) {
     auth.verifySessionID(req.signedCookies['__Host-sessionID'])
       .then(session => {
         if (session.error === undefined) {
-          app.locals.userName = session.userName;
+          app.locals.userData = { ...session };
           if (req.path === '/auth') {
             res.setHeader('location', '/');
             res.status(302).end();

@@ -185,7 +185,7 @@ input.submitB:focus {
   width: 100%;
 }
 
-.nav-item:last-child {
+.nav-item:nth-last-child(2) {
   margin-top: auto;
 }
 
@@ -207,6 +207,20 @@ input.submitB:focus {
   max-width: 2rem;
   min-height: 2rem;
   min-width: 2rem;
+}
+
+.nav-profile-picture {
+  background: #ed9c27;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 3rem;
+  margin: 0 1rem;
+  max-height: 3rem;
+  max-width: 3rem;
+  min-height: 3rem;
+  min-width: 3rem;
+  text-align: center;
 }
 
 .nav-link-text {
@@ -242,6 +256,8 @@ div.main {
   .navbar {
     bottom: 0;
     height: 5rem;
+    overflow-x: auto;
+    overflow-y: hidden;
     width: 100%;
   }
 
@@ -258,6 +274,7 @@ div.main {
   }
 
   div.main {
+    margin-bottom: 5rem;
     margin-left: 0;
   }
 
@@ -268,6 +285,36 @@ div.main {
   .navbar:hover .nav-link-text {
     display: none;
   }
+}
+
+/* ============================= USER INFO ============================= */
+
+.profile-picture {
+  background: #ed9c27;
+  border-radius: 50%;
+  font-size: 5rem;
+  font-weight: 700;
+  height: 10rem;
+  line-height: 10rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  width: 10rem;
+}
+
+.user-info {
+  background: #363636;
+  font-size: 1.2rem;
+  margin-top: 3rem;
+  padding: 2rem;
+  text-align: left;
+}
+
+.user-info h2 {
+  margin-bottom: 1rem;
+}
+
+.user-info div {
+  margin-top: 0.3rem;
 }
 
 /* ============================== SNACKBAR ============================== */
