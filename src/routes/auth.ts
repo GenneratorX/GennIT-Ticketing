@@ -164,17 +164,27 @@ router.use(function(req, res, next) {
             secure: true,
             sameSite: true,
           });
-          res.setHeader('location', '/auth');
-          res.status(302).end();
+          if (req.method === 'GET') {
+            res.setHeader('location', '/auth');
+            res.status(302).end();
+          } else {
+            res.setHeader('WWW-Authenticate', 'gennit-auth');
+            res.status(401).json({ error: 'user not authenticated' });
+          }
         }
       })
       .catch(next);
   } else {
-    if (req.path !== '/auth') {
-      res.setHeader('location', '/auth');
-      res.status(302).end();
+    if (req.method === 'GET') {
+      if (req.path !== '/auth') {
+        res.setHeader('location', '/auth');
+        res.status(302).end();
+      } else {
+        next();
+      }
     } else {
-      next();
+      res.setHeader('WWW-Authenticate', 'gennit-auth');
+      res.status(401).json({ error: 'user not authenticated' });
     }
   }
 });
