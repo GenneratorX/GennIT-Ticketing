@@ -17,12 +17,11 @@ router.route('/signup')
       typeof req.body.username === 'string' &&
       typeof req.body.password === 'string' &&
       typeof req.body.email === 'string' &&
-      typeof req.body.policy === 'boolean' &&
       req.body.policy === true
     ) {
       auth.createUser(req.body.username, req.body.password, req.body.email)
-        .then(created => {
-          res.json(created);
+        .then(createStatus => {
+          res.json(createStatus);
         })
         .catch(next);
     } else {
@@ -34,25 +33,25 @@ router.route('/signin')
   .post(util.checkJsonHeader, function(req, res, next) {
     if (typeof req.body.username === 'string' && typeof req.body.password === 'string') {
       auth.loginUser(req.body.username, req.body.password)
-        .then(login => {
-          if (login.response === true) {
-            res.cookie('__Host-sessionID', login.sessionID, {
+        .then(loginStatus => {
+          if (loginStatus.error === undefined) {
+            res.cookie('__Host-sessionID', loginStatus.sessionID, {
               signed: true,
               httpOnly: true,
               secure: true,
               sameSite: 'strict',
-            }).json({ response: login.response, userName: login.userName });
+            }).json({ status: 'success', userName: loginStatus.userName });
           } else {
-            if (login.error === 'user disabled') {
-              res.cookie('__Host-activationToken', login.activationToken, {
+            if (loginStatus.error === 'user disabled') {
+              res.cookie('__Host-activationToken', loginStatus.activationToken, {
                 signed: true,
                 httpOnly: true,
                 secure: true,
                 sameSite: 'strict',
                 maxAge: 1800000, // 30 minutes
-              }).json({ response: login.response, error: login.error });
+              }).json({ error: 'user disabled' });
             } else {
-              res.json(login);
+              res.json(loginStatus);
             }
           }
         })
@@ -67,7 +66,7 @@ router.route('/usernameExists')
     if (typeof req.body.username === 'string') {
       auth.usernameExists(req.body.username)
         .then(exists => {
-          res.json({ response: exists });
+          res.json({ exists: exists });
         })
         .catch(next);
     } else {
@@ -80,7 +79,7 @@ router.route('/emailExists')
     if (typeof req.body.email === 'string') {
       auth.emailExists(req.body.email)
         .then(exists => {
-          res.json({ response: exists });
+          res.json({ exists: exists });
         })
         .catch(next);
     } else {
@@ -93,7 +92,7 @@ router.route('/forgotPassword')
     if (typeof req.body.email === 'string') {
       auth.sendResetPasswordEmail(req.body.email)
         .then(() => {
-          res.json({ response: true });
+          res.json({ status: 'success' });
         })
         .catch(next);
     } else {
@@ -127,9 +126,9 @@ router.route('/resendActivationMail')
               sameSite: true,
             });
             if (response.error === 'invalid activation token') {
-              res.status(403).json(response.error);
+              res.status(403).json({ error: 'invalid activation token' });
             } else {
-              res.json({ response: true });
+              res.json({ status: 'success' });
             }
           })
           .catch(next);
@@ -199,9 +198,9 @@ router.route('/logout')
             httpOnly: true,
             secure: true,
             sameSite: true,
-          }).json({ response: true });
+          }).json({ status: 'success' });
         } else {
-          res.status(500).json({ response: false, error: 'logout failed' });
+          res.status(404).json({ error: 'session id not found' });
         }
       })
       .catch(next);

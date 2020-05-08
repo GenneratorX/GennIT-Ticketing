@@ -18,7 +18,8 @@ const userRegexp = /^[a-zA-Z\d][a-zA-Z\d!?$^&*._-]{5,39}$/;
 const passwordRegexp = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w]).{8,}$/;
 const emailRegexp = new RegExp(
   '^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&\'*+/0-9=?A-Z^_`a-z{|}~]+(\\.[-!#$%&\'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]' +
-  '([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$');
+  '([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$'
+);
 
 const transporter = nodemailer.createTransport(env.EMAIL_CONFIG);
 const redis = new Redis(env.REDIS_CONFIG);
@@ -45,22 +46,17 @@ export async function createUser(userName: string, password: string, email: stri
               [userID, userName, await passwordHash, email.toLowerCase(), active, admin]
             );
             sendActivationEmail(userID, userName, email);
-            return { response: true };
-          } else {
-            return { response: false, error: 'email exists' };
+            return { status: 'success' };
           }
-        } else {
-          return { response: false, error: 'username exists' };
+          return { error: 'email exists' };
         }
-      } else {
-        return { response: false, error: 'invalid email' };
+        return { error: 'username exists' };
       }
-    } else {
-      return { response: false, error: 'invalid password' };
+      return { error: 'invalid email' };
     }
-  } else {
-    return { response: false, error: 'invalid username' };
+    return { error: 'invalid password' };
   }
+  return { error: 'invalid username' };
 }
 
 /**
@@ -85,25 +81,22 @@ export async function loginUser(userName: string, password: string) {
             userId: query[0].user_id,
             userName: query[0].username,
           }),
-          'EX', 43200
+          'EX', 43200 // 12 hours
         );
 
-        return { response: true, userName: query[0].username, sessionID: sessionID };
+        return { status: 'success', userName: query[0].username, sessionID: sessionID };
       } else {
         const activationToken = await generateCode('activationToken');
         await redis.set(
           `activationToken:${activationToken}`,
           JSON.stringify({ userName: query[0].username }),
-          'EX', 1800
+          'EX', 1800 // 30 minutes
         );
-        return { response: false, error: 'user disabled', activationToken: activationToken };
+        return { error: 'user disabled', activationToken: activationToken };
       }
-    } else {
-      return { response: false, error: 'username or password not found' };
     }
-  } else {
-    return { response: false, error: 'username or password not found' };
   }
+  return { error: 'username or password not found' };
 }
 
 /**
@@ -219,15 +212,19 @@ export async function resetPasswordByEmail(resetCode: string, newPassword: strin
       const passwordHash = argon2.hash(newPassword, env.ARGON2_CONFIG);
       db.query('DELETE FROM users_reset WHERE reset_code = $1;', [resetCode]);
       await db.query('UPDATE users SET password = $1 WHERE user_id = $2;', [await passwordHash, query[0].user_id]);
-      return { response: true };
-    } else {
-      return { response: false, error: 'invalid reset code' };
+      return { status: 'success' };
     }
-  } else {
-    return { response: false, error: 'invalid password' };
+    return { error: 'invalid reset code' };
   }
+  return { error: 'invalid password' };
 }
 
+/**
+ * Resends an activation mail
+ * @param activationToken Activation token
+ * @param email E-mail address
+ * @returns Status of the activation mail
+ */
 export async function resendActivationMail(activationToken: string, email: string) {
   let query;
   query = await redis.get(`activationToken:${activationToken}`);
@@ -240,11 +237,11 @@ export async function resendActivationMail(activationToken: string, email: strin
     );
     if (query.length === 1) {
       sendActivationEmail(query[0].user_id, query[0].username, email);
-      return { response: true };
+      return { status: 'success' };
     }
-    return { response: false, error: 'invalid email' };
+    return { error: 'invalid email' };
   }
-  return { response: false, error: 'invalid activation token' };
+  return { error: 'invalid activation token' };
 }
 
 /* eslint-disable no-constant-condition */

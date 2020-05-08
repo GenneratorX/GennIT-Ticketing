@@ -5,7 +5,7 @@ const logoutButton = document.getElementById('logoutButton') as HTMLAnchorElemen
 logoutButton.onclick = () => {
   request('POST', '/logout')
     .then(response => {
-      if (response['response'] === true) {
+      if (response['status'] === 'success') {
         window.location.href = '/auth';
       } else {
         snackbar('Deconectarea a eșuat. Încearcă mai târziu!', 'red');
