@@ -154,6 +154,8 @@ input.submitB:focus {
 .navbar {
   background: #363636;
   height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
   position: fixed;
   transition: width 200ms ease;
   width: 5rem;
@@ -248,6 +250,7 @@ input.submitB:focus {
 }
 
 div.main {
+  height: 100%;
   margin-left: 5rem;
   padding: 1rem;
 }
@@ -289,6 +292,37 @@ div.main {
 
 /* ============================= USER INFO ============================= */
 
+.user-page {
+  align-items: center;
+  display: grid;
+  grid-column-gap: 0.5rem;
+  grid-row-gap: 0;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  justify-items: center;
+  overflow: auto;
+}
+
+.profile {
+  align-self: end;
+  grid-area: 1 / 1 / 2 / 5;
+}
+
+.user-info {
+  align-self: start;
+  grid-area: 2 / 1 / 4 / 3;
+}
+
+.user-performance {
+  align-self: start;
+  grid-area: 2 / 3 / 4 / 4;
+}
+
+.user-friends {
+  align-self: start;
+  grid-area: 2 / 4 / 4 / 5;
+}
+
 .profile-picture {
   background: #ed9c27;
   border-radius: 50%;
@@ -296,25 +330,56 @@ div.main {
   font-weight: 700;
   height: 10rem;
   line-height: 10rem;
-  margin-bottom: 1rem;
+  margin: 0 auto;
   text-align: center;
   width: 10rem;
 }
 
-.user-info {
-  background: #363636;
-  font-size: 1.2rem;
-  margin-top: 3rem;
-  padding: 2rem;
-  text-align: left;
+.profile-name {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 1rem;
 }
 
-.user-info h2 {
+.info-box h2 {
   margin-bottom: 1rem;
 }
 
-.user-info div {
+.info-box div {
   margin-top: 0.3rem;
+}
+
+.info-box {
+  background: #363636;
+  font-size: 1.2rem;
+  margin-top: 3rem;
+  min-width: 50%;
+  padding: 2rem;
+  text-align: left;
+  width: 100%;
+}
+
+@media screen and (max-width: 1024px) {
+  .user-page {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .profile {
+    margin: auto auto 3rem;
+  }
+
+  .user-info {
+    margin: 0 auto auto;
+  }
+
+  .user-performance {
+    margin: 1rem auto auto;
+  }
+
+  .user-friends {
+    margin: 1rem auto auto;
+  }
 }
 
 /* ============================== SNACKBAR ============================== */
