@@ -167,39 +167,6 @@ export async function emailExists(email: string) {
 }
 
 /**
- * Sends an email containing a reset password code
- * @param email Email address
- */
-export async function sendResetPasswordEmail(email: string) {
-  const query = await db.query('SELECT user_id, username, email, active FROM users WHERE email = $1;', [email]);
-  if (query.length === 1 && query[0].active === true) {
-    if ((await db.query('SELECT user_id FROM users_reset WHERE user_id = $1;', [query[0].user_id])).length === 1) {
-      await db.query('DELETE FROM users_reset WHERE user_id = $1;', [query[0].user_id]);
-    }
-    const resetCode = await generateCode('resetPasswordCode');
-    await db.query('INSERT INTO users_reset VALUES ($1, $2);', [query[0].user_id, resetCode]);
-    ejs.renderFile('app/views/emails/resetPassword.ejs', {
-      userName: query[0].username,
-      resetCode: querystring.escape(resetCode),
-    }, (error, html) => {
-      if (error === null) {
-        transporter.sendMail({
-          from: `"Gennerator" <${env.EMAIL_CONFIG.auth.user}>`,
-          to: `"${query[0].username}" <${email}>`,
-          replyTo: `"Contact" <${env.EMAIL_REPLYTO}>`,
-          subject: 'Resetare parolă',
-          html: html,
-        }).catch(error => {
-          console.log(error);
-        });
-      } else {
-        console.log(error);
-      }
-    });
-  }
-}
-
-/**
  * Resets a user password based on a reset code
  * @param resetCode Reset password code
  * @param newPassword New password
@@ -217,6 +184,24 @@ export async function resetPasswordByEmail(resetCode: string, newPassword: strin
     return { error: 'invalid reset code' };
   }
   return { error: 'invalid password' };
+}
+
+/**
+ * Sends an activation mail to a user
+ * @param userID User ID
+ * @param userName User name
+ * @param email E-mail address
+ */
+async function sendActivationEmail(userID: string, userName: string, email: string) {
+  if ((await db.query('SELECT user_id FROM users_activation WHERE user_id = $1;', [userID])).length === 1) {
+    await db.query('DELETE FROM users_activation WHERE user_id = $1;', [userID]);
+  }
+  const activationCode = await generateCode('activationCode');
+  await db.query('INSERT INTO users_activation VALUES ($1, $2);', [userID, activationCode]);
+  sendEmail(email, 'Confirmare creare cont', 'app/views/emails/activation.ejs', {
+    userName: userName,
+    activationCode: querystring.escape(activationCode),
+  });
 }
 
 /**
@@ -242,6 +227,56 @@ export async function resendActivationMail(activationToken: string, email: strin
     return { error: 'invalid email' };
   }
   return { error: 'invalid activation token' };
+}
+
+/**
+ * Sends an email containing a reset password code
+ * @param email Email address
+ */
+export async function sendResetPasswordEmail(email: string) {
+  const query = await db.query('SELECT user_id, username, email, active FROM users WHERE email = $1;', [email]);
+  if (query.length === 1 && query[0].active === true) {
+    if ((await db.query('SELECT user_id FROM users_reset WHERE user_id = $1;', [query[0].user_id])).length === 1) {
+      await db.query('DELETE FROM users_reset WHERE user_id = $1;', [query[0].user_id]);
+    }
+    const resetCode = await generateCode('resetPasswordCode');
+    await db.query('INSERT INTO users_reset VALUES ($1, $2);', [query[0].user_id, resetCode]);
+
+    sendEmail(email, 'Resetare parolă', 'app/views/emails/resetPassword.ejs', {
+      userName: query[0].username,
+      resetCode: querystring.escape(resetCode),
+    });
+  }
+}
+
+/**
+ * Sends an e-mail to the specified address
+ * @param sendTo E-mail address to send to
+ * @param emailSubject E-mail subject
+ * @param templatePath EJS Template file path
+ * @param templateVariables EJS Template variables
+ */
+function sendEmail(
+  sendTo: string,
+  emailSubject: string,
+  templatePath: string,
+  templateVariables: { [variable: string]: string }
+) {
+  ejs.renderFile(templatePath, templateVariables, (error, html) => {
+    if (error === null) {
+      transporter.sendMail({
+        from: `"Gennerator" <${env.EMAIL_CONFIG.auth.user}>`,
+        to: `<${sendTo}>`,
+        replyTo: `"Contact" <${env.EMAIL_REPLYTO}>`,
+        subject: emailSubject,
+        html: html,
+      }).catch(error => {
+        console.log(error);
+      });
+    } else {
+      console.log(error);
+    }
+  });
 }
 
 /* eslint-disable no-constant-condition */
@@ -311,35 +346,3 @@ async function generateCode(type: 'userID' | 'sessionID' | 'activationCode' | 'a
   }
 }
 /* eslint-enable no-constant-condition */
-
-/**
- * Sends an activation mail to a user
- * @param userID User ID
- * @param userName User name
- * @param email E-mail address
- */
-async function sendActivationEmail(userID: string, userName: string, email: string) {
-  if ((await db.query('SELECT user_id FROM users_activation WHERE user_id = $1;', [userID])).length === 1) {
-    await db.query('DELETE FROM users_activation WHERE user_id = $1;', [userID]);
-  }
-  const activationCode = await generateCode('activationCode');
-  await db.query('INSERT INTO users_activation VALUES ($1, $2);', [userID, activationCode]);
-  ejs.renderFile('app/views/emails/activation.ejs', {
-    userName: userName,
-    activationCode: querystring.escape(activationCode),
-  }, (error, html) => {
-    if (error === null) {
-      transporter.sendMail({
-        from: `"Gennerator" <${env.EMAIL_CONFIG.auth.user}>`,
-        to: `"${userName}" <${email}>`,
-        replyTo: `"Contact" <${env.EMAIL_REPLYTO}>`,
-        subject: 'Confirmare creare cont',
-        html: html,
-      }).catch(error => {
-        console.log(error);
-      });
-    } else {
-      console.log(error);
-    }
-  });
-}
