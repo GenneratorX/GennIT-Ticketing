@@ -17,6 +17,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 ALTER TABLE ONLY gennit.users_reset DROP CONSTRAINT users_reset_user_id_fkey;
+ALTER TABLE ONLY gennit.users DROP CONSTRAINT users_gender_fkey;
 ALTER TABLE ONLY gennit.users_activation DROP CONSTRAINT users_activation_user_id_fkey;
 ALTER TABLE ONLY gennit.users DROP CONSTRAINT users_username_key;
 ALTER TABLE ONLY gennit.users_reset DROP CONSTRAINT users_reset_reset_code_key;
@@ -25,9 +26,11 @@ ALTER TABLE ONLY gennit.users DROP CONSTRAINT users_pkey;
 ALTER TABLE ONLY gennit.users DROP CONSTRAINT users_email_key;
 ALTER TABLE ONLY gennit.users_activation DROP CONSTRAINT users_activation_pkey;
 ALTER TABLE ONLY gennit.users_activation DROP CONSTRAINT users_activation_activation_code_key;
+ALTER TABLE ONLY gennit.gender DROP CONSTRAINT gender_pkey;
 DROP TABLE gennit.users_reset;
 DROP TABLE gennit.users_activation;
 DROP TABLE gennit.users;
+DROP TABLE gennit.gender;
 DROP SCHEMA gennit;
 --
 -- Name: gennit; Type: SCHEMA; Schema: -; Owner: Gennerator
@@ -43,6 +46,18 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: gender; Type: TABLE; Schema: gennit; Owner: Gennerator
+--
+
+CREATE TABLE gennit.gender (
+    gender_id smallint NOT NULL,
+    name character varying(15)
+);
+
+
+ALTER TABLE gennit.gender OWNER TO "Gennerator";
+
+--
 -- Name: users; Type: TABLE; Schema: gennit; Owner: Gennerator
 --
 
@@ -54,7 +69,12 @@ CREATE TABLE gennit.users (
     active boolean DEFAULT false,
     create_date timestamp without time zone DEFAULT now(),
     last_login timestamp without time zone,
-    admin boolean DEFAULT false
+    admin boolean DEFAULT false,
+    first_name character varying(50),
+    last_name character varying(50),
+    birth_date date,
+    gender smallint,
+    phone_number character varying(15)
 );
 
 
@@ -83,6 +103,14 @@ CREATE TABLE gennit.users_reset (
 
 
 ALTER TABLE gennit.users_reset OWNER TO "Gennerator";
+
+--
+-- Name: gender gender_pkey; Type: CONSTRAINT; Schema: gennit; Owner: Gennerator
+--
+
+ALTER TABLE ONLY gennit.gender
+    ADD CONSTRAINT gender_pkey PRIMARY KEY (gender_id);
+
 
 --
 -- Name: users_activation users_activation_activation_code_key; Type: CONSTRAINT; Schema: gennit; Owner: Gennerator
@@ -149,6 +177,14 @@ ALTER TABLE ONLY gennit.users_activation
 
 
 --
+-- Name: users users_gender_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: Gennerator
+--
+
+ALTER TABLE ONLY gennit.users
+    ADD CONSTRAINT users_gender_fkey FOREIGN KEY (gender) REFERENCES gennit.gender(gender_id) ON DELETE CASCADE;
+
+
+--
 -- Name: users_reset users_reset_user_id_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: Gennerator
 --
 
@@ -161,6 +197,13 @@ ALTER TABLE ONLY gennit.users_reset
 --
 
 GRANT USAGE ON SCHEMA gennit TO production;
+
+
+--
+-- Name: TABLE gender; Type: ACL; Schema: gennit; Owner: Gennerator
+--
+
+GRANT SELECT,INSERT,UPDATE ON TABLE gennit.gender TO production;
 
 
 --

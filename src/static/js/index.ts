@@ -6,6 +6,7 @@ logoutButton.onclick = () => {
   request('POST', '/logout')
     .then(response => {
       if (response['status'] === 'success') {
+        window.sessionStorage.removeItem('userId');
         window.location.href = '/auth';
       } else {
         snackbar('Deconectarea a eșuat. Încearcă mai târziu!', 'red');

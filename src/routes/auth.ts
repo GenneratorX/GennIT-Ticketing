@@ -40,7 +40,7 @@ router.route('/signin')
               httpOnly: true,
               secure: true,
               sameSite: 'strict',
-            }).json({ status: 'success', userName: loginStatus.userName });
+            }).json({ status: 'success', userName: loginStatus.userName, userId: loginStatus.userId });
           } else {
             if (loginStatus.error === 'user disabled') {
               res.cookie('__Host-activationToken', loginStatus.activationToken, {

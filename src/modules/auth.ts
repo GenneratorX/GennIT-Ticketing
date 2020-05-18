@@ -84,7 +84,7 @@ export async function loginUser(userName: string, password: string) {
           'EX', 43200 // 12 hours
         );
 
-        return { status: 'success', userName: query[0].username, sessionID: sessionID };
+        return { status: 'success', userName: query[0].username, userId: query[0].user_id, sessionID: sessionID };
       } else {
         const activationToken = await generateCode('activationToken');
         await redis.set(

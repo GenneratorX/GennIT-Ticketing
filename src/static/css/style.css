@@ -291,7 +291,6 @@ div.main {
 }
 
 /* ============================= USER INFO ============================= */
-
 .user-page {
   align-items: center;
   display: grid;
@@ -357,6 +356,108 @@ div.main {
   padding: 2rem;
   text-align: left;
   width: 100%;
+}
+
+.box-title {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.box-title-description {
+  align-self: center;
+  display: flex;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.box-title-edit {
+  align-self: center;
+  border-radius: 5px;
+  display: flex;
+  margin-left: auto;
+  padding: 0.5rem;
+  width: 2.4rem;
+}
+
+.box-title-edit:hover {
+  background: #09776c;
+  cursor: pointer;
+}
+
+.edit-user-info {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.edit-user-info input,
+select {
+  background: #232323;
+  border: 2px #363636 solid;
+  border-radius: 15px;
+  color: #fff;
+  font-family: 'Raleway', Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  min-height: 3rem;
+  padding: 0.1rem 0.5rem 0.1rem 2.7rem;
+}
+
+.edit-user-info input:focus,
+select:focus {
+  box-shadow: 0 0 5px #363636;
+  outline: 0;
+}
+
+#firstName {
+  flex: 1;
+  min-width: 18rem;
+}
+
+#lastName {
+  flex: 1;
+  min-width: 18rem;
+}
+
+#email {
+  flex: 1;
+  min-width: 100%;
+}
+
+#birthDateDay {
+  flex: 1;
+  min-width: 5rem;
+}
+
+#birthDateMonth {
+  flex: 1;
+  min-width: 18rem;
+}
+
+#birthDateYear {
+  flex: 1;
+  min-width: 6rem;
+}
+
+#gender {
+  flex: 1;
+  min-width: 15rem;
+}
+
+#phoneNumber {
+  flex: 1;
+  min-width: 18rem;
+}
+
+#submitButton {
+  flex: 1;
+  min-width: 100%;
+  padding: 0.7rem;
+}
+
+#submitButton:hover {
+  background: #09776c;
 }
 
 @media screen and (max-width: 1024px) {

@@ -452,6 +452,7 @@ authElements.submitForm.addEventListener('submit', event => {
                 `</p>` +
                 `Te trimitem pe pagina principală imediat!` +
                 `</div>`;
+              window.sessionStorage.setItem('userId', response['userId']);
               setTimeout(function() {
                 window.location.href = '/';
               }, 2500);

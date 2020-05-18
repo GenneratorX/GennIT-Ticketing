@@ -4,6 +4,7 @@
     <%- include('partials/header') %>
     <title><%- username %> :: GennIT Ticketing</title>
     <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/index.js" defer></script>
+    <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/user.js" defer></script>
   </head>
   <body>
     <%- include('partials/noJS') %>
@@ -11,22 +12,50 @@
     <div class="main user-page">
       <div class="profile">
         <div class="profile-picture"><%- username.charAt(0).toUpperCase() %></div>
-        <div class="profile-name"><%- username %></div>
+        <div class="profile-name" id="username"><%- username %></div>
       </div>
-      <div class="user-info info-box">
-        <h2>Informații utilizator</h2>
+      <div class="user-info info-box" id="userInfoDiv">
+        <div class="box-title" id="userInfo">
+          <div class="box-title-description">Informații utilizator</div>
+        </div>
+        <% if (first_name !== null) {%>
+        <div><span class="bold">Prenume: </span><%- first_name %></div>
+        <% } %>
+        <% if (last_name !== null) {%>
+        <div><span class="bold">Nume: </span><%- last_name %></div>
+        <% } %>
+        <% if (birth_date !== null) {%>
+        <div><span class="bold">Data nașterii: </span><%- birth_date.toLocaleDateString('ro-RO') %></div>
+        <% } %>
+        <% if (gender !== null) {%>
+        <div>
+          <span class="bold">Sex: </span>
+          <% if (gender === 0) {%> Masculin <% } else { %>
+          <% if (gender === 1) {%> Feminin <% } else { %>
+          Nespecificat <% } %> <% } %>
+        </div>
+        <% } %>
+        <% if (phone_number !== null) {%>
+        <div><span class="bold">Număr telefon: </span><%- phone_number %></div>
+        <% } %>
         <div><span class="bold">Adresă e-mail: </span><%- email %></div>
         <div><span class="bold">Cont creat: </span><%- create_date.toLocaleString('ro-RO') %></div>
+        <% if (last_login !== null) {%>
         <div><span class="bold">Văzut ultima dată: </span><%- last_login.toLocaleString('ro-RO') %></div>
+        <% } %>
       </div>
       <div class="user-performance info-box">
-        <h2>Performanță</h2>
+        <div class="box-title">
+          <div class="box-title-description">Performanță</div>
+        </div>
         <div>Tichete rezolvate</div>
         <div>Tichete deschise</div>
         <div>Tichete întârziate</div>
       </div>
       <div class="user-friends info-box">
-        <h2>Prieteni</h2>
+        <div class="box-title" id="userFriends">
+          <div class="box-title-description">Prieteni</div>
+        </div>
       </div>
     </div>
   </body>
