@@ -1,0 +1,164 @@
+.user-page {
+  align-items: center;
+  display: grid;
+  grid-column-gap: 0.5rem;
+  grid-row-gap: 0;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  justify-items: center;
+  overflow: auto;
+}
+
+.profile {
+  align-self: end;
+  grid-area: 1 / 1 / 2 / 5;
+}
+
+.user-info {
+  align-self: start;
+  grid-area: 2 / 1 / 4 / 3;
+}
+
+.user-performance {
+  align-self: start;
+  grid-area: 2 / 3 / 4 / 4;
+}
+
+.user-friends {
+  align-self: start;
+  grid-area: 2 / 4 / 4 / 5;
+}
+
+.profile-picture {
+  background: #ed9c27;
+  border-radius: 50%;
+  font-size: 5rem;
+  font-weight: 700;
+  height: 10rem;
+  line-height: 10rem;
+  margin: 0 auto;
+  text-align: center;
+  width: 10rem;
+}
+
+.profile-name {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 1rem;
+}
+
+.info-box h2 {
+  margin-bottom: 1rem;
+}
+
+.info-box div {
+  margin-top: 0.3rem;
+}
+
+.info-box {
+  background: #363636;
+  font-size: 1.2rem;
+  margin-top: 3rem;
+  min-width: 50%;
+  padding: 2rem;
+  text-align: left;
+  width: 100%;
+}
+
+.box-title {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.box-title-description {
+  align-self: center;
+  display: flex;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.box-title-edit {
+  align-self: center;
+  border-radius: 5px;
+  display: flex;
+  margin-left: auto;
+  padding: 0.5rem;
+  width: 2.4rem;
+}
+
+.box-title-edit:hover {
+  background: #09776c;
+  cursor: pointer;
+}
+
+.edit-user-info {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+#firstName,
+#lastName,
+#birthDateMonth,
+#phoneNumber {
+  flex: 1;
+  min-width: 18rem;
+}
+
+#email {
+  flex: 1;
+  min-width: 100%;
+}
+
+#birthDateDay {
+  flex: 1;
+  min-width: 5rem;
+}
+
+#birthDateYear {
+  flex: 1;
+  min-width: 6rem;
+}
+
+#gender {
+  flex: 1;
+  min-width: 15rem;
+}
+
+#submitButton {
+  flex: 1;
+  min-width: 100%;
+  padding: 0.7rem;
+}
+
+#submitButton:hover {
+  background: #09776c;
+}
+
+#submitButton:focus {
+  background: #09776c;
+  outline: 0;
+}
+
+@media screen and (max-width: 1024px) {
+  .user-page {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .profile {
+    margin: auto auto 3rem;
+  }
+
+  .user-info {
+    margin: 0 auto auto;
+  }
+
+  .user-performance {
+    margin: 1rem auto auto;
+  }
+
+  .user-friends {
+    margin: 1rem auto auto;
+  }
+}

@@ -335,7 +335,7 @@ function usernameInputKeyUp() {
         break;
       case 'signUp':
         delay = setTimeout(() => {
-          request('POST', '/usernameExists', { 'username': usernameInput.value })
+          request('GET', `/usernameExists?username=${usernameInput.value}`)
             .then(response => {
               if (response['exists'] === false) {
                 setBorderColor(usernameInput, 'green');
@@ -407,7 +407,7 @@ function emailInputKeyUp() {
     switch (currentWindow) {
       case 'signUp':
         delay = setTimeout(() => {
-          request('POST', '/emailExists', { 'email': emailInput.value })
+          request('GET', `/emailExists?email=${emailInput.value}`)
             .then(response => {
               if (response['exists'] === false) {
                 setBorderColor(emailInput, 'green');

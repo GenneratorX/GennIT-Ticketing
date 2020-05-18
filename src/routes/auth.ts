@@ -62,9 +62,9 @@ router.route('/signin')
   }).all(util.httpErrorAllowOnlyPost);
 
 router.route('/usernameExists')
-  .post(util.checkJsonHeader, function(req, res, next) {
-    if (typeof req.body.username === 'string') {
-      auth.usernameExists(req.body.username)
+  .get(function(req, res, next) {
+    if (typeof req.query.username === 'string') {
+      auth.usernameExists(req.query.username)
         .then(exists => {
           res.json({ exists: exists });
         })
@@ -72,12 +72,12 @@ router.route('/usernameExists')
     } else {
       res.status(422).json({ error: 'invalid username' });
     }
-  }).all(util.httpErrorAllowOnlyPost);
+  }).all(util.httpErrorAllowOnlyGet);
 
 router.route('/emailExists')
-  .post(util.checkJsonHeader, function(req, res, next) {
-    if (typeof req.body.email === 'string') {
-      auth.emailExists(req.body.email)
+  .get(function(req, res, next) {
+    if (typeof req.query.email === 'string') {
+      auth.emailExists(req.query.email)
         .then(exists => {
           res.json({ exists: exists });
         })
@@ -85,7 +85,7 @@ router.route('/emailExists')
     } else {
       res.status(422).json({ error: 'invalid email' });
     }
-  }).all(util.httpErrorAllowOnlyPost);
+  }).all(util.httpErrorAllowOnlyGet);
 
 router.route('/forgotPassword')
   .post(util.checkJsonHeader, function(req, res, next) {
