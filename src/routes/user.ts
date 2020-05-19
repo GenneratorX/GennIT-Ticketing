@@ -11,28 +11,6 @@ import user = require('../modules/user');
  */
 export const router = express.Router();
 
-router.route('/user')
-  .get(function(req, res) {
-    res.setHeader('location', '/');
-    res.status(302).end();
-  })
-  .all(util.httpErrorAllowOnlyGet);
-
-router.route('/user/:userId')
-  .get(function(req, res, next) {
-    user.getUserInfo(req.params.userId)
-      .then(userInfo => {
-        if (userInfo.error === undefined) {
-          res.render('user', userInfo.userInfo);
-        } else {
-          res.setHeader('location', '/');
-          res.status(302).end();
-        }
-      })
-      .catch(next);
-  })
-  .all(util.httpErrorAllowOnlyGet);
-
 router.route('/userInfo')
   .get(function(req, res, next) {
     if (typeof req.query.userId === 'string') {
@@ -78,3 +56,30 @@ router.route('/updateUserInfo')
     }
   })
   .all(util.httpErrorAllowOnlyPost);
+
+router.route('/user')
+  .get(function(req, res) {
+    res.setHeader('location', '/');
+    res.status(302).end();
+  })
+  .all(util.httpErrorAllowOnlyGet);
+
+/**
+ * Add security headers
+ */
+router.get('*', util.securityHeaders);
+
+router.route('/user/:userId')
+  .get(function(req, res, next) {
+    user.getUserInfo(req.params.userId)
+      .then(userInfo => {
+        if (userInfo.error === undefined) {
+          res.render('user', userInfo.userInfo);
+        } else {
+          res.setHeader('location', '/');
+          res.status(302).end();
+        }
+      })
+      .catch(next);
+  })
+  .all(util.httpErrorAllowOnlyGet);

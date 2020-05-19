@@ -188,6 +188,7 @@ router.use(function(req, res, next) {
   }
 });
 
+
 router.route('/logout')
   .post(function(req, res, next) {
     auth.removeSessionID(req.signedCookies['__Host-sessionID'])
@@ -205,6 +206,11 @@ router.route('/logout')
       })
       .catch(next);
   }).all(util.httpErrorAllowOnlyPost);
+
+/**
+ * Add security headers
+ */
+router.get('*', util.securityHeaders);
 
 router.route('/auth')
   .get(function(req, res, next) {

@@ -26,11 +26,6 @@ app.use(function(error: Error, req: express.Request, res: express.Response, next
 app.use(cookieParser(env.COOKIE_SECRET));
 
 /**
- * Add security headers
- */
-app.get('*', util.securityHeaders);
-
-/**
  * Routers
  */
 app.use(authRouter);
