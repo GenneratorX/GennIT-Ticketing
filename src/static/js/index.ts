@@ -3,7 +3,7 @@
 const logoutButton = document.getElementById('logoutButton') as HTMLAnchorElement;
 
 logoutButton.onclick = () => {
-  request('POST', '/logout')
+  request('POST', '/auth/logout')
     .then(response => {
       if (response['status'] === 'success') {
         window.sessionStorage.removeItem('userId');

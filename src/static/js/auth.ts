@@ -341,7 +341,7 @@ function usernameInputKeyUp() {
         break;
       case 'signUp':
         delay = setTimeout(() => {
-          request('GET', `/usernameExists?username=${usernameInput.value}`)
+          request('GET', `/auth/usernameExists?username=${usernameInput.value}`)
             .then(response => {
               if (response['exists'] === false) {
                 setBorderColor(usernameInput, 'green');
@@ -413,7 +413,7 @@ function emailInputKeyUp() {
     switch (currentWindow) {
       case 'signUp':
         delay = setTimeout(() => {
-          request('GET', `/emailExists?email=${emailInput.value}`)
+          request('GET', `/auth/emailExists?email=${emailInput.value}`)
             .then(response => {
               if (response['exists'] === false) {
                 setBorderColor(emailInput, 'green');
@@ -448,7 +448,7 @@ authElements.submitForm.addEventListener('submit', event => {
   switch (currentWindow) {
     case 'signIn': {
       if (usernameInput.className === greenBorder && passwordInput.className === greenBorder) {
-        request('POST', '/signin', { 'username': usernameInput.value, 'password': passwordInput.value })
+        request('POST', '/auth/signin', { 'username': usernameInput.value, 'password': passwordInput.value })
           .then(response => {
             if (response['status'] === 'success') {
               document.body.innerHTML = `` +
@@ -460,7 +460,7 @@ authElements.submitForm.addEventListener('submit', event => {
                 `</div>`;
               window.sessionStorage.setItem('userId', response['userId']);
               setTimeout(function() {
-                window.location.href = '/';
+                window.location.href = '/main';
               }, 2500);
             } else {
               switch (response['error']) {
@@ -492,7 +492,7 @@ authElements.submitForm.addEventListener('submit', event => {
         repeatPasswordInput.className === greenBorder &&
         emailInput.className === greenBorder
       ) {
-        request('POST', '/signup', {
+        request('POST', '/auth/signup', {
           'username': usernameInput.value,
           'password': passwordInput.value,
           'email': emailInput.value,
@@ -538,7 +538,7 @@ authElements.submitForm.addEventListener('submit', event => {
     }
     case 'forgotPassword': {
       if (emailInput.className === greenBorder) {
-        request('POST', '/forgotPassword', { 'email': emailInput.value })
+        request('POST', '/auth/forgotPassword', { 'email': emailInput.value })
           .then(response => {
             if (response['status'] === 'success') {
               snackbar('Verificați adresa e-mail introdusă pentru instrucțiunile de resetare a parolei!', 'blue');
@@ -555,7 +555,7 @@ authElements.submitForm.addEventListener('submit', event => {
     }
     case 'resendActivationMail': {
       if (emailInput.className === greenBorder) {
-        request('POST', '/resendActivationMail', { 'email': emailInput.value })
+        request('POST', '/auth/resendActivationMail', { 'email': emailInput.value })
           .then(response => {
             if (response['status'] === 'success') {
               snackbar('Verificați adresa e-mail introdusă pentru activarea contului!', 'blue');
@@ -572,7 +572,7 @@ authElements.submitForm.addEventListener('submit', event => {
     }
     case 'resetPassword': {
       if (passwordInput.className === greenBorder && repeatPasswordInput.className === greenBorder) {
-        request('POST', '/resetPasswordByEmail', { 'password': passwordInput.value, 'resetCode': resetCode })
+        request('POST', '/auth/resetPasswordByEmail', { 'password': passwordInput.value, 'resetCode': resetCode })
           .then(response => {
             if (response['status'] === 'success') {
               snackbar('Parola a fost resetată cu success!', 'green');

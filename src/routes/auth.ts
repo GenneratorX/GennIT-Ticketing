@@ -2,7 +2,6 @@
 
 import express = require('express');
 
-import { app } from '../app';
 import util = require('../modules/util');
 import auth = require('../modules/auth');
 
@@ -140,55 +139,6 @@ router.route('/resendActivationMail')
     }
   }).all(util.httpErrorAllowOnlyPost);
 
-/**
- * Check if user is logged in and redirect him to the login page if hes not
- */
-router.use(function(req, res, next) {
-  if (typeof req.signedCookies['__Host-sessionID'] === 'string') {
-    auth.verifySessionID(req.signedCookies['__Host-sessionID'])
-      .then(session => {
-        if (session.error === undefined) {
-          app.locals.userData = { ...session };
-          if (req.path === '/auth') {
-            res.setHeader('location', '/');
-            res.status(302).end();
-          } else {
-            next();
-          }
-        } else {
-          // Remove invalid/expired cookie
-          res.clearCookie('__Host-sessionID', {
-            path: '/',
-            httpOnly: true,
-            secure: true,
-            sameSite: true,
-          });
-          if (req.method === 'GET') {
-            res.setHeader('location', '/auth');
-            res.status(302).end();
-          } else {
-            res.setHeader('WWW-Authenticate', 'gennit-auth');
-            res.status(401).json({ error: 'user not authenticated' });
-          }
-        }
-      })
-      .catch(next);
-  } else {
-    if (req.method === 'GET') {
-      if (req.path !== '/auth') {
-        res.setHeader('location', '/auth');
-        res.status(302).end();
-      } else {
-        next();
-      }
-    } else {
-      res.setHeader('WWW-Authenticate', 'gennit-auth');
-      res.status(401).json({ error: 'user not authenticated' });
-    }
-  }
-});
-
-
 router.route('/logout')
   .post(function(req, res, next) {
     auth.removeSessionID(req.signedCookies['__Host-sessionID'])
@@ -206,25 +156,3 @@ router.route('/logout')
       })
       .catch(next);
   }).all(util.httpErrorAllowOnlyPost);
-
-/**
- * Add security headers
- */
-router.get('*', util.securityHeaders);
-
-router.route('/auth')
-  .get(function(req, res, next) {
-    if (typeof req.query.activation === 'string') {
-      auth.activateUser(req.query.activation)
-        .then(activated => {
-          if (activated === true) {
-            res.render('activation');
-          } else {
-            res.render('auth');
-          }
-        })
-        .catch(next);
-    } else {
-      res.render('auth');
-    }
-  }).all(util.httpErrorAllowOnlyGet);

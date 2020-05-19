@@ -2,7 +2,6 @@
 
 import express = require('express');
 
-import { app } from '../app';
 import util = require('../modules/util');
 import user = require('../modules/user');
 
@@ -35,7 +34,7 @@ router.route('/updateUserInfo')
       (typeof req.body.gender === 'string' || req.body.gender === null) &&
       (typeof req.body.phoneNumber === 'string' || req.body.phoneNumber === null)
     ) {
-      if (app.locals.userData.userId === req.body.userId) {
+      if (res.locals.userData.userId === req.body.userId) {
         user.updateUserInfo(
           req.body.userId,
           req.body.firstName,
@@ -57,9 +56,9 @@ router.route('/updateUserInfo')
   })
   .all(util.httpErrorAllowOnlyPost);
 
-router.route('/user')
+router.route('/')
   .get(function(req, res) {
-    res.setHeader('location', '/');
+    res.setHeader('location', '/main');
     res.status(302).end();
   })
   .all(util.httpErrorAllowOnlyGet);
@@ -69,14 +68,14 @@ router.route('/user')
  */
 router.get('*', util.securityHeaders);
 
-router.route('/user/:userId')
+router.route('/:userId')
   .get(function(req, res, next) {
     user.getUserInfo(req.params.userId)
       .then(userInfo => {
         if (userInfo.error === undefined) {
           res.render('user', userInfo.userInfo);
         } else {
-          res.setHeader('location', '/');
+          res.setHeader('location', '/main');
           res.status(302).end();
         }
       })
