@@ -496,7 +496,7 @@ authElements.submitForm.addEventListener('submit', event => {
           'username': usernameInput.value,
           'password': passwordInput.value,
           'email': emailInput.value,
-          'policy': (document.getElementById('chkBox') as HTMLInputElement).checked,
+          'policy': (document.getElementById('box') as HTMLInputElement).checked,
         })
           .then(response => {
             if (response['status'] === 'success') {
