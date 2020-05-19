@@ -26,9 +26,15 @@ select {
   padding: 0.1rem 0.5rem 0.1rem 2.7rem;
 }
 
-input:focus {
+input:focus,
+select:focus {
   box-shadow: 0 0 5px #363636;
   outline: 0;
+}
+
+input:disabled,
+select:disabled {
+  background: #454545;
 }
 
 input.green {

@@ -40,7 +40,7 @@ const authElements = {
   /**
    * Agreement button
    */
-  checkBoxLabel: document.getElementById('chkLabel') as HTMLLabelElement,
+  checkBoxDiv: document.getElementById('cbox') as HTMLDivElement,
   /**
    * Information box
    */
@@ -64,7 +64,7 @@ function displaySignIn() {
     authTitle,
     authMenuItem1,
     authMenuItem2,
-    checkBoxLabel,
+    checkBoxDiv,
     emailInput,
     infoBox,
     passwordInput,
@@ -78,7 +78,7 @@ function displaySignIn() {
     case 'signUp':
       submitForm.removeChild(repeatPasswordInput);
       submitForm.removeChild(emailInput);
-      submitForm.removeChild(checkBoxLabel);
+      submitForm.removeChild(checkBoxDiv);
       passwordInput.setAttribute('autocomplete', 'current-password');
       break;
     case 'forgotPassword':
@@ -261,26 +261,32 @@ function addRepeatPasswordInput() {
  * Adds an accept agreement checkbox
  */
 function addAgreementCheckbox() {
-  if (authElements.checkBoxLabel === null) {
-    const checkBoxLabel = document.createElement('label');
-    setAttributes(checkBoxLabel, {
-      'class': 'checkbox-label',
-      'id': 'chkLabel',
+  if (authElements.checkBoxDiv === null) {
+    const checkBoxDiv = document.createElement('div');
+    setAttributes(checkBoxDiv, {
+      'class': 'cbox',
+      'id': 'cbox',
     });
-    checkBoxLabel.textContent = 'Accept termenii și condițiile';
 
     const checkBoxInput = document.createElement('input');
     setAttributes(checkBoxInput, {
-      'id': 'chkBox',
-      'required': '',
       'type': 'checkbox',
+      'required': '',
+      'id': 'box',
     });
-    checkBoxLabel.insertAdjacentElement('afterbegin', checkBoxInput);
 
-    authElements.checkBoxLabel = checkBoxLabel;
-    authElements.submitForm.insertBefore(checkBoxLabel, authElements.submitButton);
+    const checkBoxLabel = document.createElement('label');
+    setAttributes(checkBoxLabel, {
+      'for': 'box',
+    });
+    checkBoxLabel.textContent = 'Accept termenii și condițiile';
+
+    checkBoxDiv.appendChild(checkBoxInput);
+    checkBoxDiv.appendChild(checkBoxLabel);
+    authElements.checkBoxDiv = checkBoxDiv;
+    authElements.submitForm.insertBefore(checkBoxDiv, authElements.submitButton);
   } else {
-    authElements.submitForm.insertBefore(authElements.checkBoxLabel, authElements.submitButton);
+    authElements.submitForm.insertBefore(authElements.checkBoxDiv, authElements.submitButton);
   }
 }
 

@@ -41,10 +41,10 @@
     "chokidar": "^3.4.0",
     "crass": "^0.12.3",
     "eslint": "^7.0.0",
-    "google-closure-compiler": "^20200504.0.0",
+    "google-closure-compiler": "^20200517.0.0",
     "html-minifier": "^4.0.0",
     "nodemon": "^2.0.4",
-    "stylelint": "^13.4.0",
+    "stylelint": "^13.4.1",
     "stylelint-config-standard": "^20.0.0",
     "stylelint-order": "^4.0.0",
     "typescript": "^3.9.2"

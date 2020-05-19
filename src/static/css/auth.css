@@ -75,14 +75,38 @@ input.login {
   outline: 0;
 }
 
-.checkbox-label {
-  cursor: pointer;
+.cbox {
   font-size: 1.2rem;
-  margin-top: 1rem;
+  line-height: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.cbox label::before {
+  background: #363636;
+  border-radius: 7px;
+  content: "\00a0";
+  display: inline-block;
+  margin-right: 0.5rem;
+  text-align: center;
+  width: 1.5rem;
+}
+
+.cbox label:hover::before {
+  background: #303030;
+}
+
+.cbox label {
+  cursor: pointer;
   user-select: none;
 }
 
-.checkbox-label:focus {
-  outline: 0;
-  text-shadow: 5px 5px 10px #09776c;
+.cbox input:checked ~ label::before {
+  content: "\2714";
+}
+
+.cbox input {
+  margin-right: -1.2rem;
+  margin-top: 0;
+  min-height: 1rem;
+  opacity: 0;
 }
