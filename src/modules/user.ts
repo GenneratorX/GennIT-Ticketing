@@ -1,6 +1,10 @@
 'use strict';
 
 import db = require('./db');
+import util = require('./util');
+
+const nameRegexp = /^([a-z\u00C0-\u02AB]+((['´`,. -][a-z\u00C0-\u02AB ])?[a-z\u00C0-\u02AB]*)*){2,50}$/i;
+const phoneNumberRegexp = /^[0-9]{9,15}$/;
 
 /**
  * Gets user information based on user id
@@ -39,10 +43,25 @@ export async function updateUserInfo(
   gender: string | null,
   phoneNumber: string | null
 ) {
-  await db.query(
-    'UPDATE users SET first_name = $1, last_name = $2, birth_date = $3, gender = $4, phone_number = $5' +
-    'WHERE user_id = $6;',
-    [firstName, lastName, birthDate, gender, phoneNumber, userId]
-  );
-  return { status: 'success' };
+  if (firstName === null || nameRegexp.test(firstName) === true) {
+    if (lastName === null || nameRegexp.test(lastName) === true) {
+      if (birthDate === null || util.isDate(birthDate) === true) {
+        if (gender === null || gender === '0' || gender === '1' || gender === '2') {
+          if (phoneNumber === null || phoneNumberRegexp.test(phoneNumber) === true) {
+            await db.query(
+              'UPDATE users SET first_name = $1, last_name = $2, birth_date = $3, gender = $4, phone_number = $5' +
+              'WHERE user_id = $6;',
+              [firstName, lastName, birthDate, gender, phoneNumber, userId]
+            );
+            return { status: 'success' };
+          }
+          return { error: 'invalid phone number' };
+        }
+        return { error: 'invalid gender' };
+      }
+      return { error: 'invalid date' };
+    }
+    return { error: 'invalid last name' };
+  }
+  return { error: 'invalid first name' };
 }

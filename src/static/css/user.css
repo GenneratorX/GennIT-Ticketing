@@ -38,6 +38,7 @@
   line-height: 10rem;
   margin: 0 auto;
   text-align: center;
+  user-select: none;
   width: 10rem;
 }
 
@@ -99,10 +100,9 @@
 
 #firstName,
 #lastName,
-#birthDateMonth,
 #phoneNumber {
   flex: 1;
-  min-width: 18rem;
+  max-width: 100%;
 }
 
 #email {
@@ -112,20 +112,31 @@
 
 #birthDateDay {
   flex: 1;
+  max-width: 100%;
   min-width: 5rem;
+}
+
+#birthDateMonth {
+  flex: 1;
+  max-width: 100%;
+  min-width: 12rem;
 }
 
 #birthDateYear {
   flex: 1;
+  max-width: 100%;
   min-width: 6rem;
+  width: 100%;
 }
 
 #gender {
   flex: 1;
-  min-width: 15rem;
+  max-width: 100%;
+  min-width: 12rem;
 }
 
 #submitButton {
+  background: #454545;
   flex: 1;
   min-width: 100%;
   padding: 0.7rem;

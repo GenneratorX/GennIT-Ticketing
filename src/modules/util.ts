@@ -104,3 +104,19 @@ export function httpErrorAllowOnlyPost(req: express.Request, res: express.Respon
   res.setHeader('Allow', 'POST');
   res.status(405).json({ error: `request method ${req.method} is inappropriate for the URL ${req.url}` });
 }
+
+/**
+ * Checks if the string is a valid date
+ * @param date String to check
+ * @returns True if string is a valid date, false otherwise
+ */
+export function isDate(date: string) {
+  if (isNaN(Date.parse(date))) {
+    return false;
+  } else {
+    if (date !== (new Date(date)).toISOString().substr(0, 10)) {
+      return false;
+    }
+  }
+  return true;
+}

@@ -4,7 +4,7 @@
 [![Mozilla HTTP Observatory Grade](https://img.shields.io/mozilla-observatory/grade/master.gennerator.com?label=MozillaObservatory%20grade&publish&style=flat-square)](https://observatory.mozilla.org/analyze/master.gennerator.com)
 [![LGTM Grade](https://img.shields.io/lgtm/grade/javascript/github/GenneratorX/GennIT-Ticketing?label=LGTM%20code%20quality%3A%20JS%2FTS&style=flat-square)](https://lgtm.com/projects/g/GenneratorX/GennIT-Ticketing)
 [![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/GenneratorX/GennIT-Ticketing?label=CodeFactor%20code%20quality&style=flat-square)](https://www.codefactor.io/repository/github/genneratorx/gennit-ticketing)
-[![DeepScan Grade](https://deepscan.io/api/teams/5387/projects/11154/branches/162343/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=5387&pid=11154&bid=162343)
+[![DeepScan Grade](https://deepscan.io/api/teams/5387/projects/11623/branches/174989/badge/grade.svg)](https://deepscan.io/dashboard/#view=project&tid=5387&pid=11623&bid=174989)
 ![Snyk Vulnerabilities](https://img.shields.io/snyk/vulnerabilities/github/GenneratorX/GennIT-Ticketing?label=Snyk%20-%20vulnerabilities&style=flat-square)
 [![BCH Compliance](https://bettercodehub.com/edge/badge/GenneratorX/GennIT-Ticketing?branch=master)](https://bettercodehub.com/results/GenneratorX/GennIT-Ticketing)
 

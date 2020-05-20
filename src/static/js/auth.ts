@@ -651,16 +651,3 @@ function passwordCheck(password: string) {
     special: special,
   };
 }
-
-/**
- * Sets the border color of a HTML input element
- * @param inputElement HTML input element to set the border color
- * @param color Border color
- */
-function setBorderColor(inputElement: HTMLInputElement, color?: 'red' | 'green') {
-  switch (color) {
-    case 'green': inputElement.className = greenBorder; break;
-    case 'red': inputElement.className = 'login red'; break;
-    default: inputElement.className = 'login';
-  }
-}

@@ -37,11 +37,13 @@ select:disabled {
   background: #454545;
 }
 
-input.green {
+input.green,
+select.green {
   border-color: #09776c;
 }
 
-input.red {
+input.red,
+select.red {
   border-color: #d3312e;
 }
 

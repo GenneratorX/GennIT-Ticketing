@@ -124,3 +124,58 @@ function greetingMessage() {
     return 'Neața';
   }
 }
+
+/**
+ * Sets the border color of a HTML element
+ * @param htmlElement HTML element to set the border color
+ * @param color Border color
+ */
+function setBorderColor(htmlElement: HTMLElement, color?: 'red' | 'green') {
+  const htmlElementClassList = htmlElement.classList;
+  htmlElementClassList.remove('red', 'green');
+  switch (color) {
+    case 'green': htmlElementClassList.add('green'); break;
+    case 'red': htmlElementClassList.add('red'); break;
+  }
+}
+
+/**
+ * Removes leading and trailing whitespace and consecutive whitespaces
+ * @param text String to remove the whitespace from
+ * @returns Clean string
+ */
+function trimWhitespace(text: string) {
+  return text.trim().replace(/\s+/g, ' ');
+}
+
+/**
+ * Checks if the string is a valid date
+ * @param date String to check
+ * @returns True if string is a valid date, false otherwise
+ */
+function isDate(date: string) {
+  if (isNaN(Date.parse(date))) {
+    return false;
+  } else {
+    if (date !== (new Date(date)).toISOString().substr(0, 10)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Universal event handler that allows only numbers
+ * @param event Keyboard event
+ */
+function inputAllowOnlyNumbers(event: KeyboardEvent) {
+  if (
+    (event.keyCode < 48 || event.keyCode > 58) && // top numbers
+    (event.keyCode < 96 || event.keyCode > 105) && // numpad numbers
+    (event.keyCode < 37 || event.keyCode > 40) && // arrows
+    (event.keyCode !== 8 && event.keyCode !== 46) && // BACKSPACE and DELETE
+    (event.keyCode !== 9 && event.keyCode !== 116) // TAB and F5
+  ) {
+    event.preventDefault();
+  }
+}

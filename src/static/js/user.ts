@@ -3,11 +3,17 @@
 let editUserInfoButton: HTMLImageElement;
 let addFriendButton: HTMLImageElement;
 
+const nameRegexp = /^([a-z\u00C0-\u02AB]+((['´`,. -][a-z\u00C0-\u02AB ])?[a-z\u00C0-\u02AB]*)*){2,50}$/i;
+const phoneNumberRegexp = /^[0-9]{9,15}$/;
+
 if (window.sessionStorage.getItem('userId') === window.location.pathname.substring(6)) {
   displayEditUserInfoButton();
   displayAddFriendButton();
 }
 
+/**
+ * Displays the edit user information button
+ */
 function displayEditUserInfoButton() {
   editUserInfoButton = document.createElement('img');
   setAttributes(editUserInfoButton, {
@@ -20,6 +26,9 @@ function displayEditUserInfoButton() {
   editUserInfoButton.onclick = displayEditUserInfo;
 }
 
+/**
+ * Displays the add friend button
+ */
 function displayAddFriendButton() {
   addFriendButton = document.createElement('img');
   setAttributes(addFriendButton, {
@@ -36,13 +45,14 @@ function displayAddFriendButton() {
  * Displays the user information edit window
  */
 function displayEditUserInfo() {
-  request('GET', `/userInfo?userId=${window.sessionStorage.getItem('userId')}`)
+  request('GET', `/user/userInfo?userId=${window.sessionStorage.getItem('userId')}`)
     .then(response => {
       if (response['error'] === undefined) {
         removeUserInfoDisplay();
         const userInfoDiv = document.getElementById('userInfoDiv') as HTMLDivElement;
         const form = document.createElement('form');
         setAttributes(form, {
+          'id': 'edit-user-info',
           'class': 'edit-user-info',
           'spellcheck': 'false',
         });
@@ -101,15 +111,13 @@ function displayEditUserInfo() {
         });
         const defaultBirthDateMonthValue = new Option('Luna', '');
         setAttributes(defaultBirthDateMonthValue, {
-          'disabled': '',
-          'hidden': '',
           'selected': '',
         });
         birthDateMonthInput.add(defaultBirthDateMonthValue);
         const months = ['Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie', 'Iulie', 'August', 'Septembrie',
           'Octombrie', 'Noiembrie', 'Decembrie'];
         for (let i = 0; i < months.length; i++) {
-          birthDateMonthInput.add(new Option(months[i], i.toString()));
+          birthDateMonthInput.add(new Option(months[i], (i + 1).toString().padStart(2, '0')));
         }
 
         /**
@@ -162,40 +170,6 @@ function displayEditUserInfo() {
           'type': 'submit',
         });
 
-        submitButton.onclick = event => {
-          request('POST', '/updateUserInfo', {
-            'userId': window.sessionStorage.getItem('userId'),
-            'firstName': firstNameInput.value !== '' ? firstNameInput.value : null,
-            'lastName': lastNameInput.value !== '' ? lastNameInput.value : null,
-            'birthDate': `${birthDateYearInput.value}-${birthDateMonthInput.selectedIndex}-${birthDateDayInput.value}`,
-            'gender': genderInput.value !== '' ? genderInput.value : null,
-            'phoneNumber': phoneNumberInput.value !== '' ? phoneNumberInput.value : null,
-          })
-            .then(response2 => {
-              if (response2['status'] === 'success') {
-                snackbar('Datele utilizatorului au fost schimbate!', 'green');
-                userInfoDiv.removeChild(form);
-                displayEditUserInfoButton();
-                displayUserInfo(
-                  firstNameInput.value,
-                  lastNameInput.value,
-                  `${birthDateYearInput.value}-${birthDateMonthInput.selectedIndex}-${birthDateDayInput.value}`,
-                  genderInput.value,
-                  phoneNumberInput.value,
-                  response['userInfo']['email'],
-                  response['userInfo']['create_date'],
-                  response['userInfo']['last_login']
-                );
-              } else {
-                snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
-              }
-            })
-            .catch(() => {
-              snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
-            });
-          event.preventDefault();
-        };
-
         /**
          * Add user info to inputs
          */
@@ -214,8 +188,35 @@ function displayEditUserInfo() {
         phoneNumberInput.value = response['userInfo']['phone_number'];
         submitButton.value = 'SALVEAZĂ';
 
-        userInfoDiv.appendChild(form);
+        /**
+         * Add event handlers
+         */
+        firstNameInput.onkeyup = onKeyUpFirstNameInput;
+        firstNameInput.onblur = onBlurFirstNameInput;
+        lastNameInput.onkeyup = onKeyUpLastNameInput;
+        lastNameInput.onblur = onBlurLastNameInput;
+        birthDateDayInput.onkeyup = onKeyUpBirthDateDayInput;
+        birthDateDayInput.onkeydown = inputAllowOnlyNumbers;
+        birthDateDayInput.onblur = onBlurDate;
+        birthDateMonthInput.onchange = onBlurDate;
+        birthDateYearInput.onkeyup = onKeyUpBirthDateYearInput;
+        birthDateYearInput.onkeydown = inputAllowOnlyNumbers;
+        birthDateYearInput.onblur = onBlurDate;
+        phoneNumberInput.onkeyup = onKeyUpPhoneNumberInput;
+        phoneNumberInput.onkeydown = inputAllowOnlyNumbers;
 
+        submitButton.onclick = event => {
+          onClickSubmitButton(event, {
+            'email': response['userInfo']['email'],
+            'createDate': response['userInfo']['create_date'],
+            'lastLogin': response['userInfo']['last_login'],
+          });
+        };
+
+        /**
+         * Add inputs to window
+         */
+        userInfoDiv.appendChild(form);
         form.appendChild(firstNameInput);
         form.appendChild(lastNameInput);
         form.appendChild(emailInput);
@@ -254,38 +255,39 @@ function removeUserInfoDisplay() {
 
 /**
  * Displays the user information window
- * @param firstName First name
- * @param lastName Last name
- * @param birthDate Birth date
- * @param gender Gender
- * @param phoneNumber Phone number
- * @param email Email address
- * @param createDate Account creation date
- * @param lastLogin Account last login date
+ * @param userInfo User information object
  */
 function displayUserInfo(
-  firstName: string,
-  lastName: string,
-  birthDate: string,
-  gender: string,
-  phoneNumber: string,
-  email: string,
-  createDate: string,
-  lastLogin: string
+  userInfo: {
+    firstName: string | null,
+    lastName: string | null,
+    birthDate: string | null,
+    gender: string | null,
+    phoneNumber: string | null,
+    email: string,
+    createDate: string,
+    lastLogin: string
+  }
 ) {
-  displayUserInfoSection('Prenume', firstName);
-  displayUserInfoSection('Nume', lastName);
-  displayUserInfoSection('Data nașterii', new Date(birthDate).toLocaleDateString('ro-RO'));
-  switch (gender) {
+  const userInfoDiv = document.getElementById('userInfoDiv') as HTMLDivElement;
+  const form = document.getElementById('edit-user-info') as HTMLFormElement;
+  userInfoDiv.removeChild(form);
+  displayEditUserInfoButton();
+
+  displayUserInfoSection('Prenume', userInfo.firstName);
+  displayUserInfoSection('Nume', userInfo.lastName);
+  if (userInfo.birthDate !== null) {
+    displayUserInfoSection('Data nașterii', new Date(userInfo.birthDate).toLocaleDateString('ro-RO'));
+  }
+  switch (userInfo.gender) {
     case '0': displayUserInfoSection('Sex', 'Masculin'); break;
     case '1': displayUserInfoSection('Sex', 'Feminin'); break;
     case '2': displayUserInfoSection('Sex', 'Nespecificat'); break;
-    default: displayUserInfoSection('Sex', gender);
   }
-  displayUserInfoSection('Număr telefon', phoneNumber);
-  displayUserInfoSection('Adresă e-mail', email);
-  displayUserInfoSection('Cont creat', new Date(createDate).toLocaleString('ro-RO'));
-  displayUserInfoSection('Văzut ultima dată', new Date(lastLogin).toLocaleString('ro-RO'));
+  displayUserInfoSection('Număr telefon', userInfo.phoneNumber);
+  displayUserInfoSection('Adresă e-mail', userInfo.email);
+  displayUserInfoSection('Cont creat', new Date(userInfo.createDate).toLocaleString('ro-RO'));
+  displayUserInfoSection('Văzut ultima dată', new Date(userInfo.lastLogin).toLocaleString('ro-RO'));
 }
 
 /**
@@ -293,8 +295,8 @@ function displayUserInfo(
  * @param name Name of the element
  * @param value Value of the element
  */
-function displayUserInfoSection(name: string, value: string) {
-  if (value !== '') {
+function displayUserInfoSection(name: string, value: string | null) {
+  if (value !== null) {
     const userInfoDiv = document.getElementById('userInfoDiv') as HTMLDivElement;
 
     const div = document.createElement('div');
@@ -306,4 +308,230 @@ function displayUserInfoSection(name: string, value: string) {
 
     userInfoDiv.appendChild(div);
   }
+}
+
+
+/**
+ * Event handlers
+ */
+
+function onKeyUpFirstNameInput() {
+  const firstNameInput = document.getElementById('firstName') as HTMLInputElement;
+  if (firstNameInput.value.length > 0) {
+    if (nameRegexp.test(firstNameInput.value) === true) {
+      setBorderColor(firstNameInput, 'green');
+    } else {
+      setBorderColor(firstNameInput, 'red');
+    }
+  } else {
+    setBorderColor(firstNameInput);
+  }
+}
+
+function onBlurFirstNameInput() {
+  const firstNameInput = document.getElementById('firstName') as HTMLInputElement;
+  firstNameInput.value = trimWhitespace(firstNameInput.value);
+  onKeyUpFirstNameInput();
+}
+
+function onKeyUpLastNameInput() {
+  const lastNameInput = document.getElementById('lastName') as HTMLInputElement;
+  if (lastNameInput.value.length > 0) {
+    if (nameRegexp.test(lastNameInput.value) === true) {
+      setBorderColor(lastNameInput, 'green');
+    } else {
+      setBorderColor(lastNameInput, 'red');
+    }
+  } else {
+    setBorderColor(lastNameInput);
+  }
+}
+
+function onBlurLastNameInput() {
+  const lastNameInput = document.getElementById('lastName') as HTMLInputElement;
+  lastNameInput.value = trimWhitespace(lastNameInput.value);
+  onKeyUpLastNameInput();
+}
+
+function onBlurDate() {
+  const birthDateDayInput = document.getElementById('birthDateDay') as HTMLInputElement;
+  const birthDateMonthInput = document.getElementById('birthDateMonth') as HTMLSelectElement;
+  const birthDateYearInput = document.getElementById('birthDateYear') as HTMLInputElement;
+  if (
+    birthDateDayInput.value.length > 0 ||
+    birthDateMonthInput.selectedIndex !== 0 ||
+    birthDateYearInput.value.length > 0
+  ) {
+    if (
+      isDate(
+        `${birthDateYearInput.value}-` +
+        `${birthDateMonthInput.value}-` +
+        `${birthDateDayInput.value.padStart(2, '0')}`
+      ) === true &&
+      new Date(
+        `${birthDateYearInput.value}-` +
+        `${birthDateMonthInput.value}-` +
+        `${birthDateDayInput.value.padStart(2, '0')}`
+      ) < new Date()
+    ) {
+      setBorderColor(birthDateDayInput, 'green');
+      setBorderColor(birthDateMonthInput, 'green');
+      setBorderColor(birthDateYearInput, 'green');
+    } else {
+      setBorderColor(birthDateDayInput, 'red');
+      setBorderColor(birthDateMonthInput, 'red');
+      setBorderColor(birthDateYearInput, 'red');
+    }
+  } else {
+    setBorderColor(birthDateDayInput);
+    setBorderColor(birthDateMonthInput);
+    setBorderColor(birthDateYearInput);
+  }
+}
+
+function onKeyUpBirthDateDayInput() {
+  const birthDateDayInput = document.getElementById('birthDateDay') as HTMLInputElement;
+  if (birthDateDayInput.value.length > 0) {
+    const inputValue = parseInt(birthDateDayInput.value);
+    if (isNaN(inputValue) === false) {
+      if (inputValue >= 1 && inputValue <= 31) {
+        setBorderColor(birthDateDayInput);
+      } else {
+        setBorderColor(birthDateDayInput, 'red');
+      }
+    } else {
+      setBorderColor(birthDateDayInput, 'red');
+    }
+  } else {
+    setBorderColor(birthDateDayInput);
+  }
+  onBlurDate();
+}
+
+function onKeyUpBirthDateYearInput() {
+  const birthDateYearInput = document.getElementById('birthDateYear') as HTMLInputElement;
+  if (birthDateYearInput.value.length > 0) {
+    const inputValue = parseInt(birthDateYearInput.value);
+    if (isNaN(inputValue) === false) {
+      if (inputValue >= 1900 && inputValue <= new Date().getFullYear()) {
+        setBorderColor(birthDateYearInput);
+      } else {
+        setBorderColor(birthDateYearInput, 'red');
+      }
+    } else {
+      setBorderColor(birthDateYearInput, 'red');
+    }
+  } else {
+    setBorderColor(birthDateYearInput);
+  }
+  onBlurDate();
+}
+
+function onKeyUpPhoneNumberInput() {
+  const phoneNumberInput = document.getElementById('phoneNumber') as HTMLInputElement;
+  if (phoneNumberInput.value.length > 0) {
+    if (phoneNumberRegexp.test(phoneNumberInput.value) === true) {
+      setBorderColor(phoneNumberInput, 'green');
+    } else {
+      setBorderColor(phoneNumberInput, 'red');
+    }
+  } else {
+    setBorderColor(phoneNumberInput);
+  }
+}
+
+/**
+ * Submit button click event handler
+ * @param event Mouse event
+ * @param info User information
+ */
+function onClickSubmitButton(event: MouseEvent, info: { [property: string]: string }) {
+  let userInfo: { [property: string]: string | null } = { 'userId': window.sessionStorage.getItem('userId') };
+
+  const firstNameInput = document.getElementById('firstName') as HTMLInputElement;
+  const lastNameInput = document.getElementById('lastName') as HTMLInputElement;
+  const birthDateDayInput = document.getElementById('birthDateDay') as HTMLInputElement;
+  const birthDateMonthInput = document.getElementById('birthDateMonth') as HTMLSelectElement;
+  const birthDateYearInput = document.getElementById('birthDateYear') as HTMLInputElement;
+  const genderInput = document.getElementById('gender') as HTMLSelectElement;
+  const phoneNumberInput = document.getElementById('phoneNumber') as HTMLInputElement;
+
+  if (
+    firstNameInput.className !== 'red' &&
+    lastNameInput.className !== 'red' &&
+    birthDateDayInput.className !== 'red' &&
+    birthDateMonthInput.className !== 'red' &&
+    birthDateYearInput.className !== 'red' &&
+    phoneNumberInput.className !== 'red'
+  ) {
+    /**
+     * Add first name to user info
+     */
+    userInfo['firstName'] = firstNameInput.value !== '' ? firstNameInput.value : null;
+
+    /**
+     * Add last name to user info
+     */
+    userInfo['lastName'] = lastNameInput.value !== '' ? lastNameInput.value : null;
+
+    /**
+     * Add birthdate to user info
+     */
+    if (
+      birthDateDayInput.className === 'green' &&
+      birthDateMonthInput.className === 'green' &&
+      birthDateYearInput.className === 'green'
+    ) {
+      userInfo['birthDate'] =
+        `${birthDateYearInput.value}-` +
+        `${birthDateMonthInput.value}-` +
+        `${birthDateDayInput.value.padStart(2, '0')}`;
+    } else {
+      if (
+        birthDateDayInput.value.length > 0 &&
+        birthDateMonthInput.selectedIndex !== 0 &&
+        birthDateYearInput.value.length > 0
+      ) {
+        userInfo['birthDate'] =
+          `${birthDateYearInput.value}-${birthDateMonthInput.value}-${birthDateDayInput.value.padStart(2, '0')}`;
+      } else {
+        userInfo['birthDate'] = null;
+      }
+    }
+
+    /**
+     * Add gender to user info
+     */
+    userInfo['gender'] = genderInput.value !== '' ? genderInput.value : null;
+
+    /**
+     * Add phone number to user info
+     */
+    userInfo['phoneNumber'] = phoneNumberInput.value !== '' ? phoneNumberInput.value : null;
+
+    request('POST', '/user/updateUserInfo', userInfo)
+      .then(response => {
+        if (response['status'] === 'success') {
+          snackbar('Datele utilizatorului au fost schimbate!', 'green');
+          displayUserInfo({
+            firstName: userInfo['firstName'],
+            lastName: userInfo['lastName'],
+            birthDate: userInfo['birthDate'],
+            gender: userInfo['gender'],
+            phoneNumber: userInfo['phoneNumber'],
+            email: info['email'],
+            createDate: info['createDate'],
+            lastLogin: info['lastLogin'],
+          });
+        } else {
+          snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+        }
+      })
+      .catch(() => {
+        snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+      });
+  } else {
+    snackbar('Datele introduse sunt invalide. Verifică datele introduse în câmpurile roșii!', 'red');
+  }
+  event.preventDefault();
 }
