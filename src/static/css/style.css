@@ -13,7 +13,8 @@ body {
 }
 
 input,
-select {
+select,
+textarea {
   background: #232323;
   border: 2px #363636 solid;
   border-radius: 15px;
@@ -26,8 +27,17 @@ select {
   padding: 0.1rem 0.5rem 0.1rem 2.7rem;
 }
 
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: #232323 url(https://static.gennerator.com/img/svg/caret.svg) no-repeat 95% 50%/1.5rem 1.5rem;
+  cursor: pointer;
+}
+
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   box-shadow: 0 0 5px #363636;
   outline: 0;
 }

@@ -1,5 +1,6 @@
 # File copyrights
 src/static/img/svg/calendar.svg  
+src/static/img/svg/caret.svg  
 src/static/img/svg/edit.svg  
 src/static/img/svg/email.svg  
 src/static/img/svg/home.svg  
