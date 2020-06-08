@@ -3,16 +3,14 @@
 import argon2 = require('argon2');
 import nodemailer = require('nodemailer');
 import ejs = require('ejs');
-import Redis = require('ioredis');
 
-import util = require('util');
-import crypto = require('crypto');
 import querystring = require('querystring');
 
 import env = require('../env');
 import db = require('./db');
+import util = require('./util');
 
-const randomBytes = util.promisify(crypto.randomBytes);
+import { redis } from './db';
 
 const userRegexp = /^[a-zA-Z\d][a-zA-Z\d!?$^&*._-]{5,39}$/;
 const passwordRegexp = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w]).{8,}$/;
@@ -22,15 +20,14 @@ const emailRegexp = new RegExp(
 );
 
 const transporter = nodemailer.createTransport(env.EMAIL_CONFIG);
-const redis = new Redis(env.REDIS_CONFIG);
 
 /**
  * Adds a user to the database
  * @param userName Username
  * @param password Password
  * @param email E-mail address
- * @param active Account activation status [true - enabled | false - disabled]
- * @param admin Whether the user is admin [true - admin | false - not admin]
+ * @param active Whether the account is activated
+ * @param admin Whether the user is admin
  * @returns Status of the user creation
  */
 export async function createUser(userName: string, password: string, email: string, active = false, admin = false) {
@@ -40,12 +37,14 @@ export async function createUser(userName: string, password: string, email: stri
         if ((await usernameExists(userName)) === false) {
           if ((await emailExists(email)) === false) {
             const passwordHash = argon2.hash(password, env.ARGON2_CONFIG);
-            const userID = await generateCode('userID');
+            const userId = await util.generateId(9, {
+              query: 'SELECT user_id FROM users WHERE user_id = $1;',
+            }, true);
             await db.query(
               'INSERT INTO users VALUES ($1, $2, $3, $4, $5, DEFAULT, NULL, $6);',
-              [userID, userName, await passwordHash, email.toLowerCase(), active, admin]
+              [userId, userName, await passwordHash, email.toLowerCase(), active, admin]
             );
-            sendActivationEmail(userID, userName, email);
+            sendActivationEmail(userId, userName, email);
             return { status: 'success' };
           }
           return { error: 'email exists' };
@@ -73,10 +72,10 @@ export async function loginUser(userName: string, password: string) {
   if (query.length === 1) {
     if ((await argon2.verify(query[0].password, password)) === true) {
       if (query[0].active === true) {
-        const sessionID = await generateCode('sessionID');
+        const sessionId = await util.generateId(128, { database: 'redis', query: 'session' });
         db.query('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE LOWER(username) = LOWER($1);', [userName]);
 
-        await redis.set(`session:${sessionID}`,
+        await redis.set(`session:${sessionId}`,
           JSON.stringify({
             userId: query[0].user_id,
             userName: query[0].username,
@@ -84,9 +83,9 @@ export async function loginUser(userName: string, password: string) {
           'EX', 43200 // 12 hours
         );
 
-        return { status: 'success', userName: query[0].username, userId: query[0].user_id, sessionID: sessionID };
+        return { status: 'success', userName: query[0].username, userId: query[0].user_id, sessionId: sessionId };
       } else {
-        const activationToken = await generateCode('activationToken');
+        const activationToken = await util.generateId(32, { database: 'redis', query: 'activationToken' });
         await redis.set(
           `activationToken:${activationToken}`,
           JSON.stringify({ userName: query[0].username }),
@@ -100,12 +99,12 @@ export async function loginUser(userName: string, password: string) {
 }
 
 /**
- * Removes the sessionID from the database
- * @param sessionID Session ID
- * @returns Status of the removal of the session ID
+ * Removes the session ID from the database
+ * @param sessionId Session ID
+ * @returns Status of removal of the session ID
  */
-export async function removeSessionID(sessionID: string) {
-  const query = await redis.del(`session:${sessionID}`);
+export async function removeSessionId(sessionId: string) {
+  const query = await redis.del(`session:${sessionId}`);
   if (query === 1) {
     return true;
   }
@@ -113,12 +112,12 @@ export async function removeSessionID(sessionID: string) {
 }
 
 /**
- * Checks if the sessionID matches the one stored in the database
- * @param sessionID Session ID
- * @returns Status of sessionID
+ * Checks if the session ID matches the one stored in the database
+ * @param sessionId Session ID
+ * @returns Status of session ID
  */
-export async function verifySessionID(sessionID: string) {
-  const query = await redis.get(`session:${sessionID}`);
+export async function verifySessionId(sessionId: string) {
+  const query = await redis.get(`session:${sessionId}`);
   if (query !== null) {
     return JSON.parse(query);
   }
@@ -188,16 +187,18 @@ export async function resetPasswordByEmail(resetCode: string, newPassword: strin
 
 /**
  * Sends an activation mail to a user
- * @param userID User ID
+ * @param userId User ID
  * @param userName User name
  * @param email E-mail address
  */
-async function sendActivationEmail(userID: string, userName: string, email: string) {
-  if ((await db.query('SELECT user_id FROM users_activation WHERE user_id = $1;', [userID])).length === 1) {
-    await db.query('DELETE FROM users_activation WHERE user_id = $1;', [userID]);
+async function sendActivationEmail(userId: string, userName: string, email: string) {
+  if ((await db.query('SELECT user_id FROM users_activation WHERE user_id = $1;', [userId])).length === 1) {
+    await db.query('DELETE FROM users_activation WHERE user_id = $1;', [userId]);
   }
-  const activationCode = await generateCode('activationCode');
-  await db.query('INSERT INTO users_activation VALUES ($1, $2);', [userID, activationCode]);
+  const activationCode = await util.generateId(128, {
+    query: 'SELECT activation_code FROM users_activation WHERE activation_code = $1;',
+  });
+  await db.query('INSERT INTO users_activation VALUES ($1, $2);', [userId, activationCode]);
   sendEmail(email, 'Confirmare creare cont', 'app/views/emails/activation.ejs', {
     userName: userName,
     activationCode: querystring.escape(activationCode),
@@ -239,7 +240,10 @@ export async function sendResetPasswordEmail(email: string) {
     if ((await db.query('SELECT user_id FROM users_reset WHERE user_id = $1;', [query[0].user_id])).length === 1) {
       await db.query('DELETE FROM users_reset WHERE user_id = $1;', [query[0].user_id]);
     }
-    const resetCode = await generateCode('resetPasswordCode');
+
+    const resetCode = await util.generateId(128, {
+      query: 'SELECT reset_code FROM users_reset WHERE reset_code = $1;',
+    });
     await db.query('INSERT INTO users_reset VALUES ($1, $2);', [query[0].user_id, resetCode]);
 
     sendEmail(email, 'Resetare parolă', 'app/views/emails/resetPassword.ejs', {
@@ -278,71 +282,3 @@ function sendEmail(
     }
   });
 }
-
-/* eslint-disable no-constant-condition */
-/**
- * Generates a unique base64 encoded string
- * @param type Type of code to generate
- * @returns Base64 encoded string that is unique to the database
- */
-async function generateCode(type: 'userID' | 'sessionID' | 'activationCode' | 'activationToken' | 'resetPasswordCode') {
-  switch (type) {
-    case 'userID': {
-      while (true) {
-        const userID =
-          (await randomBytes(9))
-            .toString('base64')
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=+$/, '');
-        const query = await db.query('SELECT user_id FROM users WHERE user_id = $1;', [userID]);
-        if (query.length === 0) {
-          return userID;
-        }
-      }
-    }
-    case 'sessionID': {
-      while (true) {
-        const sessionID = (await randomBytes(128)).toString('base64');
-        const query = await redis.get(`session:${sessionID}`);
-        if (query === null) {
-          return sessionID;
-        }
-      }
-    }
-    case 'activationCode': {
-      while (true) {
-        const activationCode = (await randomBytes(128)).toString('base64');
-        const query = await db.query(
-          'SELECT activation_code FROM users_activation WHERE activation_code = $1;',
-          [activationCode]
-        );
-        if (query.length === 0) {
-          return activationCode;
-        }
-      }
-    }
-    case 'activationToken': {
-      while (true) {
-        const activationToken = (await randomBytes(32)).toString('base64');
-        const query = await redis.get(`activationToken:${activationToken}`);
-        if (query === null) {
-          return activationToken;
-        }
-      }
-    }
-    case 'resetPasswordCode': {
-      while (true) {
-        const resetCode = (await randomBytes(128)).toString('base64');
-        const query = await db.query(
-          'SELECT reset_code FROM users_reset WHERE reset_code = $1;',
-          [resetCode]
-        );
-        if (query.length === 0) {
-          return resetCode;
-        }
-      }
-    }
-  }
-}
-/* eslint-enable no-constant-condition */

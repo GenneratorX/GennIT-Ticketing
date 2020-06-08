@@ -1,9 +1,12 @@
 'use strict';
 
 import pg = require('pg');
+import Redis = require('ioredis');
+
 import env = require('../env');
 
 const pool = new pg.Pool(env.PG_CONFIG);
+export const redis = new Redis(env.REDIS_CONFIG);
 
 /**
  * Executes a query on the database
@@ -21,7 +24,7 @@ export async function query(query: string, parameters?: any[]): Promise<{ [prope
     });
     return response.rows;
   } catch (error) {
-    let display = new Error('Database - ');
+    const display = new Error('Database - ');
     switch (error.code) {
       case '28000':
         display.message += `INVALID_AUTHENTICATION - ${error.message}`;

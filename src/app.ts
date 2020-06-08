@@ -42,7 +42,7 @@ app.use('/auth', authRouter);
  */
 app.use(function(req, res, next) {
   if (typeof req.signedCookies['__Host-sessionID'] === 'string') {
-    auth.verifySessionID(req.signedCookies['__Host-sessionID'])
+    auth.verifySessionId(req.signedCookies['__Host-sessionID'])
       .then(session => {
         if (session.error === undefined) {
           res.locals.userData = { ...session };

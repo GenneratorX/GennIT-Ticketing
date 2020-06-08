@@ -2,6 +2,12 @@
 
 import express = require('express'); // eslint-disable-line no-unused-vars
 import crypto = require('crypto');
+import util = require('util');
+
+import db = require('./db');
+import { redis } from './db';
+
+const randomBytes = util.promisify(crypto.randomBytes);
 
 /**
  * Sets the basic security headers required for every request
@@ -103,6 +109,44 @@ export function httpErrorAllowOnlyGet(req: express.Request, res: express.Respons
 export function httpErrorAllowOnlyPost(req: express.Request, res: express.Response) {
   res.setHeader('Allow', 'POST');
   res.status(405).json({ error: `request method ${req.method} is inappropriate for the URL ${req.url}` });
+}
+
+/**
+ * Generates a unique random Base64 encoded string to be used as an ID in Redis database
+ * @param length Length of ID in bytes
+ * @param query Database query to check if the ID is unique
+ * @param urlSafe Whether to generate a URL safe ID
+ * @returns Unique Base64 encoded string
+ */
+export async function generateId(
+  length: number,
+  query: {
+    database?: 'pg' | 'redis',
+    query: string,
+  },
+  urlSafe?: boolean
+) {
+  while (true) { //eslint-disable-line no-constant-condition
+    let uniqueId = (await randomBytes(length)).toString('base64');
+    if (urlSafe === true) {
+      uniqueId = uniqueId
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+    }
+
+    if (query.database !== 'redis') {
+      const dbQuery = await db.query(query.query, [uniqueId]);
+      if (dbQuery.length === 0) {
+        return uniqueId;
+      }
+    } else {
+      const dbQuery = await redis.get(`${query.query}:${uniqueId}`);
+      if (dbQuery === null) {
+        return uniqueId;
+      }
+    }
+  }
 }
 
 /**

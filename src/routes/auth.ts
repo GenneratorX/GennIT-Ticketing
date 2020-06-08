@@ -34,7 +34,7 @@ router.route('/signin')
       auth.loginUser(req.body.username, req.body.password)
         .then(loginStatus => {
           if (loginStatus.error === undefined) {
-            res.cookie('__Host-sessionID', loginStatus.sessionID, {
+            res.cookie('__Host-sessionID', loginStatus.sessionId, {
               signed: true,
               httpOnly: true,
               secure: true,
@@ -141,7 +141,7 @@ router.route('/resendActivationMail')
 
 router.route('/logout')
   .post(function(req, res, next) {
-    auth.removeSessionID(req.signedCookies['__Host-sessionID'])
+    auth.removeSessionId(req.signedCookies['__Host-sessionID'])
       .then(removed => {
         if (removed === true) {
           res.clearCookie('__Host-sessionID', {

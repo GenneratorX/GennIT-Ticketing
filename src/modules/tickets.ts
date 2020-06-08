@@ -1,12 +1,9 @@
 'use strict';
 
-import util = require('util');
-import crypto = require('crypto');
 import moment = require('moment');
 
 import db = require('./db');
-
-const randomBytes = util.promisify(crypto.randomBytes);
+import util = require('./util');
 
 /**
  * Adds a ticket to the database
@@ -32,9 +29,14 @@ export async function addTicket(ticket: {
             if (startDateIsValid(ticket.startDate) === true) {
               if (ticket.endDate === null || endDateIsValid(ticket.endDate, ticket.startDate) === true) {
                 if ((await statusExists(ticket.status)) === true) {
-                  const conversationID = await generateConversationId();
-                  await db.query('INSERT INTO conversation VALUES ($1, DEFAULT)', [conversationID]);
-                  const ticketId = await generateTicketId();
+                  //const conversationID = await generateConversationId();
+                  const conversationId = await util.generateId(9, {
+                    query: 'SELECT conversation_id FROM conversation WHERE conversation_id = $1;',
+                  }, true);
+                  await db.query('INSERT INTO conversation VALUES ($1, DEFAULT)', [conversationId]);
+                  const ticketId = await util.generateId(9, {
+                    query: 'SELECT ticket_id FROM ticket WHERE ticket_id = $1;',
+                  }, true);
                   await db.query(
                     'INSERT INTO ticket VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);',
                     [
@@ -48,7 +50,7 @@ export async function addTicket(ticket: {
                       ticket.category,
                       ticket.requestor,
                       ticket.assignee,
-                      conversationID
+                      conversationId
                     ]
                   );
                   return { status: 'success', ticketId: ticketId };
@@ -141,47 +143,3 @@ function endDateIsValid(endDate: string, startDate: string) {
   }
   return false;
 }
-
-/* eslint-disable no-constant-condition */
-
-/**
- * Generates a unique conversation ID
- * @returns URL safe Base64 encoded string that is unique to the database
- */
-async function generateConversationId() {
-  while (true) {
-    const conversationID =
-      (await randomBytes(9))
-        .toString('base64')
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=+$/, '');
-    const query = await db.query(
-      'SELECT conversation_id FROM conversation WHERE conversation_id = $1;', [conversationID]
-    );
-    if (query.length === 0) {
-      return conversationID;
-    }
-  }
-}
-
-/**
- * Generates a unique ticket ID
- * @returns URL safe Base64 encoded string that is unique to the database
- */
-async function generateTicketId() {
-  while (true) {
-    const ticketID =
-      (await randomBytes(9))
-        .toString('base64')
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=+$/, '');
-    const query = await db.query('SELECT ticket_id FROM ticket WHERE ticket_id = $1;', [ticketID]);
-    if (query.length === 0) {
-      return ticketID;
-    }
-  }
-}
-
-/* eslint-enable no-constant-condition */
