@@ -1,7 +1,8 @@
 'use strict';
 
+import moment = require('moment');
+
 import db = require('./db');
-import util = require('./util');
 
 const nameRegexp = /^([a-z\u00C0-\u02AB]+((['´`,. -][a-z\u00C0-\u02AB ])?[a-z\u00C0-\u02AB]*)*){2,50}$/i;
 const phoneNumberRegexp = /^[0-9]{9,15}$/;
@@ -45,7 +46,7 @@ export async function updateUserInfo(
 ) {
   if (firstName === null || nameRegexp.test(firstName) === true) {
     if (lastName === null || nameRegexp.test(lastName) === true) {
-      if (birthDate === null || util.isDate(birthDate) === true) {
+      if (birthDate === null || moment(birthDate, 'YYYY-MM-DD', true).isValid() === true) {
         if (gender === null || gender === '0' || gender === '1' || gender === '2') {
           if (phoneNumber === null || phoneNumberRegexp.test(phoneNumber) === true) {
             await db.query(
@@ -66,6 +67,10 @@ export async function updateUserInfo(
   return { error: 'invalid first name' };
 }
 
+/**
+ * Gets the user list
+ * @retuns User list containing user IDs and user names
+ */
 export async function getUserList() {
   const query = await db.query('SELECT user_id AS "userId", username AS "userName" FROM users WHERE active = TRUE;');
   return query;

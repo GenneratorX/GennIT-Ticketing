@@ -394,7 +394,7 @@ function onClickTicketSubmitButton(event: MouseEvent) {
     ticketPriorityInput.className !== 'red' &&
     ticketStatusInput.className !== 'red'
   ) {
-    request('POST', '/tickets/add', {
+    request('POST', '/ticket/add', {
       'title': ticketTitleInput.value,
       'message': ticketMessageInput.value,
       'category': ticketCategoryInput.value,
@@ -408,7 +408,7 @@ function onClickTicketSubmitButton(event: MouseEvent) {
         if (response['status'] === 'success') {
           snackbar('Tichetul a fost creat cu success!', 'green');
           setTimeout(function() {
-            window.location.href = `/tickets/${response['ticketId']}`;
+            window.location.href = `/ticket/${response['ticketId']}`;
           }, 1000);
         } else {
           snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');

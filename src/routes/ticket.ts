@@ -3,7 +3,7 @@
 import express = require('express');
 
 import util = require('../modules/util');
-import tickets = require('../modules/tickets');
+import tickets = require('../modules/ticket');
 
 /**
  * Tickets page router

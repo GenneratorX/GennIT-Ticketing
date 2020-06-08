@@ -71,10 +71,6 @@
   flex-direction: column;
 }
 
-#ticketTitle {
-
-}
-
 #ticketMessage {
   font-weight: 200;
   min-height: 20rem;
@@ -156,8 +152,4 @@
 
 .hidden {
   display: none !important;
-}
-
-@media screen and (max-width: 1400px) {
-
 }

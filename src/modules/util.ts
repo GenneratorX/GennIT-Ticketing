@@ -112,7 +112,7 @@ export function httpErrorAllowOnlyPost(req: express.Request, res: express.Respon
 }
 
 /**
- * Generates a unique random Base64 encoded string to be used as an ID in Redis database
+ * Generates a unique random Base64 encoded string to be used as an ID
  * @param length Length of ID in bytes
  * @param query Database query to check if the ID is unique
  * @param urlSafe Whether to generate a URL safe ID
@@ -147,20 +147,4 @@ export async function generateId(
       }
     }
   }
-}
-
-/**
- * Checks if the string is a valid date
- * @param date String to check
- * @returns True if string is a valid date, false otherwise
- */
-export function isDate(date: string) {
-  if (isNaN(Date.parse(date))) {
-    return false;
-  } else {
-    if (date !== (new Date(date)).toISOString().substr(0, 10)) {
-      return false;
-    }
-  }
-  return true;
 }
