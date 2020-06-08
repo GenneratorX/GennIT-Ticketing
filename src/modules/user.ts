@@ -65,3 +65,8 @@ export async function updateUserInfo(
   }
   return { error: 'invalid first name' };
 }
+
+export async function getUserList() {
+  const query = await db.query('SELECT user_id AS "userId", username AS "userName" FROM users WHERE active = TRUE;');
+  return query;
+}

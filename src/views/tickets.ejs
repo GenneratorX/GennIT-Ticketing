@@ -3,10 +3,23 @@
   <head>
     <%- include('partials/header') %>
     <title>Incidente :: GennIT Ticketing</title>
-    <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/index.js" defer></script>
+    <link rel="preload" href="https://static.gennerator.com/css/tickets.css" as="style">
+    <link rel="preload" href="https://static.gennerator.com/css/flatpickr.css" as="style">
+    <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/app.js" defer></script>
+    <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/tickets.js" defer></script>
+    <script nonce="<%- cspNonce %>" src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
+    <script nonce="<%- cspNonce %>" src="https://npmcdn.com/flatpickr/dist/l10n/ro.js" defer></script>
   </head>
   <body>
     <%- include('partials/noJS') %>
     <%- include('partials/navbar') %>
+    <div class="main tickets-page">
+      <div class="tickets-filters" id="filters"></div>
+      <div class="tickets-search">
+        <input class="tickets-searchbar" type="search" maxlength="100" placeholder="Caută tichete" spellcheck="false">
+        <img src="https://static.gennerator.com/img/svg/plus.svg" class="ticket-add" id="newTicket">
+      </div>
+      <div class="tickets" id="tickets"></div>
+    </div>
   </body>
 </html>

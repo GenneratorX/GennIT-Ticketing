@@ -10,6 +10,7 @@ import util = require('./modules/util');
 import { router as authRouter } from './routes/auth';
 import { router as mainRouter } from './routes/main';
 import { router as userRouter } from './routes/user';
+import { router as ticketsRouter } from './routes/tickets';
 
 export const app = express();
 app.set('view engine', 'ejs');
@@ -106,6 +107,7 @@ app.route('/auth')
  */
 app.use('/main', mainRouter);
 app.use('/user', userRouter);
+app.use('/tickets', ticketsRouter);
 
 app.use(util.securityHeaders, function(req, res) {
   res.status(404).render('404');

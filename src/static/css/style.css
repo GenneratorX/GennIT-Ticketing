@@ -48,12 +48,14 @@ select:disabled {
 }
 
 input.green,
-select.green {
+select.green,
+textarea.green {
   border-color: #09776c;
 }
 
 input.red,
-select.red {
+select.red,
+textarea.red {
   border-color: #d3312e;
 }
 

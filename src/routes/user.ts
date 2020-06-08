@@ -56,6 +56,16 @@ router.route('/updateUserInfo')
   })
   .all(util.httpErrorAllowOnlyPost);
 
+router.route('/list')
+  .get(function(req, res, next) {
+    user.getUserList()
+      .then(userList => {
+        res.json({ userList: userList });
+      })
+      .catch(next);
+  })
+  .all(util.httpErrorAllowOnlyGet);
+
 router.route('/')
   .get(function(req, res) {
     res.setHeader('location', '/main');

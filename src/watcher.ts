@@ -163,7 +163,8 @@ function jsMin(code: string): void {
     '--assume_function_wrapper',
     '--use_types_for_optimization',
     '--strict_mode_input',
-    '--charset=UTF-8'
+    '--charset=UTF-8',
+    '--externs=externs/flatpickr.js'
   ]);
   child.stdin.setDefaultEncoding('utf8');
   child.stdin.write(code);

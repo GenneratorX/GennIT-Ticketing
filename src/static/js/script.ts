@@ -145,7 +145,7 @@ function setBorderColor(htmlElement: HTMLElement, color?: 'red' | 'green') {
  * @returns Clean string
  */
 function trimWhitespace(text: string) {
-  return text.trim().replace(/\s+/g, ' ');
+  return text.trim().replace(/ +/g, ' ');
 }
 
 /**

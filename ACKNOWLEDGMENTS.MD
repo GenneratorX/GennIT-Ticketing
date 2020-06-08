@@ -6,7 +6,9 @@ src/static/img/svg/email.svg
 src/static/img/svg/home.svg  
 src/static/img/svg/logout.svg  
 src/static/img/svg/password.svg  
+src/static/img/svg/plus.svg  
 src/static/img/svg/right-chevron.svg  
+src/static/img/svg/search.svg
 src/static/img/svg/ticket.svg  
 src/static/img/svg/username.svg  
 src/static/img/svg/user-add.svg  
