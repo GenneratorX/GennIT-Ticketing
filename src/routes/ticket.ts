@@ -10,7 +10,15 @@ import tickets = require('../modules/ticket');
  */
 export const router = express.Router();
 
-router.route('/add')
+/**
+ * Add security headers
+ */
+router.get('*', util.securityHeaders);
+
+router.route('/')
+  .get(function(req, res) {
+    res.render('tickets');
+  })
   .post(function(req, res, next) {
     if (
       typeof req.body.title === 'string' &&
@@ -33,23 +41,17 @@ router.route('/add')
         endDate: req.body.endDate,
         status: req.body.status,
       })
-        .then(created => {
-          res.json(created);
+        .then(createdStatus => {
+          if (createdStatus.status === 'success') {
+            res.setHeader('location', `/ticket/${createdStatus.ticketId}`);
+            res.status(201).json(createdStatus);
+          } else {
+            res.status(422).json(createdStatus);
+          }
         })
         .catch(next);
     } else {
       res.status(422).json({ error: 'invalid request body' });
     }
   })
-  .all(util.httpErrorAllowOnlyPost);
-
-/**
- * Add security headers
- */
-router.get('*', util.securityHeaders);
-
-router.route('/')
-  .get(function(req, res) {
-    res.render('tickets');
-  })
-  .all(util.httpErrorAllowOnlyGet);
+  .all(util.httpErrorAllowOnlyGetPost);

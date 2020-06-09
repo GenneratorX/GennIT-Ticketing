@@ -2,7 +2,7 @@
 <html lang="ro">
   <head>
     <%- include('partials/header') %>
-    <title><%- username %> :: GennIT Ticketing</title>
+    <title><%- userName %> :: GennIT Ticketing</title>
     <link rel="preload" href="https://static.gennerator.com/css/user.css" as="style">
     <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/app.js" defer></script>
     <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/user.js" defer></script>
@@ -12,21 +12,21 @@
     <%- include('partials/navbar') %>
     <div class="main user-page">
       <div class="profile">
-        <div class="profile-picture"><%- username.charAt(0).toUpperCase() %></div>
-        <div class="profile-name" id="username"><%- username %></div>
+        <div class="profile-picture"><%- userName.charAt(0).toUpperCase() %></div>
+        <div class="profile-name" id="username"><%- userName %></div>
       </div>
       <div class="user-info info-box" id="userInfoDiv">
         <div class="box-title" id="userInfo">
           <div class="box-title-description">Informații utilizator</div>
         </div>
-        <% if (first_name !== null) {%>
-        <div><span class="bold">Prenume: </span><%- first_name %></div>
+        <% if (firstName !== null) {%>
+        <div><span class="bold">Prenume: </span><%- firstName %></div>
         <% } %>
-        <% if (last_name !== null) {%>
-        <div><span class="bold">Nume: </span><%- last_name %></div>
+        <% if (lastName !== null) {%>
+        <div><span class="bold">Nume: </span><%- lastName %></div>
         <% } %>
-        <% if (birth_date !== null) {%>
-        <div><span class="bold">Data nașterii: </span><%- birth_date.toLocaleDateString('ro-RO') %></div>
+        <% if (birthDate !== null) {%>
+        <div><span class="bold">Data nașterii: </span><%- birthDate.toLocaleDateString('ro-RO') %></div>
         <% } %>
         <% if (gender !== null) {%>
         <div>
@@ -36,13 +36,13 @@
           Nespecificat <% } %> <% } %>
         </div>
         <% } %>
-        <% if (phone_number !== null) {%>
-        <div><span class="bold">Număr telefon: </span><%- phone_number %></div>
+        <% if (phoneNumber !== null) {%>
+        <div><span class="bold">Număr telefon: </span><%- phoneNumber %></div>
         <% } %>
         <div><span class="bold">Adresă e-mail: </span><%- email %></div>
-        <div><span class="bold">Cont creat: </span><%- create_date.toLocaleString('ro-RO') %></div>
-        <% if (last_login !== null) {%>
-        <div><span class="bold">Văzut ultima dată: </span><%- last_login.toLocaleString('ro-RO') %></div>
+        <div><span class="bold">Cont creat: </span><%- createDate.toLocaleString('ro-RO') %></div>
+        <% if (lastLogin !== null) {%>
+        <div><span class="bold">Văzut ultima dată: </span><%- lastLogin.toLocaleString('ro-RO') %></div>
         <% } %>
       </div>
       <div class="user-performance info-box">

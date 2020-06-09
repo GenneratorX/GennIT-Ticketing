@@ -86,11 +86,11 @@ newTicketButton.onclick = () => {
   requestor.appendChild(requestorProfilePicture);
   requestor.appendChild(requestorName);
 
-  request('GET', `/user/userInfo?userId=${window.sessionStorage.getItem('userId')}`)
+  request('GET', `/user/${window.sessionStorage.getItem('userId')}/info`)
     .then(response => {
       if (response['error'] === undefined) {
-        requestorProfilePicture.textContent = response['userInfo']['username'].charAt(0).toUpperCase();
-        requestorName.textContent = response['userInfo']['username'];
+        requestorProfilePicture.textContent = response['userInfo']['userName'].charAt(0).toUpperCase();
+        requestorName.textContent = response['userInfo']['userName'];
       } else {
         snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
       }
@@ -394,7 +394,7 @@ function onClickTicketSubmitButton(event: MouseEvent) {
     ticketPriorityInput.className !== 'red' &&
     ticketStatusInput.className !== 'red'
   ) {
-    request('POST', '/ticket/add', {
+    request('POST', '/ticket', {
       'title': ticketTitleInput.value,
       'message': ticketMessageInput.value,
       'category': ticketCategoryInput.value,

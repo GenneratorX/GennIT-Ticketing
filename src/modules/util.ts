@@ -112,6 +112,26 @@ export function httpErrorAllowOnlyPost(req: express.Request, res: express.Respon
 }
 
 /**
+ * Sends a HTTP 405 Method not allowed on request methods other than GET/HEAD/POST
+ * @param req Request object
+ * @param res Response object
+ */
+export function httpErrorAllowOnlyGetPost(req: express.Request, res: express.Response) {
+  res.setHeader('Allow', 'GET, HEAD, POST');
+  res.status(405).json({ error: `request method ${req.method} is inappropriate for the URL ${req.url}` });
+}
+
+/**
+ * Sends a HTTP 405 Method not allowed on request methods other than GET/HEAD/PUT
+ * @param req Request object
+ * @param res Response object
+ */
+export function httpErrorAllowOnlyGetPut(req: express.Request, res: express.Response) {
+  res.setHeader('Allow', 'GET, HEAD, PUT');
+  res.status(405).json({ error: `request method ${req.method} is inappropriate for the URL ${req.url}` });
+}
+
+/**
  * Generates a unique random Base64 encoded string to be used as an ID
  * @param length Length of ID in bytes
  * @param query Database query to check if the ID is unique

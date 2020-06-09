@@ -45,7 +45,7 @@ function displayAddFriendButton() {
  * Displays the user information edit window
  */
 function displayEditUserInfo() {
-  request('GET', `/user/userInfo?userId=${window.sessionStorage.getItem('userId')}`)
+  request('GET', `/user/${window.sessionStorage.getItem('userId')}/info`)
     .then(response => {
       if (response['error'] === undefined) {
         removeUserInfoDisplay();
@@ -173,11 +173,11 @@ function displayEditUserInfo() {
         /**
          * Add user info to inputs
          */
-        firstNameInput.value = response['userInfo']['first_name'];
-        lastNameInput.value = response['userInfo']['last_name'];
+        firstNameInput.value = response['userInfo']['firstName'];
+        lastNameInput.value = response['userInfo']['lastName'];
         emailInput.value = response['userInfo']['email'];
         if (response['userInfo']['birth_date'] !== null) {
-          const birthDate = new Date(response['userInfo']['birth_date']);
+          const birthDate = new Date(response['userInfo']['birthDate']);
           birthDateDayInput.value = birthDate.getDate().toString();
           birthDateMonthInput.selectedIndex = birthDate.getMonth() + 1;
           birthDateYearInput.value = birthDate.getFullYear().toString();
@@ -185,7 +185,7 @@ function displayEditUserInfo() {
         if (response['userInfo']['gender'] !== null) {
           genderInput.selectedIndex = parseInt(response['userInfo']['gender']) + 1;
         }
-        phoneNumberInput.value = response['userInfo']['phone_number'];
+        phoneNumberInput.value = response['userInfo']['phoneNumber'];
         submitButton.value = 'SALVEAZĂ';
 
         /**
@@ -208,8 +208,8 @@ function displayEditUserInfo() {
         submitButton.onclick = event => {
           onClickSubmitButton(event, {
             'email': response['userInfo']['email'],
-            'createDate': response['userInfo']['create_date'],
-            'lastLogin': response['userInfo']['last_login'],
+            'createDate': response['userInfo']['createDate'],
+            'lastLogin': response['userInfo']['lastLogin'],
           });
         };
 
@@ -446,7 +446,7 @@ function onKeyUpPhoneNumberInput() {
  * @param info User information
  */
 function onClickSubmitButton(event: MouseEvent, info: { [property: string]: string }) {
-  let userInfo: { [property: string]: string | null } = { 'userId': window.sessionStorage.getItem('userId') };
+  const userInfo: { [property: string]: string | null } = {};
 
   const firstNameInput = document.getElementById('firstName') as HTMLInputElement;
   const lastNameInput = document.getElementById('lastName') as HTMLInputElement;
@@ -509,7 +509,7 @@ function onClickSubmitButton(event: MouseEvent, info: { [property: string]: stri
      */
     userInfo['phoneNumber'] = phoneNumberInput.value !== '' ? phoneNumberInput.value : null;
 
-    request('POST', '/user/updateUserInfo', userInfo)
+    request('PUT', `/user/${window.sessionStorage.getItem('userId')}/info`, userInfo)
       .then(response => {
         if (response['status'] === 'success') {
           snackbar('Datele utilizatorului au fost schimbate!', 'green');

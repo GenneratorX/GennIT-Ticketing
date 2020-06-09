@@ -63,7 +63,7 @@ function snackbar(message: string, color: 'green' | 'orange' | 'red' | 'blue'): 
  * @returns Response body object
  */
 function request(
-  method: 'GET' | 'POST',
+  method: 'GET' | 'POST' | 'PUT',
   url: string,
   body?: { [property: string]: any },
   fetchOptions?: RequestInit
@@ -79,7 +79,7 @@ function request(
       'content-type': 'application/json; charset=utf-8',
     },
   };
-  if (method === 'POST') {
+  if (method === 'POST' || method === 'PUT') {
     requestParameters.body = JSON.stringify(body);
   }
 

@@ -20,6 +20,13 @@ router.route('/signup')
     ) {
       auth.createUser(req.body.username, req.body.password, req.body.email)
         .then(createStatus => {
+          if (createStatus.status !== 'success') {
+            switch (createStatus.error) {
+              case 'username exists': res.status(409); break;
+              case 'email exists': res.status(409); break;
+              default: res.status(422);
+            }
+          }
           res.json(createStatus);
         })
         .catch(next);
@@ -50,7 +57,8 @@ router.route('/signin')
                 maxAge: 1800000, // 30 minutes
               }).json({ error: 'user disabled' });
             } else {
-              res.json(loginStatus);
+              res.setHeader('WWW-Authenticate', 'gennit-auth');
+              res.status(401).json(loginStatus);
             }
           }
         })
@@ -104,6 +112,9 @@ router.route('/resetPasswordByEmail')
     if (typeof req.body.password === 'string' && typeof req.body.resetCode === 'string') {
       auth.resetPasswordByEmail(req.body.resetCode, req.body.password)
         .then(resetStatus => {
+          if (resetStatus.status !== 'success') {
+            res.status(422);
+          }
           res.json(resetStatus);
         })
         .catch(next);
@@ -124,11 +135,13 @@ router.route('/resendActivationMail')
               secure: true,
               sameSite: true,
             });
-            if (response.error === 'invalid activation token') {
-              res.status(403).json({ error: 'invalid activation token' });
-            } else {
-              res.json({ status: 'success' });
+            if (response.status !== 'success') {
+              switch (response.error) {
+                case 'invalid activation token': res.status(403); break;
+                case 'invalid email': res.status(422); break;
+              }
             }
+            res.json(response);
           })
           .catch(next);
       } else {
