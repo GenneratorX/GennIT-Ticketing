@@ -28,6 +28,7 @@ app.use(function(error: Error, req: express.Request, res: express.Response, next
 });
 app.use(cookieParser(env.COOKIE_SECRET));
 
+
 app.route('/')
   .get(function(req, res) {
     res.setHeader('location', '/auth');
@@ -64,7 +65,7 @@ app.use(function(req, res, next) {
             res.setHeader('location', '/auth');
             res.status(302).end();
           } else {
-            res.setHeader('WWW-Authenticate', 'gennit-auth');
+            res.setHeader('WWW-Authenticate', 'GennIT-Auth');
             res.status(401).json({ error: 'user not authenticated' });
           }
         }
@@ -79,7 +80,7 @@ app.use(function(req, res, next) {
         next();
       }
     } else {
-      res.setHeader('WWW-Authenticate', 'gennit-auth');
+      res.setHeader('WWW-Authenticate', 'GennIT-Auth');
       res.status(401).json({ error: 'user not authenticated' });
     }
   }

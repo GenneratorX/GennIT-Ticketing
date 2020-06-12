@@ -57,7 +57,7 @@ router.route('/signin')
                 maxAge: 1800000, // 30 minutes
               }).json({ error: 'user disabled' });
             } else {
-              res.setHeader('WWW-Authenticate', 'gennit-auth');
+              res.setHeader('WWW-Authenticate', 'GennIT-Auth');
               res.status(401).json(loginStatus);
             }
           }

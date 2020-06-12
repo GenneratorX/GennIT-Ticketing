@@ -44,7 +44,7 @@ router.route('/')
         .then(createdStatus => {
           if (createdStatus.status === 'success') {
             res.setHeader('location', `/ticket/${createdStatus.ticketId}`);
-            res.status(201).json(createdStatus);
+            res.status(201).json({ status: createdStatus.status });
           } else {
             res.status(422).json(createdStatus);
           }

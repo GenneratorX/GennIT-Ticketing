@@ -87,7 +87,7 @@ newTicketButton.onclick = () => {
   requestor.appendChild(requestorName);
 
   request('GET', `/user/${window.sessionStorage.getItem('userId')}/info`)
-    .then(response => {
+    .then(({ body: response }) => {
       if (response['error'] === undefined) {
         requestorProfilePicture.textContent = response['userInfo']['userName'].charAt(0).toUpperCase();
         requestorName.textContent = response['userInfo']['userName'];
@@ -169,7 +169,7 @@ newTicketButton.onclick = () => {
   ticketAssigneeInput.add(defaultTicketAssignee);
 
   request('GET', '/user/list')
-    .then(response => {
+    .then(({ body: response }) => {
       if (response['error'] === undefined) {
         for (let i = 0; i < response['userList'].length; i++) {
           ticketAssigneeInput.add(new Option(response['userList'][i]['userName'], response['userList'][i]['userId']));
@@ -404,11 +404,11 @@ function onClickTicketSubmitButton(event: MouseEvent) {
       'endDate': ticketEndDateInput.value.length === 0 ? null : endDateInput['latestSelectedDateObj'],
       'status': ticketStatusInput.value,
     })
-      .then(response => {
+      .then(({ body: response, headers }) => {
         if (response['status'] === 'success') {
           snackbar('Tichetul a fost creat cu success!', 'green');
           setTimeout(function() {
-            window.location.href = `/ticket/${response['ticketId']}`;
+            window.location.href = `${headers.get('location')}`;
           }, 1000);
         } else {
           snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');

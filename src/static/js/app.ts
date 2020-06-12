@@ -4,7 +4,7 @@ const logoutButton = document.getElementById('logoutButton') as HTMLAnchorElemen
 
 logoutButton.onclick = () => {
   request('POST', '/auth/logout')
-    .then(response => {
+    .then(({ body: response }) => {
       if (response['status'] === 'success') {
         window.sessionStorage.removeItem('userId');
         window.location.href = '/auth';

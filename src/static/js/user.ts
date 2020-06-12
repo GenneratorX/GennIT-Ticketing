@@ -46,7 +46,7 @@ function displayAddFriendButton() {
  */
 function displayEditUserInfo() {
   request('GET', `/user/${window.sessionStorage.getItem('userId')}/info`)
-    .then(response => {
+    .then(({ body: response }) => {
       if (response['error'] === undefined) {
         removeUserInfoDisplay();
         const userInfoDiv = document.getElementById('userInfoDiv') as HTMLDivElement;
@@ -510,7 +510,7 @@ function onClickSubmitButton(event: MouseEvent, info: { [property: string]: stri
     userInfo['phoneNumber'] = phoneNumberInput.value !== '' ? phoneNumberInput.value : null;
 
     request('PUT', `/user/${window.sessionStorage.getItem('userId')}/info`, userInfo)
-      .then(response => {
+      .then(({ body: response }) => {
         if (response['status'] === 'success') {
           snackbar('Datele utilizatorului au fost schimbate!', 'green');
           displayUserInfo({
