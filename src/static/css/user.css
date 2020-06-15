@@ -110,23 +110,10 @@
   min-width: 100%;
 }
 
-#birthDateDay {
-  flex: 1;
-  max-width: 100%;
-  min-width: 5rem;
-}
-
-#birthDateMonth {
+#birthDate {
   flex: 1;
   max-width: 100%;
   min-width: 12rem;
-}
-
-#birthDateYear {
-  flex: 1;
-  max-width: 100%;
-  min-width: 6rem;
-  width: 100%;
 }
 
 #gender {

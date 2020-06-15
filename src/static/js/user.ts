@@ -2,6 +2,7 @@
 
 let editUserInfoButton: HTMLImageElement;
 let addFriendButton: HTMLImageElement;
+let birthDateInput: flatpickr.Instance;
 
 const nameRegexp = /^([a-z\u00C0-\u02AB]+((['´`,. -][a-z\u00C0-\u02AB ])?[a-z\u00C0-\u02AB]*)*){2,50}$/i;
 const phoneNumberRegexp = /^[0-9]{9,15}$/;
@@ -92,43 +93,20 @@ function displayEditUserInfo() {
         });
 
         /**
-         * Birth day input
+         * Birth date input
          */
-        const birthDateDayInput = document.createElement('input');
-        setAttributes(birthDateDayInput, {
-          'autocomplete': 'bday-day',
-          'id': 'birthDateDay',
-          'maxlength': '2',
-          'placeholder': 'Zi',
+        const birthDate = document.createElement('input');
+        setAttributes(birthDate, {
+          'id': 'birthDate',
+          'placeholder': 'Dată de naștere',
+          'required': '',
         });
 
-        /**
-         * Birth month input
-         */
-        const birthDateMonthInput = document.createElement('select');
-        setAttributes(birthDateMonthInput, {
-          'id': 'birthDateMonth',
-        });
-        const defaultBirthDateMonthValue = new Option('Luna', '');
-        setAttributes(defaultBirthDateMonthValue, {
-          'selected': '',
-        });
-        birthDateMonthInput.add(defaultBirthDateMonthValue);
-        const months = ['Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie', 'Iulie', 'August', 'Septembrie',
-          'Octombrie', 'Noiembrie', 'Decembrie'];
-        for (let i = 0; i < months.length; i++) {
-          birthDateMonthInput.add(new Option(months[i], (i + 1).toString().padStart(2, '0')));
-        }
-
-        /**
-         * Birth year input
-         */
-        const birthDateYearInput = document.createElement('input');
-        setAttributes(birthDateYearInput, {
-          'autocomplete': 'bday-year',
-          'id': 'birthDateYear',
-          'maxlength': '4',
-          'placeholder': 'An',
+        birthDateInput = flatpickr(birthDate, {
+          'locale': 'ro',
+          'disableMobile': true,
+          'maxDate': new Date(),
+          'dateFormat': 'd/m/Y',
         });
 
         /**
@@ -177,10 +155,7 @@ function displayEditUserInfo() {
         lastNameInput.value = response['userInfo']['lastName'];
         emailInput.value = response['userInfo']['email'];
         if (response['userInfo']['birth_date'] !== null) {
-          const birthDate = new Date(response['userInfo']['birthDate']);
-          birthDateDayInput.value = birthDate.getDate().toString();
-          birthDateMonthInput.selectedIndex = birthDate.getMonth() + 1;
-          birthDateYearInput.value = birthDate.getFullYear().toString();
+          birthDateInput.setDate(response['userInfo']['birthDate']);
         }
         if (response['userInfo']['gender'] !== null) {
           genderInput.selectedIndex = parseInt(response['userInfo']['gender']) + 1;
@@ -195,13 +170,6 @@ function displayEditUserInfo() {
         firstNameInput.onblur = onBlurFirstNameInput;
         lastNameInput.onkeyup = onKeyUpLastNameInput;
         lastNameInput.onblur = onBlurLastNameInput;
-        birthDateDayInput.onkeyup = onKeyUpBirthDateDayInput;
-        birthDateDayInput.onkeydown = inputAllowOnlyNumbers;
-        birthDateDayInput.onblur = onBlurDate;
-        birthDateMonthInput.onchange = onBlurDate;
-        birthDateYearInput.onkeyup = onKeyUpBirthDateYearInput;
-        birthDateYearInput.onkeydown = inputAllowOnlyNumbers;
-        birthDateYearInput.onblur = onBlurDate;
         phoneNumberInput.onkeyup = onKeyUpPhoneNumberInput;
         phoneNumberInput.onkeydown = inputAllowOnlyNumbers;
 
@@ -221,9 +189,7 @@ function displayEditUserInfo() {
           firstNameInput,
           lastNameInput,
           emailInput,
-          birthDateDayInput,
-          birthDateMonthInput,
-          birthDateYearInput,
+          birthDate,
           genderInput,
           phoneNumberInput,
           submitButton
@@ -355,80 +321,6 @@ function onBlurLastNameInput() {
   onKeyUpLastNameInput();
 }
 
-function onBlurDate() {
-  const birthDateDayInput = document.getElementById('birthDateDay') as HTMLInputElement;
-  const birthDateMonthInput = document.getElementById('birthDateMonth') as HTMLSelectElement;
-  const birthDateYearInput = document.getElementById('birthDateYear') as HTMLInputElement;
-  if (
-    birthDateDayInput.value.length > 0 ||
-    birthDateMonthInput.selectedIndex !== 0 ||
-    birthDateYearInput.value.length > 0
-  ) {
-    if (
-      isDate(
-        `${birthDateYearInput.value}-` +
-        `${birthDateMonthInput.value}-` +
-        `${birthDateDayInput.value.padStart(2, '0')}`
-      ) === true &&
-      new Date(
-        `${birthDateYearInput.value}-` +
-        `${birthDateMonthInput.value}-` +
-        `${birthDateDayInput.value.padStart(2, '0')}`
-      ) < new Date()
-    ) {
-      setBorderColor(birthDateDayInput, 'green');
-      setBorderColor(birthDateMonthInput, 'green');
-      setBorderColor(birthDateYearInput, 'green');
-    } else {
-      setBorderColor(birthDateDayInput, 'red');
-      setBorderColor(birthDateMonthInput, 'red');
-      setBorderColor(birthDateYearInput, 'red');
-    }
-  } else {
-    setBorderColor(birthDateDayInput);
-    setBorderColor(birthDateMonthInput);
-    setBorderColor(birthDateYearInput);
-  }
-}
-
-function onKeyUpBirthDateDayInput() {
-  const birthDateDayInput = document.getElementById('birthDateDay') as HTMLInputElement;
-  if (birthDateDayInput.value.length > 0) {
-    const inputValue = parseInt(birthDateDayInput.value);
-    if (isNaN(inputValue) === false) {
-      if (inputValue >= 1 && inputValue <= 31) {
-        setBorderColor(birthDateDayInput);
-      } else {
-        setBorderColor(birthDateDayInput, 'red');
-      }
-    } else {
-      setBorderColor(birthDateDayInput, 'red');
-    }
-  } else {
-    setBorderColor(birthDateDayInput);
-  }
-  onBlurDate();
-}
-
-function onKeyUpBirthDateYearInput() {
-  const birthDateYearInput = document.getElementById('birthDateYear') as HTMLInputElement;
-  if (birthDateYearInput.value.length > 0) {
-    const inputValue = parseInt(birthDateYearInput.value);
-    if (isNaN(inputValue) === false) {
-      if (inputValue >= 1900 && inputValue <= new Date().getFullYear()) {
-        setBorderColor(birthDateYearInput);
-      } else {
-        setBorderColor(birthDateYearInput, 'red');
-      }
-    } else {
-      setBorderColor(birthDateYearInput, 'red');
-    }
-  } else {
-    setBorderColor(birthDateYearInput);
-  }
-  onBlurDate();
-}
-
 function onKeyUpPhoneNumberInput() {
   const phoneNumberInput = document.getElementById('phoneNumber') as HTMLInputElement;
   if (phoneNumberInput.value.length > 0) {
@@ -452,18 +344,12 @@ function onClickSubmitButton(event: MouseEvent, info: { [property: string]: stri
 
   const firstNameInput = document.getElementById('firstName') as HTMLInputElement;
   const lastNameInput = document.getElementById('lastName') as HTMLInputElement;
-  const birthDateDayInput = document.getElementById('birthDateDay') as HTMLInputElement;
-  const birthDateMonthInput = document.getElementById('birthDateMonth') as HTMLSelectElement;
-  const birthDateYearInput = document.getElementById('birthDateYear') as HTMLInputElement;
   const genderInput = document.getElementById('gender') as HTMLSelectElement;
   const phoneNumberInput = document.getElementById('phoneNumber') as HTMLInputElement;
 
   if (
     firstNameInput.className !== 'red' &&
     lastNameInput.className !== 'red' &&
-    birthDateDayInput.className !== 'red' &&
-    birthDateMonthInput.className !== 'red' &&
-    birthDateYearInput.className !== 'red' &&
     phoneNumberInput.className !== 'red'
   ) {
     /**
@@ -479,27 +365,7 @@ function onClickSubmitButton(event: MouseEvent, info: { [property: string]: stri
     /**
      * Add birthdate to user info
      */
-    if (
-      birthDateDayInput.className === 'green' &&
-      birthDateMonthInput.className === 'green' &&
-      birthDateYearInput.className === 'green'
-    ) {
-      userInfo['birthDate'] =
-        `${birthDateYearInput.value}-` +
-        `${birthDateMonthInput.value}-` +
-        `${birthDateDayInput.value.padStart(2, '0')}`;
-    } else {
-      if (
-        birthDateDayInput.value.length > 0 &&
-        birthDateMonthInput.selectedIndex !== 0 &&
-        birthDateYearInput.value.length > 0
-      ) {
-        userInfo['birthDate'] =
-          `${birthDateYearInput.value}-${birthDateMonthInput.value}-${birthDateDayInput.value.padStart(2, '0')}`;
-      } else {
-        userInfo['birthDate'] = null;
-      }
-    }
+    userInfo['birthDate'] = flatpickr.formatDate(birthDateInput['latestSelectedDateObj'], 'Y-m-d');
 
     /**
      * Add gender to user info

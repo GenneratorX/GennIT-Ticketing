@@ -2,8 +2,8 @@
 
 const newTicketButton = document.getElementById('newTicket') as HTMLImageElement;
 
-let startDateInput: flatpickr;
-let endDateInput: flatpickr;
+let startDateInput: flatpickr.Instance;
+let endDateInput: flatpickr.Instance;
 
 newTicketButton.onclick = () => {
   const ticketsDiv = document.getElementById('tickets') as HTMLDivElement;
