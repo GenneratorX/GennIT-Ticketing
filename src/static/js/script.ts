@@ -183,3 +183,14 @@ function inputAllowOnlyNumbers(event: KeyboardEvent) {
     event.preventDefault();
   }
 }
+
+/**
+ * Adds multiple HTML Elements to a HTML Element
+ * @param element Parent HTML Element
+ * @param children Child HTML Elements
+ */
+function appendChildrenToHTMLElement(element: HTMLElement, children: HTMLElement[]) {
+  for (let i = 0; i < children.length; i++) {
+    element.appendChild(children[i]);
+  }
+}

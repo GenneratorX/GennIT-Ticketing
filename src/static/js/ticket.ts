@@ -270,30 +270,33 @@ newTicketButton.onclick = () => {
   /**
    * Add elements to ticket parameters
    */
-  filtersDiv.appendChild(newTicketParametersTitle);
-  filtersDiv.appendChild(requestorTitle);
-  filtersDiv.appendChild(requestor);
-  filtersDiv.appendChild(categoryTitle);
-  filtersDiv.appendChild(ticketCategoryInput);
-  filtersDiv.appendChild(priorityTitle);
-  filtersDiv.appendChild(ticketPriorityInput);
-  filtersDiv.appendChild(assigneeTitle);
-  filtersDiv.appendChild(ticketAssigneeInput);
-  filtersDiv.appendChild(startDateTitle);
-  filtersDiv.appendChild(ticketStartDateInput);
-  filtersDiv.appendChild(endDateTitle);
-  filtersDiv.appendChild(ticketEndDateInput);
-  filtersDiv.appendChild(statusTitle);
-  filtersDiv.appendChild(ticketStatusInput);
+  appendChildrenToHTMLElement(filtersDiv, [
+    newTicketParametersTitle,
+    requestorTitle,
+    requestor,
+    categoryTitle,
+    ticketCategoryInput,
+    priorityTitle,
+    ticketPriorityInput,
+    assigneeTitle,
+    ticketAssigneeInput,
+    startDateTitle,
+    ticketStartDateInput,
+    endDateTitle,
+    ticketEndDateInput,
+    statusTitle,
+    ticketStatusInput
+  ]);
 
   /**
    * Add elements to visible form
    */
-  newTicketForm.appendChild(ticketTitle);
-  newTicketForm.appendChild(ticketTitleInput);
-  newTicketForm.appendChild(ticketMessageInput);
-  newTicketForm.appendChild(ticketSubmitButton);
-
+  appendChildrenToHTMLElement(newTicketForm, [
+    ticketTitle,
+    ticketTitleInput,
+    ticketMessageInput,
+    ticketSubmitButton
+  ]);
   ticketsDiv.insertAdjacentElement('afterbegin', newTicketForm);
 };
 

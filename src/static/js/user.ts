@@ -217,15 +217,17 @@ function displayEditUserInfo() {
          * Add inputs to window
          */
         userInfoDiv.appendChild(form);
-        form.appendChild(firstNameInput);
-        form.appendChild(lastNameInput);
-        form.appendChild(emailInput);
-        form.appendChild(birthDateDayInput);
-        form.appendChild(birthDateMonthInput);
-        form.appendChild(birthDateYearInput);
-        form.appendChild(genderInput);
-        form.appendChild(phoneNumberInput);
-        form.appendChild(submitButton);
+        appendChildrenToHTMLElement(form, [
+          firstNameInput,
+          lastNameInput,
+          emailInput,
+          birthDateDayInput,
+          birthDateMonthInput,
+          birthDateYearInput,
+          genderInput,
+          phoneNumberInput,
+          submitButton
+        ]);
       } else {
         snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
       }
