@@ -54,7 +54,8 @@ var flatpickr = {
   },
   "localize": function () { },
   "parseDate": function () { },
-  "setDefaults": function () { }
+  "setDefaults": function () { },
+  "destroy": function () { }
 };
 /**********************************************************************
  * End Generated Extern for flatpickr

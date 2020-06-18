@@ -17,7 +17,9 @@
       <div class="tickets-filters" id="filters"></div>
       <div class="tickets-search">
         <input class="tickets-searchbar" type="search" maxlength="100" placeholder="Caută tichete" spellcheck="false">
-        <img src="https://static.gennerator.com/img/svg/plus.svg" class="ticket-add" id="newTicket">
+        <div class="ticket-add" id="newTicket">
+          <img src="https://static.gennerator.com/img/svg/plus.svg">
+        </div>
       </div>
       <div class="tickets" id="tickets">
         <% for (let i = 0; i< tickets.length; i++) {%>

@@ -19,7 +19,6 @@ router.route('/')
   .get(function(req, res, next) {
     ticket.getTicketsForTemplate()
       .then(tickets => {
-        console.log(tickets);
         res.render('tickets', { tickets });
       })
       .catch(next);
