@@ -21,6 +21,8 @@ export async function addTicket(ticket: {
   endDate: string | null,
   status: string,
 }) {
+  ticket.title = util.trimWhitespace(ticket.title);
+  ticket.message = util.cleanMultilineText(ticket.message);
   if (ticket.title.length >= 10 && ticket.title.length <= 100) {
     if (ticket.message.length >= 20 && ticket.message.length <= 2000) {
       if ((await departmentExists(ticket.category)) === true) {

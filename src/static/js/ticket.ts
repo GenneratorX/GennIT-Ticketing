@@ -321,6 +321,7 @@ function onKeyUpTicketTitleInput() {
 function onBlurTicketTitleInput() {
   const ticketTitleInput = document.getElementById('ticketTitle') as HTMLInputElement;
   ticketTitleInput.value = trimWhitespace(ticketTitleInput.value);
+  onKeyUpTicketTitleInput();
 }
 
 function onKeyUpTicketMessageInput() {
@@ -338,7 +339,8 @@ function onKeyUpTicketMessageInput() {
 
 function onBlurTicketMessageInput() {
   const ticketMessageInput = document.getElementById('ticketMessage') as HTMLTextAreaElement;
-  ticketMessageInput.value = trimWhitespace(ticketMessageInput.value);
+  ticketMessageInput.value = cleanTextArea(ticketMessageInput.value);
+  onKeyUpTicketMessageInput();
 }
 
 function onChangeTicketStartDateInput() {

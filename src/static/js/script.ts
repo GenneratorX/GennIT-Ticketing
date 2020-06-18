@@ -144,28 +144,12 @@ function setBorderColor(htmlElement: HTMLElement, color?: 'red' | 'green') {
 }
 
 /**
- * Removes leading and trailing whitespace and consecutive whitespaces
- * @param text String to remove the whitespace from
+ * Removes leading/trailing whitespace and consecutive whitespaces
+ * @param text String to clean
  * @returns Clean string
  */
 function trimWhitespace(text: string) {
   return text.trim().replace(/ +/g, ' ');
-}
-
-/**
- * Checks if the string is a valid date
- * @param date String to check
- * @returns True if string is a valid date, false otherwise
- */
-function isDate(date: string) {
-  if (isNaN(Date.parse(date))) {
-    return false;
-  } else {
-    if (date !== (new Date(date)).toISOString().substr(0, 10)) {
-      return false;
-    }
-  }
-  return true;
 }
 
 /**
@@ -193,4 +177,19 @@ function appendChildrenToHTMLElement(element: HTMLElement, children: HTMLElement
   for (let i = 0; i < children.length; i++) {
     element.appendChild(children[i]);
   }
+}
+
+/**
+ * Removes leading and trailing newlines/spaces and consecutive newlines/spaces from a multiline text area
+ * @param text Text to clean
+ * @returns Clean text
+ */
+function cleanTextArea(text: string) {
+  /**
+   * 1. Replace multiple consecutive newlines with maximum two newlines
+   * 2. Remove leading and trailing newlines
+   * 3. Replace multiple consecutive spaces with only one space
+   * 4. Remove leading and trailing spaces from each line
+   */
+  return text.replace(/\n\s*\n\s*\n/g, '\n\n').replace(/^\s+|\s+$/g, '').replace(/ +/g, ' ').replace(/^ +| +$/gm, '');
 }

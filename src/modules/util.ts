@@ -184,3 +184,27 @@ export function getUserInitials(name: string) {
   }
   return initials;
 }
+
+/**
+ * Removes leading/trailing whitespace and consecutive whitespaces
+ * @param text String to clean
+ * @returns Clean string
+ */
+export function trimWhitespace(text: string) {
+  return text.trim().replace(/ +/g, ' ');
+}
+
+/**
+ * Removes leading and trailing newlines/spaces and consecutive newlines/spaces frpm a multiline text
+ * @param text String to clean
+ * @returns Clean string
+ */
+export function cleanMultilineText(text: string) {
+  /**
+   * 1. Replace multiple consecutive newlines with maximum two newlines
+   * 2. Remove leading and trailing newlines
+   * 3. Replace multiple consecutive spaces with only one space
+   * 4. Remove leading and trailing spaces from each line
+   */
+  return text.replace(/\n\s*\n\s*\n/g, '\n\n').replace(/^\s+|\s+$/g, '').replace(/ +/g, ' ').replace(/^ +| +$/gm, '');
+}
