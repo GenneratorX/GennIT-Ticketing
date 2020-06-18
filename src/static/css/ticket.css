@@ -28,7 +28,7 @@
   border-radius: 5px;
   grid-area: 2 / 2 / 19 / 6;
   overflow-y: auto;
-  padding: 1rem;
+  padding: 0 1rem 1rem;
 }
 
 .tickets-searchbar {
@@ -125,12 +125,16 @@
 .profile-picture {
   background: #ed9c27;
   border-radius: 50%;
-  font-size: 1.5rem;
+  color: #fff;
+  font-size: 1.2rem;
   font-weight: 700;
   height: 2rem;
   line-height: 2rem;
   margin-right: 0.5rem;
+  min-height: 2rem;
+  min-width: 2rem;
   text-align: center;
+  text-decoration: none;
   user-select: none;
   width: 2rem;
 }
@@ -152,4 +156,125 @@
 
 .hidden {
   display: none !important;
+}
+
+.ticket {
+  background: #363636;
+  border-radius: 5px;
+  margin-top: 1rem;
+}
+
+.ticket-top {
+  border-radius: 5px 5px 0 0;
+  display: flex;
+  padding: 1rem 1rem 0.3rem 0;
+}
+
+.ticket-id-status {
+  min-width: 10rem;
+}
+
+.ticket-id {
+  color: #fff;
+  display: block;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.ticket-status {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0.4rem 0;
+  padding: 0.2rem;
+  text-align: center;
+  text-shadow: 1px 1px 2px #232323;
+}
+
+.ticket-title-description {
+  margin-left: 1rem;
+  width: 100%;
+}
+
+.ticket-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.ticket-message {
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  word-break: break-all;
+}
+
+.status-1 { /* Nou */
+  background: #ed9c27;
+}
+
+.status-2 { /* Atribuit */
+  background: #3098b8;
+}
+
+.status-3 { /* În așteptare */
+  background: #d3312e;
+}
+
+.status-4 { /* Soluționat */
+  background: #09776c;
+}
+
+.ticket-bottom {
+  background: #454545;
+  border: 1px solid #303030;
+  border-radius: 0 0 5px 5px;
+  display: flex;
+  flex-direction: row;
+}
+
+.ticket-bottom .element {
+  border-right: 1px solid #303030;
+  display: inherit;
+  overflow: hidden;
+  padding: 0.5rem 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticket-bottom .user {
+  max-width: 15rem;
+  min-width: 15rem;
+}
+
+.ticket-bottom .date {
+  max-width: 13rem;
+  min-width: 13rem;
+}
+
+.ticket-bottom .priority {
+  max-width: 7rem;
+  min-width: 7rem;
+}
+
+.ticket-bottom .category {
+  max-width: 12rem;
+  min-width: 12rem;
+}
+
+.field-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.field-name {
+  color: #d0d0d0;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.field-title {
+  color: #fff;
+  text-decoration: none;
 }

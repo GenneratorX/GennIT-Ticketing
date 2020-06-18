@@ -19,7 +19,73 @@
         <input class="tickets-searchbar" type="search" maxlength="100" placeholder="Caută tichete" spellcheck="false">
         <img src="https://static.gennerator.com/img/svg/plus.svg" class="ticket-add" id="newTicket">
       </div>
-      <div class="tickets" id="tickets"></div>
+      <div class="tickets" id="tickets">
+        <% for (let i = 0; i< tickets.length; i++) {%>
+        <div id="<%- tickets[i].ticketId %>" class="ticket">
+          <div class="ticket-top">
+            <div class=ticket-id-status>
+              <a class="ticket-id" href="/ticket/<%- tickets[i].ticketId %>">#<%- tickets[i].ticketId %></a>
+              <div class="ticket-status status-<%- tickets[i].statusId %>"><%- tickets[i].status.toUpperCase() %></div>
+            </div>
+            <div class="ticket-title-description">
+              <div class="ticket-title"><%= tickets[i].title %></div>
+              <div class="ticket-message" title="<%= tickets[i].message %>"><%= tickets[i].trimmedMessage %></div>
+            </div>
+          </div>
+          <div class="ticket-bottom">
+            <div class="element user">
+              <a class="profile-picture" href="/user/<%- tickets[i].requestorId %>"><%= tickets[i].requestorNameInitials %></a>
+              <div class="field-description">
+                <div class="field-name">solicitant</div>
+                <a class="field-title" href="/user/<%- tickets[i].requestorId %>" title="<%= tickets[i].requestorName %>"><%= tickets[i].requestorName %></a>
+              </div>
+            </div>
+            <div class="element user">
+              <% if (tickets[i].assigneeId !== null) {%>
+              <a class="profile-picture" href="/user/<%- tickets[i].assigneeId %>"><%= tickets[i].assigneeNameInitials %></a>
+              <div class="field-description">
+                <div class="field-name">responsabil</div>
+                <a class="field-title" href="/user/<%- tickets[i].assigneeId %>" title="<%= tickets[i].assigneeName %>"><%= tickets[i].assigneeName %></a>
+              </div>
+              <% } else { %>
+              <div class="field-description">
+                <div class="field-name">responsabil</div>
+                <div class="field-title">~</div>
+              </div>
+              <% } %>
+            </div>
+            <div class="element priority">
+              <div class="field-description">
+                <div class="field-name">prioritate</div>
+                <div class="field-title"><%- tickets[i].priority %></div>
+              </div>
+            </div>
+            <div class="element category">
+              <div class="field-description">
+                <div class="field-name">departament</div>
+                <div class="field-title"><%- tickets[i].department %></div>
+              </div>
+            </div>
+            <div class="element date">
+              <div class="field-description">
+                <div class="field-name">dată început</div>
+                <div class="field-title" title="<%- tickets[i].prettyStartDate %>"><%- tickets[i].relativeStartDate %></div>
+              </div>
+            </div>
+            <div class="element date">
+              <div class="field-description">
+                <div class="field-name">termen limită</div>
+                <% if (tickets[i].endDate !== null) {%>
+                <div class="field-title" title="<%- tickets[i].prettyEndDate%>"><%- tickets[i].relativeEndDate %></div>
+                <% } else {%>
+                <div class="field-title">~</div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+        <% } %>
+      </div>
     </div>
   </body>
 </html>

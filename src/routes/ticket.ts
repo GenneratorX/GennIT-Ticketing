@@ -3,7 +3,7 @@
 import express = require('express');
 
 import util = require('../modules/util');
-import tickets = require('../modules/ticket');
+import ticket = require('../modules/ticket');
 
 /**
  * Tickets page router
@@ -16,8 +16,13 @@ export const router = express.Router();
 router.get('*', util.securityHeaders);
 
 router.route('/')
-  .get(function(req, res) {
-    res.render('tickets');
+  .get(function(req, res, next) {
+    ticket.getTicketsForTemplate()
+      .then(tickets => {
+        console.log(tickets);
+        res.render('tickets', { tickets });
+      })
+      .catch(next);
   })
   .post(function(req, res, next) {
     if (
@@ -30,7 +35,7 @@ router.route('/')
       (typeof req.body.endDate === 'string' || req.body.endDate === null) &&
       typeof req.body.status === 'string'
     ) {
-      tickets.addTicket({
+      ticket.addTicket({
         title: req.body.title,
         message: req.body.message,
         requestor: res.locals.userData.userId,

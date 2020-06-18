@@ -5,6 +5,15 @@ import Redis = require('ioredis');
 
 import env = require('../env');
 
+/**
+ * Node-Postgres is parsing TIMESTAMP data types in local timezone instead of UTC. This makes sure the dates are
+ * always in UTC timezone.
+ */
+pg.types.setTypeParser(1114, function(stringValue) {
+  console.log(stringValue);
+  return new Date(Date.parse(stringValue + '+0000'));
+});
+
 const pool = new pg.Pool(env.PG_CONFIG);
 export const redis = new Redis(env.REDIS_CONFIG);
 

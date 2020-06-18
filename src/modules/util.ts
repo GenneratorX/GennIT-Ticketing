@@ -168,3 +168,19 @@ export async function generateId(
     }
   }
 }
+
+/**
+ * Gets initials from a name or username
+ * @param name Name or username
+ * @returns User initials
+ */
+export function getUserInitials(name: string) {
+  let initials: string;
+  if (name.indexOf(' ') !== -1) {
+    const nameSplit = name.split(' ');
+    initials = `${nameSplit[0].charAt(0)}${nameSplit[1].charAt(0)}`.toUpperCase();
+  } else {
+    initials = name.charAt(0).toUpperCase();
+  }
+  return initials;
+}

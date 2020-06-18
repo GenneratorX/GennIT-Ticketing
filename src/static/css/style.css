@@ -201,6 +201,7 @@ div.main {
   div.main {
     margin-bottom: 5rem;
     margin-left: 0;
+    overflow: hidden;
   }
 
   .navbar:hover {
