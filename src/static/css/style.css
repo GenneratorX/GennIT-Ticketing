@@ -175,6 +175,7 @@ div.main {
   height: 100%;
   margin-left: 5rem;
   padding: 1rem;
+  overflow: auto;
 }
 
 @media only screen and (max-width: 576px) {
@@ -201,7 +202,7 @@ div.main {
   div.main {
     margin-bottom: 5rem;
     margin-left: 0;
-    overflow: hidden;
+    padding: 0.5rem;
   }
 
   .navbar:hover {
