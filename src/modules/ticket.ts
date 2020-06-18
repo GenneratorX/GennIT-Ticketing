@@ -5,13 +5,6 @@ import moment = require('moment');
 import db = require('./db');
 import util = require('./util');
 
-moment.locale('ro-RO', {
-  parentLocale: 'ro',
-  relativeTime: {
-    past: 'acum %s',
-  },
-});
-
 /**
  * Adds a ticket to the database
  * @param ticket Ticket object

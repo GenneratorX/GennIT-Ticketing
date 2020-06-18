@@ -262,6 +262,10 @@
   min-width: 12rem;
 }
 
+.ticket-bottom .element:last-child {
+  border-right: 0;
+}
+
 .field-description {
   overflow: hidden;
   text-overflow: ellipsis;

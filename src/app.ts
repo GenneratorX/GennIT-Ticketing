@@ -2,6 +2,7 @@
 
 import express = require('express');
 import cookieParser = require('cookie-parser');
+import moment = require('moment');
 
 import env = require('./env');
 import auth = require('./modules/auth');
@@ -17,6 +18,8 @@ app.set('view engine', 'ejs');
 app.set('views', 'app/views');
 app.set('etag', false);
 app.set('x-powered-by', false);
+
+moment.locale(env.MOMENTJS_LOCALE, env.MOMENTJS_LOCALE_CONFIG);
 
 app.use(express.json());
 app.use(function(error: Error, req: express.Request, res: express.Response, next: express.NextFunction) {
