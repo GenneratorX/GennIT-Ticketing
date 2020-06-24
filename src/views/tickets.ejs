@@ -30,7 +30,7 @@
               <div class="ticket-status status-<%- tickets[i].statusId %>"><%- tickets[i].status.toUpperCase() %></div>
             </div>
             <div class="ticket-title-description">
-              <div class="ticket-title"><%= tickets[i].title %></div>
+              <a class="ticket-title" href="/ticket/<%- tickets[i].ticketId %>"><%= tickets[i].title %></a>
               <div class="ticket-message" title="<%= tickets[i].message %>"><%= tickets[i].trimmedMessage %></div>
             </div>
           </div>

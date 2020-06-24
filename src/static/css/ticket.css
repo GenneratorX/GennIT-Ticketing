@@ -215,9 +215,12 @@
 }
 
 .ticket-title {
+  color: #fff;
+  display: block;
   font-size: 1.3rem;
   font-weight: 700;
   overflow: hidden;
+  text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

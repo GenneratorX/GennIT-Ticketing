@@ -454,10 +454,12 @@ authElements.submitForm.addEventListener('submit', event => {
               document.body.innerHTML = `` +
                 `<div class="content">` +
                 `<p class="inline">` +
-                `${greetingMessage()}, <span class="bold">${response['userName']}</span>!` +
+                `${greetingMessage()}, <span class="bold" id="displayName"></span>!` +
                 `</p>` +
                 `Te trimitem pe pagina principală imediat!` +
                 `</div>`;
+              const displaySpan = document.getElementById('displayName') as HTMLSpanElement;
+              displaySpan.textContent = response['userName'];
               window.sessionStorage.setItem('userId', response['userId']);
               setTimeout(function() {
                 window.location.href = '/main';

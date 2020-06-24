@@ -2,7 +2,7 @@
 <html lang="ro">
   <head>
     <%- include('partials/header') %>
-    <title><%- userName %> :: GennIT Ticketing</title>
+    <title><%= userName %> :: GennIT Ticketing</title>
     <link rel="preload" href="https://static.gennerator.com/css/user.css" as="style">
     <link rel="preload" href="https://static.gennerator.com/css/flatpickr.css" as="style">
     <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/app.js" defer></script>
@@ -15,18 +15,18 @@
     <%- include('partials/navbar') %>
     <div class="main user-page">
       <div class="profile">
-        <div class="profile-picture"><%- userName.charAt(0).toUpperCase() %></div>
-        <div class="profile-name" id="username"><%- userName %></div>
+        <div class="profile-picture"><%= userName.charAt(0).toUpperCase() %></div>
+        <div class="profile-name" id="username"><%= userName %></div>
       </div>
       <div class="user-info info-box" id="userInfoDiv">
         <div class="box-title" id="userInfo">
           <div class="box-title-description">Informații utilizator</div>
         </div>
         <% if (firstName !== null) {%>
-        <div><span class="bold">Prenume: </span><%- firstName %></div>
+        <div><span class="bold">Prenume: </span><%= firstName %></div>
         <% } %>
         <% if (lastName !== null) {%>
-        <div><span class="bold">Nume: </span><%- lastName %></div>
+        <div><span class="bold">Nume: </span><%= lastName %></div>
         <% } %>
         <% if (birthDate !== null) {%>
         <div><span class="bold">Data nașterii: </span><%- birthDate.toLocaleDateString('ro-RO') %></div>
@@ -42,7 +42,7 @@
         <% if (phoneNumber !== null) {%>
         <div><span class="bold">Număr telefon: </span><%- phoneNumber %></div>
         <% } %>
-        <div><span class="bold">Adresă e-mail: </span><%- email %></div>
+        <div><span class="bold">Adresă e-mail: </span><%= email %></div>
         <div><span class="bold">Cont creat: </span><%- createDate.toLocaleString('ro-RO') %></div>
         <% if (lastLogin !== null) {%>
         <div><span class="bold">Văzut ultima dată: </span><%- lastLogin.toLocaleString('ro-RO') %></div>
