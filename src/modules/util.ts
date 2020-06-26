@@ -132,6 +132,16 @@ export function httpErrorAllowOnlyGetPut(req: express.Request, res: express.Resp
 }
 
 /**
+ * Sends a HTTP 405 Method not allowed on request methods other than GET/HEAD/PATCH
+ * @param req Request object
+ * @param res Response object
+ */
+export function httpErrorAllowOnlyGetPatch(req: express.Request, res: express.Response) {
+  res.setHeader('Allow', 'GET, HEAD, PATCH');
+  res.status(405).json({ error: `request method ${req.method} is inappropriate for the URL ${req.url}` });
+}
+
+/**
  * Generates a unique random Base64 encoded string to be used as an ID
  * @param length Length of ID in bytes
  * @param query Database query to check if the ID is unique

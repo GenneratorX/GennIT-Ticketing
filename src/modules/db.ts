@@ -10,7 +10,6 @@ import env = require('../env');
  * always in UTC timezone.
  */
 pg.types.setTypeParser(1114, function(stringValue) {
-  console.log(stringValue);
   return new Date(Date.parse(stringValue + '+0000'));
 });
 

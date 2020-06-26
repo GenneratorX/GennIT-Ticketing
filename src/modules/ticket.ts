@@ -110,7 +110,7 @@ export async function getTicketsForTemplate(limit?: number) {
   }
   const query = await db.query(
     'SELECT ticket_id "ticketId", title, SUBSTRING(message FOR 200) "message", start_date "startDate", ' +
-    'end_date "endDate",a.status_id "statusId", c.status "status", b.priority "priority", d.name "department", ' +
+    'end_date "endDate", a.status_id "statusId", c.status "status", b.priority "priority", d.name "department", ' +
     'created_by "requestorId", COALESCE(e.first_name||\' \'||e.last_name, e.username) "requestorName", ' +
     'assigned_to "assigneeId", COALESCE(f.first_name||\' \'||f.last_name, f.username) "assigneeName" ' +
     'FROM ticket a ' +
@@ -145,6 +145,95 @@ export async function getTicketsForTemplate(limit?: number) {
     });
   }
   return tickets;
+}
+
+/**
+ * Gets information about a specific ticket
+ * @param ticketId Ticket ID
+ * @returns Ticket information
+ */
+export async function getTicketInfo(ticketId: string) {
+  const ticketInfo = await db.query(
+    'SELECT title, message, start_date "startDate", conversation_id "conversationId", ' +
+    'end_date "endDate", a.status_id "statusId", c.status "status", b.priority "priority", d.name "department", ' +
+    'created_by "requestorId", COALESCE(e.first_name||\' \'||e.last_name, e.username) "requestorName", ' +
+    'assigned_to "assigneeId", COALESCE(f.first_name||\' \'||f.last_name, f.username) "assigneeName" ' +
+    'FROM ticket a ' +
+    'INNER JOIN ticket_priority b ON a.priority_id = b.priority_id ' +
+    'INNER JOIN ticket_status c ON a.status_id = c.status_id ' +
+    'INNER JOIN department d ON a.department_id = d.department_id ' +
+    'INNER JOIN users e ON a.created_by = e.user_id ' +
+    'LEFT JOIN users f ON a.assigned_to = f.user_id ' +
+    'WHERE ticket_id = $1;',
+    [ticketId]
+  );
+  if (ticketInfo.length === 1) {
+    const messages = await db.query(
+      'SELECT a.message, a.create_date "createDate", a.user_id "userId", ' +
+      'COALESCE(b.first_name ||\' \'||b.last_name, b.username) "userName" ' +
+      'FROM message a ' +
+      'INNER JOIN users b ON a.user_id = b.user_id ' +
+      'WHERE a.conversation_id = $1 ' +
+      'ORDER BY a.create_date',
+      [ticketInfo[0].conversationId]
+    );
+
+    const prettyStartDate = moment(ticketInfo[0].startDate).format('D MMMM YYYY [ora] HH:mm');
+    const relativeStartDate = moment(ticketInfo[0].startDate).fromNow();
+    const prettyEndDate = moment(ticketInfo[0].endDate).format('D MMMM YYYY [ora] HH:mm');
+    const relativeEndDate = ticketInfo[0].endDate === null ? null : moment(ticketInfo[0].endDate).fromNow();
+    const requestorNameInitials = util.getUserInitials(ticketInfo[0].requestorName);
+    const assigneeNameInitials =
+      ticketInfo[0].assigneeName === null ? null : util.getUserInitials(ticketInfo[0].assigneeName);
+
+    for (let i = 0; i < messages.length; i++) {
+      messages[i].userNameInitials = util.getUserInitials(messages[i].userName);
+      messages[i].prettyDate = moment(messages[i].createDate).format('D MMMM YYYY [ora] HH:mm');
+      messages[i].relativeSentDate = moment(messages[i].createDate).fromNow();
+    }
+
+    return {
+      ...ticketInfo[0],
+      prettyStartDate,
+      relativeStartDate,
+      prettyEndDate,
+      relativeEndDate,
+      requestorNameInitials,
+      assigneeNameInitials,
+      messages,
+    };
+  }
+  return { error: 'invalid ticket' };
+}
+
+/**
+ * Adds a message to ticket conversation
+ * @param ticketId Ticket ID
+ * @param message Message
+ * @param senderId ID of the sender
+ * @returns Status of the sent message
+ */
+export async function addMessageToTicket(ticketId: string, message: string, senderId: string) {
+  const query = await db.query(
+    'SELECT created_by "requestorId", assigned_to "assigneeId", conversation_id "conversationId" ' +
+    'FROM ticket WHERE ticket_id = $1;',
+    [ticketId]
+  );
+  if (query.length === 1) {
+    if (senderId === query[0].requestorId || senderId === query[0].assigneeId) {
+      message = util.cleanMultilineText(message);
+      if (message.length >= 20 && message.length <= 2000) {
+        await db.query(
+          'INSERT INTO message VALUES (DEFAULT, $1, DEFAULT, $2, $3);',
+          [message, senderId, query[0].conversationId]
+        );
+        return { status: 'success' };
+      }
+      return { error: 'invalid ticket message' };
+    }
+    return { error: 'user is not allowed to send messages in this conversation' };
+  }
+  return { error: 'invalid ticket id' };
 }
 
 /**

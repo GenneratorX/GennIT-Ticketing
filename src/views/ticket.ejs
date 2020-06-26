@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ro">
+  <head>
+    <%- include('partials/header') %>
+    <title><%= ticket.title %> :: GennIT Ticketing</title>
+    <link rel="preload" href="https://static.gennerator.com/css/sTicket.css" as="style">
+    <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/app.js" defer></script>
+    <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/sTicket.js" defer></script>
+  </head>
+  <body>
+    <%- include('partials/noJS') %>
+    <%- include('partials/navbar') %>
+    <div class="main ticket">
+      <div class="ticket-description-messages">
+        <div class="description">
+          <div class="description-title" title="<%= ticket.title %>"><%= ticket.title %></div>
+          <div class="separator"></div>
+          <div class="description-message"><%= ticket.message %></div>
+        </div>
+        <div class="messages">
+          <div class="messages-title">
+            Mesaje
+            <% if (userData.userId === ticket.requestorId || userData.userId === ticket.assigneeId) {%>
+            <form class="message-input">
+              <textarea id="messageInput" rows="5" placeholder="Scrie un mesaj..." maxlength="2000" required></textarea>
+              <input id="send-message" type="submit" value="Trimite">
+            </form>
+            <% } %>
+          </div>
+          <div class="message-list">
+            <% for (let i = 0; i < ticket.messages.length; i++) { %>
+            <div class="message">
+              <div class="message-content">
+                <div class="message-sent-date" title="<%- ticket.messages[i].prettyDate %>"><%- ticket.messages[i].relativeSentDate %></div>
+                <div class="message-text<% if (ticket.messages[i].userId === userData.userId) {%> own<% } %>"><%= ticket.messages[i].message %></div>
+              </div>
+              <a class="message-user" href="/user/<%- ticket.messages[i].userId %>"><%= ticket.messages[i].userNameInitials %></a>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      <div class=" ticket-info">
+        <div class="info-title">Detalii incident</div>
+        <div class="separator"></div>
+        <div class="info">
+          <div class="info-name">
+            Statut
+            <% if (ticket.assigneeId === userData.userId) {%>
+            <img id="statusEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
+            <% } %>
+          </div>
+          <div class="status status-<%- ticket.statusId %>"><%- ticket.status %></div>
+        </div>
+        <div class="info">
+          <div class="info-name">Solicitant</div>
+          <a class="locked" href="/user/<%- ticket.requestorId %>">
+            <div class="profile-picture"><%= ticket.requestorNameInitials %></div>
+            <span class="profile-name"><%= ticket.requestorName %></span>
+          </a>
+        </div>
+        <div class="info">
+          <% if (ticket.assigneeId !== null) {%>
+          <div class="info-name">
+            Responsabil
+          </div>
+          <a class="locked" href="/user/<%- ticket.assigneeId %>">
+            <div class="profile-picture"><%= ticket.assigneeNameInitials %></div>
+            <span class="profile-name"><%= ticket.assigneeName %></span>
+          </a>
+          <% } else { %>
+          <div class="info-name">
+            Responsabil
+            <img id="assigneeEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
+          </div>
+          <a class="locked">
+            <span class="profile-name">~</span>
+          </a>
+          <% } %>
+        </div>
+        <div class="info">
+          <div class="info-name">
+            Prioritate
+            <% if (ticket.assigneeId === userData.userId) {%>
+            <img id="priorityEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
+            <% } %>
+          </div>
+          <div class="locked">
+            <span class="profile-name"><%- ticket.priority %></span>
+          </div>
+        </div>
+        <div class="info">
+          <div class="info-name">Departament</div>
+          <div class="locked">
+            <span class="profile-name"><%- ticket.department %></span>
+          </div>
+        </div>
+        <div class="info">
+          <div class="info-name">
+            Dată început
+            <% if (ticket.assigneeId === userData.userId) {%>
+            <img id="startDateEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
+            <% } %>
+          </div>
+          <div class="locked">
+            <span class="profile-name"><%- ticket.prettyStartDate %></span>
+          </div>
+        </div>
+        <div class="info">
+          <div class="info-name">
+            Termen limită
+            <% if (ticket.assigneeId === userData.userId) {%>
+            <img id="endDateEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
+            <% } %>
+          </div>
+          <div class="locked">
+            <% if (ticket.endDate !== null) {%>
+            <span class="profile-name"><%- ticket.prettyEndDate %></span>
+            <% } else {%>
+            <span class="profile-name">~</span>
+            <% } %>
+          </div>
+        </div>
+        <div class="info">
+          <div class="info-name">
+            Colaboratori
+            <% if (ticket.assigneeId === userData.userId) {%>
+            <img id="collaboratorsEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
+            <% } %>
+          </div>
+          <div class="locked">
+            <span class="profile-name">~</span>
+          </div>
+        </div>
+      </div>
+  </body>
+</html>

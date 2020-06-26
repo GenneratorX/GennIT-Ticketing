@@ -59,3 +59,43 @@ router.route('/')
     }
   })
   .all(util.httpErrorAllowOnlyGetPost);
+
+router.route('/:ticketId')
+  .get(function(req, res, next) {
+    ticket.getTicketInfo(req.params.ticketId)
+      .then(ticket => {
+        res.render('ticket', { ticket });
+      })
+      .catch(next);
+  })
+  .patch(function(req, res, next) {
+    if (typeof req.body.event === 'string') {
+      switch (req.body.event) {
+        case 'sendMessage': {
+          if (typeof req.body.message === 'string') {
+            ticket.addMessageToTicket(req.params.ticketId, req.body.message, res.locals.userData.userId)
+              .then(sentStatus => {
+                if (sentStatus.status === 'success') {
+                  res.json(sentStatus);
+                } else {
+                  switch (sentStatus.error) {
+                    case 'invalid ticket id': res.status(422); break;
+                    case 'user is not allowed to send messages in this conversation': res.status(403); break;
+                    case 'invalid ticket message': res.status(422); break;
+                  }
+                  res.json(sentStatus);
+                }
+              })
+              .catch(next);
+          } else {
+            res.status(422).json({ error: 'invalid message' });
+          }
+          break;
+        }
+        default: res.status(422).json({ error: 'invalid event name' });
+      }
+    } else {
+      res.status(422).json({ error: 'missing event name' });
+    }
+  })
+  .all(util.httpErrorAllowOnlyGetPatch);

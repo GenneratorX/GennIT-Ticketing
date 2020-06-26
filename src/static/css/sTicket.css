@@ -1,0 +1,249 @@
+.ticket {
+  display: flex;
+  flex-direction: row;
+}
+
+.ticket-description-messages {
+  overflow: auto;
+  width: 80%;
+}
+
+.description {
+  background: #363636;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.description-title,
+.info-title {
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  font-size: 1.5rem;
+  font-weight: 700;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.description-message {
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  -webkit-line-clamp: 20;
+  line-height: 1.3rem;
+  overflow: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.messages {
+  border-radius: 5px;
+  word-break: break-word;
+}
+
+.messages-title {
+  background: #363636;
+  border-radius: 5px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.message-input {
+  display: flex;
+  flex-direction: column;
+}
+
+.message-input textarea {
+  border-radius: 5px;
+  font-weight: 200;
+  margin-bottom: 0.5rem;
+  padding: 1rem;
+  resize: vertical;
+  width: 100%;
+}
+
+.message-input textarea::placeholder {
+  font-weight: 700;
+}
+
+#send-message {
+  align-self: flex-end;
+  background: #454545;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.2rem;
+  margin-top: 0;
+  padding: 0.4rem;
+}
+
+#send-message:hover {
+  background: #09776c;
+}
+
+.separator {
+  background: #505050;
+  border-radius: 5px;
+  height: 0.1rem;
+  margin: 0.5rem 0;
+}
+
+.message {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 0.5rem;
+}
+
+.message-content {
+  width: 100%;
+}
+
+.message-sent-date {
+  color: #c0c0c0;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+  margin-top: 0.4rem;
+  text-align: end;
+}
+
+.message-text {
+  background: #454545;
+  border-radius: 5px;
+  margin-right: 15px;
+  padding: 1rem;
+  position: relative;
+  white-space: pre-wrap;
+  z-index: -1;
+}
+
+.own {
+  background: #09776c;
+  z-index: -1;
+}
+
+.message-text::after {
+  border: 15px solid transparent;
+  border-left-color: #454545;
+  border-right: 0;
+  border-top: 0;
+  content: '';
+  height: 0;
+  margin-right: -10px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 0;
+}
+
+.own::after {
+  border-left-color: #09776c;
+}
+
+.message-user {
+  background: #ed9c27;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  height: 3rem;
+  line-height: 3rem;
+  margin-right: 0.5rem;
+  min-height: 3rem;
+  min-width: 3rem;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  width: 3rem;
+}
+
+/* Ticket Info */
+.ticket-info {
+  background: #363636;
+  border-radius: 5px;
+  margin-left: 1rem;
+  padding: 1rem;
+  width: 20%;
+}
+
+.info {
+  margin-top: 0.5rem;
+}
+
+.info-name {
+  display: flex;
+  font-weight: 700;
+  padding: 0.3rem;
+}
+
+.locked {
+  background: #454545;
+  border-radius: 5px;
+  color: #fff;
+  display: flex;
+  height: 3rem;
+  padding: 0.5rem;
+  text-decoration: none;
+}
+
+.profile-picture {
+  background: #ed9c27;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  height: 2rem;
+  line-height: 2rem;
+  margin-right: 0.5rem;
+  min-height: 2rem;
+  min-width: 2rem;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  width: 2rem;
+}
+
+.profile-name {
+  align-self: center;
+  line-height: 1rem;
+}
+
+.edit-button {
+  border-radius: 5px;
+  margin-left: 0.2rem;
+  padding: 0.2rem;
+  width: 1.2rem;
+}
+
+.edit-button:hover {
+  background: #09776c;
+  cursor: pointer;
+}
+
+.status {
+  align-items: center;
+  border-radius: 5px;
+  display: flex;
+  font-size: 1.4rem;
+  font-weight: 700;
+  height: 3rem;
+  justify-content: center;
+  padding: 0.2rem;
+  text-shadow: 1px 1px 2px #232323;
+}
+
+.status-1 { /* Nou */
+  background: #ed9c27;
+}
+
+.status-2 { /* Atribuit */
+  background: #3098b8;
+}
+
+.status-3 { /* În așteptare */
+  background: #d3312e;
+}
+
+.status-4 { /* Soluționat */
+  background: #09776c;
+}
