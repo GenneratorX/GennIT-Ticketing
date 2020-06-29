@@ -34,7 +34,7 @@ export async function addTicket(ticket: {
                   const conversationId = await util.generateId(9, {
                     query: 'SELECT conversation_id FROM conversation WHERE conversation_id = $1;',
                   }, true);
-                  await db.query('INSERT INTO conversation VALUES ($1, DEFAULT)', [conversationId]);
+                  await db.query('INSERT INTO conversation VALUES ($1, DEFAULT);', [conversationId]);
                   const ticketId = await util.generateId(9, {
                     query: 'SELECT ticket_id FROM ticket WHERE ticket_id = $1;',
                   }, true);
@@ -83,7 +83,7 @@ export async function getTickets(limit?: number) {
   if (limit !== undefined && limit < 30) {
     ticketNumber = limit;
   } else {
-    ticketNumber = 10;
+    ticketNumber = 30;
   }
   const query = await db.query(
     'SELECT ticket_id "ticketId", title, SUBSTRING(message FOR 200) "message", start_date "startDate", ' +
@@ -106,7 +106,7 @@ export async function getTicketsForTemplate(limit?: number) {
   if (limit !== undefined && limit < 30) {
     ticketNumber = limit;
   } else {
-    ticketNumber = 10;
+    ticketNumber = 30;
   }
   const query = await db.query(
     'SELECT ticket_id "ticketId", title, SUBSTRING(message FOR 200) "message", start_date "startDate", ' +
@@ -281,7 +281,7 @@ async function statusExists(statusId: string) {
  * @returns Whether the date is valid
  */
 function startDateIsValid(startDate: string) {
-  const startDateMoment = moment.utc(startDate, moment.ISO_8601, true);
+  const startDateMoment = moment(startDate, moment.ISO_8601, true);
   if (startDateMoment.isValid() === true && startDateMoment.diff(moment(), 'days', true) >= -1) {
     return true;
   }

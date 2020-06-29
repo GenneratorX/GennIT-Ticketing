@@ -235,7 +235,7 @@ newTicketButton.onclick = () => {
       'locale': 'ro',
       'disableMobile': true,
       'enableTime': true,
-      'minDate': flatpickr.parseDate(ticketStartDateInput.value, 'd/m/Y, H:i'),
+      'minDate': flatpickr.parseDate(ticketStartDateInput.value, 'd/m/Y, H:i').fp_incr(1),
       'dateFormat': 'd/m/Y, H:i',
     });
 
@@ -382,7 +382,7 @@ function onBlurTicketMessageInput() {
 }
 
 function onChangeTicketStartDateInput() {
-  endDateInput.set('minDate', startDateInput['latestSelectedDateObj']);
+  endDateInput.set('minDate', startDateInput['latestSelectedDateObj'].fp_incr(1));
 }
 
 function onSelectionChangeTicketCategoryInput() {
@@ -454,7 +454,13 @@ function onClickTicketSubmitButton(event: MouseEvent) {
             window.location.href = `${headers.get('location')}`;
           }, 1000);
         } else {
-          snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+          switch (response['error']) {
+            case 'invalid ticket start date':
+              snackbar('Data inițială trebuie să fie în viitor!', 'red'); break;
+            case 'invalid ticket end date':
+              snackbar('Data finală trebuie să fie după data de început cu cel puțin o zi!', 'red'); break;
+            default: snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+          }
         }
       })
       .catch(() => {
