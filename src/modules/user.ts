@@ -16,7 +16,7 @@ export async function getUserInfo(userId: string) {
   if (userId.length === 12) {
     const query = await db.query(
       'SELECT username "userName", email, create_date "createDate", last_login "lastLogin", first_name "firstName", ' +
-      'last_name "lastName", birth_date "birthDate", gender, phone_number "phoneNumber" ' +
+      'last_name "lastName", birth_date "birthDate", gender, phone_number "phoneNumber", admin ' +
       'FROM users WHERE user_id = $1;',
       [userId]
     );

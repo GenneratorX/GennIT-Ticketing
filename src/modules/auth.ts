@@ -66,7 +66,7 @@ export async function createUser(userName: string, password: string, email: stri
  */
 export async function loginUser(userName: string, password: string) {
   const query = await db.query(
-    'SELECT user_id, username, password, active FROM users WHERE LOWER(username) = LOWER($1);',
+    'SELECT user_id, username, password, active, admin FROM users WHERE LOWER(username) = LOWER($1);',
     [userName]
   );
   if (query.length === 1) {
@@ -79,6 +79,7 @@ export async function loginUser(userName: string, password: string) {
           JSON.stringify({
             userId: query[0].user_id,
             userName: query[0].username,
+            admin: query[0].admin,
           }),
           'EX', 43200 // 12 hours
         );

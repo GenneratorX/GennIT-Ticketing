@@ -71,7 +71,9 @@
           <% } else { %>
           <div class="info-name">
             Responsabil
+            <% if (userData.admin === true) {%>
             <img id="assigneeEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
+            <% } %>
           </div>
           <a class="locked">
             <span class="profile-name">~</span>
