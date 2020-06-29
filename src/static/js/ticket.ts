@@ -78,9 +78,12 @@ newTicketButton.onclick = () => {
     newTicketParametersTitle.className = 'new-ticket-title';
     newTicketParametersTitle.textContent = 'Parametrii incident';
 
-    // Add requestor filed
+    // Add requestor field
+    const requestorDiv = document.createElement('div');
+    requestorDiv.className = 'ticket-parameter requestor-div';
+
     const requestorTitle = document.createElement('div');
-    requestorTitle.className = 'parameter-title';
+    requestorTitle.className = 'parameter-title requestor-title';
     requestorTitle.textContent = 'Solicitant';
 
     const requestor = document.createElement('div');
@@ -108,7 +111,12 @@ newTicketButton.onclick = () => {
         snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
       });
 
+    appendChildrenToHTMLElement(requestorDiv, [requestorTitle, requestor]);
+
     // Add category field
+    const categoryDiv = document.createElement('div');
+    categoryDiv.className = 'ticket-parameter';
+
     const categoryTitle = document.createElement('label');
     setAttributes(categoryTitle, {
       'class': 'parameter-title',
@@ -135,7 +143,12 @@ newTicketButton.onclick = () => {
     ticketCategoryInput.add(new Option('Marketing', '4'));
     ticketCategoryInput.add(new Option('Resurse umane', '5'));
 
+    appendChildrenToHTMLElement(categoryDiv, [categoryTitle, ticketCategoryInput]);
+
     // Add priority field
+    const priorityDiv = document.createElement('div');
+    priorityDiv.className = 'ticket-parameter';
+
     const priorityTitle = document.createElement('label');
     setAttributes(priorityTitle, {
       'class': 'parameter-title',
@@ -161,7 +174,12 @@ newTicketButton.onclick = () => {
     ticketPriorityInput.add(new Option('Ridicat', '3'));
     ticketPriorityInput.add(new Option('Urgent', '4'));
 
+    appendChildrenToHTMLElement(priorityDiv, [priorityTitle, ticketPriorityInput]);
+
     // Add assignee
+    const assigneeDiv = document.createElement('div');
+    assigneeDiv.className = 'ticket-parameter';
+
     const assigneeTitle = document.createElement('label');
     setAttributes(assigneeTitle, {
       'class': 'parameter-title',
@@ -191,7 +209,12 @@ newTicketButton.onclick = () => {
         snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
       });
 
+    appendChildrenToHTMLElement(assigneeDiv, [assigneeTitle, ticketAssigneeInput]);
+
     // Add start date
+    const startDateDiv = document.createElement('div');
+    startDateDiv.className = 'ticket-parameter';
+
     const startDateTitle = document.createElement('label');
     setAttributes(startDateTitle, {
       'class': 'parameter-title',
@@ -216,7 +239,12 @@ newTicketButton.onclick = () => {
       'dateFormat': 'd/m/Y, H:i',
     });
 
+    appendChildrenToHTMLElement(startDateDiv, [startDateTitle, ticketStartDateInput]);
+
     // Add end date
+    const endDateDiv = document.createElement('div');
+    endDateDiv.className = 'ticket-parameter';
+
     const endDateTitle = document.createElement('label');
     setAttributes(endDateTitle, {
       'class': 'parameter-title',
@@ -239,13 +267,18 @@ newTicketButton.onclick = () => {
       'dateFormat': 'd/m/Y, H:i',
     });
 
+    appendChildrenToHTMLElement(endDateDiv, [endDateTitle, ticketEndDateInput]);
+
     // Add ticket status
+    const statusDiv = document.createElement('div');
+    statusDiv.className = 'ticket-parameter';
+
     const statusTitle = document.createElement('label');
     setAttributes(statusTitle, {
       'class': 'parameter-title',
       'for': 'ticketStatusTitle',
     });
-    statusTitle.textContent = 'Statut tichet*';
+    statusTitle.textContent = 'Incident solutionat*';
 
     const ticketStatusInput = document.createElement('select');
     setAttributes(ticketStatusInput, {
@@ -260,8 +293,10 @@ newTicketButton.onclick = () => {
       'selected': '',
     });
     ticketStatusInput.add(defaultTicketStatus);
-    ticketStatusInput.add(new Option('Nou', '1'));
-    ticketStatusInput.add(new Option('Soluționat', '2'));
+    ticketStatusInput.add(new Option('Da', '1'));
+    ticketStatusInput.add(new Option('Nu', '2'));
+
+    appendChildrenToHTMLElement(statusDiv, [statusTitle, ticketStatusInput]);
 
     /**
      * Add event handlers
@@ -281,20 +316,13 @@ newTicketButton.onclick = () => {
      */
     appendChildrenToHTMLElement(newTicketParameters, [
       newTicketParametersTitle,
-      requestorTitle,
-      requestor,
-      categoryTitle,
-      ticketCategoryInput,
-      priorityTitle,
-      ticketPriorityInput,
-      assigneeTitle,
-      ticketAssigneeInput,
-      startDateTitle,
-      ticketStartDateInput,
-      endDateTitle,
-      ticketEndDateInput,
-      statusTitle,
-      ticketStatusInput
+      requestorDiv,
+      categoryDiv,
+      priorityDiv,
+      assigneeDiv,
+      startDateDiv,
+      endDateDiv,
+      statusDiv
     ]);
 
     /**

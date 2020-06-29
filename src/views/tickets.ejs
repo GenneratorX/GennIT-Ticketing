@@ -14,7 +14,6 @@
     <%- include('partials/noJS') %>
     <%- include('partials/navbar') %>
     <div class="main tickets-page">
-      <div class="tickets-filters" id="filters"></div>
       <div class="tickets-search">
         <input class="tickets-searchbar" type="search" maxlength="100" placeholder="Caută tichete" spellcheck="false">
         <div class="ticket-add" id="newTicket">
@@ -87,6 +86,123 @@
           </div>
         </div>
         <% } %>
+      </div>
+      <div class="tickets-filters" id="filters">
+        <div class="filters">
+          <div class="new-ticket-title">Filtre</div>
+          <div class="filter-group">
+            <div class="filter-group-title">
+              STATUT
+              <div class="filter-remove" id="removeStatusFilter">
+                <img src="https://static.gennerator.com/img/svg/plus.svg">
+              </div>
+            </div>
+            <div class="filter-checkbox">
+              <input id="status-1" type="checkbox">
+              <label for="status-1">Nou</label>
+            </div>
+            <div class="filter-checkbox">
+              <input id="status-2" type="checkbox">
+              <label for="status-2">Atribuit</label>
+            </div>
+            <div class="filter-checkbox">
+              <input id="status-3" type="checkbox">
+              <label for="status-3">În așteptare</label>
+            </div>
+            <div class="filter-checkbox">
+              <input id="status-4" type="checkbox">
+              <label for="status-4">Soluționat</label>
+            </div>
+          </div>
+          <div class="filter-group">
+            <div class="filter-group-title">
+              PRIORITATE
+              <div class="filter-remove" id="removePriorityFilter">
+                <img src="https://static.gennerator.com/img/svg/plus.svg">
+              </div>
+            </div>
+            <div class="filter-checkbox">
+              <input id="priority-1" type="checkbox">
+              <label for="priority-1">Scăzut</label>
+            </div>
+            <div class="filter-checkbox">
+              <input id="priority-2" type="checkbox">
+              <label for="priority-2">Mediu</label>
+            </div>
+            <div class="filter-checkbox">
+              <input id="priority-3" type="checkbox">
+              <label for="priority-3">Ridicat</label>
+            </div>
+            <div class="filter-checkbox">
+              <input id="priority-4" type="checkbox">
+              <label for="priority-4">Urgent</label>
+            </div>
+          </div>
+          <div class="filter-group">
+            <div class="filter-group-title">
+              DEPARTAMENT
+              <div class="filter-remove" id="removeDepartmentFilter">
+                <img src="https://static.gennerator.com/img/svg/plus.svg">
+              </div>
+            </div>
+            <div class="filter-checkbox">
+              <input id="departament-1" type="checkbox">
+              <label for="departament-1">IT</label>
+            </div>
+            <div class="filter-checkbox">
+              <input id="departament-2" type="checkbox">
+              <label for="departament-2">Dezvoltare software</label>
+            </div>
+            <div class="filter-checkbox">
+              <input id="departament-3" type="checkbox">
+              <label for="departament-3">Operațiuni</label>
+            </div>
+            <div class="filter-checkbox">
+              <input id="departament-4" type="checkbox">
+              <label for="departament-4">Marketing</label>
+            </div>
+            <div class="filter-checkbox">
+              <input id="departament-5" type="checkbox">
+              <label for="departament-5">Resurse umane</label>
+            </div>
+          </div>
+          <div class="filter-group">
+            <div class="filter-group-title">
+              TERMEN LIMITĂ
+              <div class="filter-remove" id="removeEndDateFilter">
+                <img src="https://static.gennerator.com/img/svg/plus.svg">
+              </div>
+            </div>
+            <div class="filter-checkbox">
+              <input id="enddate-1" type="checkbox">
+              <label for="enddate-1">În termen</label>
+            </div>
+            <div class="filter-checkbox">
+              <input id="enddate-2" type="checkbox">
+              <label for="enddate-2">Termen depășit</label>
+            </div>
+            <div class="filter-checkbox">
+              <input id="enddate-3" type="checkbox">
+              <label for="enddate-3">Fără termen limită</label>
+            </div>
+          </div>
+          <div class="filter-group">
+            <div class="filter-group-title">
+              RESPONSABIL
+              <div class="filter-remove" id="removeAssigneeFilter">
+                <img src="https://static.gennerator.com/img/svg/plus.svg">
+              </div>
+            </div>
+            <div class="filter-checkbox">
+              <input id="assignee-1" type="checkbox">
+              <label for="assignee-1">Cu responsabil</label>
+            </div>
+            <div class="filter-checkbox">
+              <input id="assignee-2" type="checkbox">
+              <label for="assignee-2">Fără responsabil</label>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </body>

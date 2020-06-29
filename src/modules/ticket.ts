@@ -2,6 +2,7 @@
 
 import moment = require('moment');
 
+import user = require('./user');
 import db = require('./db');
 import util = require('./util');
 
@@ -27,10 +28,10 @@ export async function addTicket(ticket: {
     if (ticket.message.length >= 20 && ticket.message.length <= 2000) {
       if ((await departmentExists(ticket.category)) === true) {
         if ((await priorityExists(ticket.priority)) === true) {
-          if (ticket.assignee === null || ticket.assignee) {
+          if (ticket.assignee === null || (await user.userIdExists(ticket.assignee)) === true) {
             if (startDateIsValid(ticket.startDate) === true) {
               if (ticket.endDate === null || endDateIsValid(ticket.endDate, ticket.startDate) === true) {
-                if ((await statusExists(ticket.status)) === true) {
+                if (ticket.status === '1' || ticket.status === '2') {
                   const conversationId = await util.generateId(9, {
                     query: 'SELECT conversation_id FROM conversation WHERE conversation_id = $1;',
                   }, true);
@@ -256,19 +257,6 @@ async function departmentExists(departmentId: string) {
  */
 async function priorityExists(priorityId: string) {
   const query = await db.query('SELECT priority_id FROM ticket_priority WHERE priority_id = $1;', [priorityId]);
-  if (query.length === 1) {
-    return true;
-  }
-  return false;
-}
-
-/**
- * Checks if the ticket status exists in the database
- * @param statusId Status ID
- * @returns Whether the status exists
- */
-async function statusExists(statusId: string) {
-  const query = await db.query('SELECT status_id FROM ticket_status WHERE status_id = $1;', [statusId]);
   if (query.length === 1) {
     return true;
   }

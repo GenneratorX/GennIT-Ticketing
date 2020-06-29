@@ -306,14 +306,75 @@
   white-space: nowrap;
 }
 
+.ticket-parameter {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-group-title {
+  background: #454545;
+  border-radius: 5px;
+  display: flex;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
+  padding: 0.3rem;
+}
+
+.filter-checkbox {
+  height: 2rem;
+}
+
+.filter-checkbox input {
+  height: 1rem;
+  margin-top: 0;
+  min-height: auto;
+}
+
+.filter-checkbox input[type="checkbox"] {
+  opacity: 0;
+}
+
+.filter-checkbox label {
+  border-radius: 5px;
+  font-size: 1.1rem;
+  padding: 0.3rem;
+}
+
+.filter-checkbox label:hover {
+  background: #454545;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-checkbox input[type="checkbox"]:checked + label {
+  background: #09776c;
+}
+
+.filter-remove {
+  background: #454545;
+  border-radius: 5px;
+  height: 1.5rem;
+  margin-left: auto;
+  padding: 0.3rem;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  width: 1.5rem;
+}
+
+.filter-remove:hover {
+  background: #d3312e;
+  cursor: pointer;
+}
+
+.filter-remove img {
+  display: flex;
+  transform: rotate(45deg);
+}
+
 @media only screen and (max-width: 1400px) {
   .tickets-filters {
-    grid-area: 2 / 1 / 5 / 6;
-  }
-
-  #ticketParameters {
-    display: flex;
-    flex-direction: row;
+    grid-area: 2 / 1 / 8 / 6;
   }
 
   .tickets-search {
@@ -321,7 +382,65 @@
   }
 
   .tickets {
-    grid-area: 5 / 1 / 19 / 6;
+    grid-area: 8 / 1 / 19 / 6;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    height: 100%;
+  }
+
+  .new-ticket-title {
+    flex-basis: 43%;
+    margin-right: 0;
+  }
+
+  .filters .new-ticket-title {
+    background: #454545;
+    border-radius: 5px;
+    flex-basis: 100%;
+    margin: 0;
+    padding: 0.5rem;
+    text-align: center;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    margin: 0.3rem;
+  }
+
+  #ticketParameters {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    height: 100%;
+  }
+
+  .ticket-parameter {
+    flex-basis: 33.3333%;
+    flex-grow: 1;
+    flex-shrink: 0;
+  }
+
+  .requestor-div {
+    align-self: center;
+    display: flex;
+    flex-direction: row;
+    height: 3rem;
+  }
+
+  .requestor-div .requestor {
+    flex-grow: 1;
+  }
+
+  .requestor-title {
+    margin-left: 0;
+    margin-right: 1rem;
   }
 }
 
@@ -329,11 +448,6 @@
   .tickets-page {
     grid-column-gap: 0.5rem;
     grid-row-gap: 0.5rem;
-  }
-
-  #ticketParameters {
-    display: flex;
-    flex-direction: row;
   }
 
   .tickets {
@@ -374,16 +488,42 @@
 }
 
 @media only screen and (max-width: 768px) {
+  .tickets-page {
+    display: flex;
+    flex-direction: column;
+  }
+
   .tickets-filters {
-    grid-area: 16 / 1 / 19 / 6;
+    overflow: unset;
+  }
+
+  .filter-group {
+    flex-basis: 100%;
+    margin: 0;
+  }
+
+  .filters .new-ticket-title {
+    background: none;
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin: 1rem 0.5rem;
+    text-align: left;
   }
 
   .tickets-search {
-    grid-area: 1 / 1 / 2 / 6;
+    margin-bottom: 0.5rem;
+    min-height: 3rem;
+    padding: 0.4rem 1rem;
   }
 
   .tickets {
-    grid-area: 2 / 1 / 16 / 6;
+    margin-bottom: 0.5rem;
+    min-height: 35rem;
+  }
+
+  .tickets-searchbar {
+    margin-left: 0;
+    width: 90%;
   }
 
   .ticket-top {
@@ -402,20 +542,12 @@
   .ticket-title {
     margin-bottom: 0.4rem;
     margin-left: 1rem;
-    overflow: auto;
+    overflow: none;
     white-space: normal;
   }
 
   .ticket-message {
     display: none;
-  }
-
-  .ticket-bottom .element {
-    border-bottom: 1px solid #303030;
-    flex-basis: 33.3333%;
-    flex-grow: 0;
-    flex-shrink: 0;
-    padding: 0.5rem;
   }
 
   .element .profile-picture {
@@ -424,5 +556,19 @@
 
   .ticket-id {
     display: none;
+  }
+
+  #ticketParameters {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .requestor-div {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .requestor-title {
+    margin-left: 0.5rem;
   }
 }

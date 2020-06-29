@@ -102,7 +102,7 @@ export async function getUserList() {
  * @param userId User ID
  * @returns Whether the user ID exists
  */
-async function userIdExists(userId: string) {
+export async function userIdExists(userId: string) {
   const query = await db.query('SELECT user_id FROM users WHERE user_id = $1;', [userId]);
   if (query.length === 1) {
     return true;
