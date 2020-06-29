@@ -3,6 +3,7 @@
 import moment = require('moment');
 
 import db = require('./db');
+import util = require('./util');
 
 const nameRegexp = /^([a-z\u00C0-\u02AB]+((['´`,. -][a-z\u00C0-\u02AB ])?[a-z\u00C0-\u02AB]*)*){2,50}$/i;
 const phoneNumberRegexp = /^[0-9]{9,15}$/;
@@ -16,12 +17,19 @@ export async function getUserInfo(userId: string) {
   if (userId.length === 12) {
     const query = await db.query(
       'SELECT username "userName", email, create_date "createDate", last_login "lastLogin", first_name "firstName", ' +
-      'last_name "lastName", birth_date "birthDate", gender, phone_number "phoneNumber", admin ' +
+      'last_name "lastName", birth_date "birthDate", gender, phone_number "phoneNumber", admin, ' +
+      'COALESCE(first_name ||\' \'||last_name, username) "displayName"' +
       'FROM users WHERE user_id = $1;',
       [userId]
     );
     if (query.length === 1) {
-      return { status: 'success', userInfo: query[0] };
+      return {
+        status: 'success',
+        userInfo: {
+          ...query[0],
+          displayNameInitials: util.getUserInitials(query[0].displayName),
+        },
+      };
     }
     return { error: 'user id does not exist' };
   }

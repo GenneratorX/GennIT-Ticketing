@@ -98,8 +98,8 @@ newTicketButton.onclick = () => {
     request('GET', `/user/${window.sessionStorage.getItem('userId')}/info`)
       .then(({ body: response }) => {
         if (response['error'] === undefined) {
-          requestorProfilePicture.textContent = response['userInfo']['userName'].charAt(0).toUpperCase();
-          requestorName.textContent = response['userInfo']['userName'];
+          requestorProfilePicture.textContent = response['userInfo']['displayNameInitials'];
+          requestorName.textContent = response['userInfo']['displayName'];
         } else {
           snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
         }
