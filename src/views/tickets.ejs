@@ -15,7 +15,7 @@
     <%- include('partials/navbar') %>
     <div class="main tickets-page">
       <div class="tickets-search">
-        <input class="tickets-searchbar" type="search" maxlength="100" placeholder="Caută tichete" spellcheck="false">
+        <input id="searchBox" class="tickets-searchbar" type="search" maxlength="100" placeholder="Caută tichete" spellcheck="false">
         <div class="ticket-add" id="newTicket">
           <img src="https://static.gennerator.com/img/svg/plus.svg">
         </div>
@@ -26,7 +26,7 @@
           <div class="ticket-top">
             <div class=ticket-id-status>
               <a class="ticket-id" href="/ticket/<%- tickets[i].ticketId %>">#<%- tickets[i].ticketId %></a>
-              <div class="ticket-status status-<%- tickets[i].statusId %>"><%- tickets[i].status.toUpperCase() %></div>
+              <div class="ticket-status status-<%- tickets[i].statusId %>"><%- tickets[i].status %></div>
             </div>
             <div class="ticket-title-description">
               <a class="ticket-title" href="/ticket/<%- tickets[i].ticketId %>"><%= tickets[i].title %></a>
@@ -46,25 +46,25 @@
               <a class="profile-picture" href="/user/<%- tickets[i].assigneeId %>"><%= tickets[i].assigneeNameInitials %></a>
               <div class="field-description">
                 <div class="field-name">responsabil</div>
-                <a class="field-title" href="/user/<%- tickets[i].assigneeId %>" title="<%= tickets[i].assigneeName %>"><%= tickets[i].assigneeName %></a>
+                <a class="field-title ticket-assignee" href="/user/<%- tickets[i].assigneeId %>" title="<%= tickets[i].assigneeName %>"><%= tickets[i].assigneeName %></a>
               </div>
               <% } else { %>
               <div class="field-description">
                 <div class="field-name">responsabil</div>
-                <div class="field-title">~</div>
+                <div class="field-title ticket-assignee">~</div>
               </div>
               <% } %>
             </div>
             <div class="element priority">
               <div class="field-description">
                 <div class="field-name">prioritate</div>
-                <div class="field-title"><%- tickets[i].priority %></div>
+                <div class="field-title ticket-priority"><%- tickets[i].priority %></div>
               </div>
             </div>
             <div class="element category">
               <div class="field-description">
                 <div class="field-name">departament</div>
-                <div class="field-title"><%- tickets[i].department %></div>
+                <div class="field-title ticket-department"><%- tickets[i].department %></div>
               </div>
             </div>
             <div class="element date">
@@ -77,9 +77,9 @@
               <div class="field-description">
                 <div class="field-name">termen limită</div>
                 <% if (tickets[i].endDate !== null) {%>
-                <div class="field-title" title="<%- tickets[i].prettyEndDate%>"><%- tickets[i].relativeEndDate %></div>
+                <div class="field-title ticket-enddate" title="<%- tickets[i].prettyEndDate%>"><%- tickets[i].relativeEndDate %></div>
                 <% } else {%>
-                <div class="field-title">~</div>
+                <div class="field-title ticket-enddate">~</div>
                 <% } %>
               </div>
             </div>
@@ -146,24 +146,24 @@
               </div>
             </div>
             <div class="filter-checkbox">
-              <input id="departament-1" type="checkbox">
-              <label for="departament-1">IT</label>
+              <input id="department-1" type="checkbox">
+              <label for="department-1">IT</label>
             </div>
             <div class="filter-checkbox">
-              <input id="departament-2" type="checkbox">
-              <label for="departament-2">Dezvoltare software</label>
+              <input id="department-2" type="checkbox">
+              <label for="department-2">Dezvoltare software</label>
             </div>
             <div class="filter-checkbox">
-              <input id="departament-3" type="checkbox">
-              <label for="departament-3">Operațiuni</label>
+              <input id="department-3" type="checkbox">
+              <label for="department-3">Operațiuni</label>
             </div>
             <div class="filter-checkbox">
-              <input id="departament-4" type="checkbox">
-              <label for="departament-4">Marketing</label>
+              <input id="department-4" type="checkbox">
+              <label for="department-4">Marketing</label>
             </div>
             <div class="filter-checkbox">
-              <input id="departament-5" type="checkbox">
-              <label for="departament-5">Resurse umane</label>
+              <input id="department-5" type="checkbox">
+              <label for="department-5">Resurse umane</label>
             </div>
           </div>
           <div class="filter-group">

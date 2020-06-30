@@ -171,7 +171,12 @@
   background: #363636;
 }
 
-.hidden {
+.hidden,
+.filter-status,
+.filter-priority,
+.filter-department,
+.filter-enddate,
+.filter-assignee {
   display: none !important;
 }
 
@@ -207,6 +212,7 @@
   padding: 0.2rem;
   text-align: center;
   text-shadow: 1px 1px 2px #232323;
+  text-transform: uppercase;
 }
 
 .ticket-title-description {

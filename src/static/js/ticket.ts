@@ -1,6 +1,7 @@
 'use strict';
 
 const newTicketButton = document.getElementById('newTicket') as HTMLImageElement;
+const searchInput = document.getElementById('searchBox') as HTMLInputElement;
 
 let startDateInput: flatpickr.Instance;
 let endDateInput: flatpickr.Instance;
@@ -8,6 +9,9 @@ let endDateInput: flatpickr.Instance;
 newTicketButton.onclick = () => {
   const ticketsDiv = document.getElementById('tickets') as HTMLDivElement;
   const filtersDiv = document.getElementById('filters') as HTMLDivElement;
+
+  searchInput.value = '';
+  searchInput.setAttribute('disabled', '');
 
   if (newTicketButton.classList.contains('rotate') === false) {
     newTicketButton.classList.add('rotate');
@@ -363,6 +367,8 @@ newTicketButton.onclick = () => {
 
     ticketsDiv.removeChild(ticketForm);
     filtersDiv.removeChild(ticketParameters);
+
+    searchInput.removeAttribute('disabled');
   }
 };
 
@@ -427,7 +433,6 @@ function onSelectionChangeTicketStatusInput() {
   const ticketStatusInput = document.getElementById('ticketStatus') as HTMLSelectElement;
   setBorderColor(ticketStatusInput, 'green');
 }
-
 
 function onClickTicketSubmitButton(event: MouseEvent) {
   const ticketTitleInput = document.getElementById('ticketTitle') as HTMLInputElement;
@@ -499,3 +504,218 @@ function onClickTicketSubmitButton(event: MouseEvent) {
   }
   event.preventDefault();
 }
+
+/**
+ * SEARCH AND FILTERING
+ */
+
+searchInput.onkeyup = () => {
+  const ticketDivs = document.getElementById('tickets') as HTMLDivElement;
+  for (let i = 0; i < ticketDivs.children.length; i++) {
+    const ticketId =
+      ticketDivs.children[i].getElementsByClassName('ticket-id')[0].textContent as string;
+    const ticketTitle =
+      (ticketDivs.children[i].getElementsByClassName('ticket-title')[0].textContent as string).toLowerCase();
+    const ticketMessage =
+      (ticketDivs.children[i].getElementsByClassName('ticket-message')[0].textContent as string).toLowerCase();
+
+    if (
+      ticketId.includes(searchInput.value) === true ||
+      ticketTitle.includes(searchInput.value.toLowerCase()) === true ||
+      ticketMessage.includes(searchInput.value.toLowerCase()) === true
+    ) {
+      ticketDivs.children[i].classList.remove('hidden');
+    } else {
+      if (searchInput.value.length === 0) {
+        ticketDivs.children[i].classList.remove('hidden');
+      } else {
+        ticketDivs.children[i].classList.add('hidden');
+      }
+    }
+  }
+};
+
+const removeStatusFilterButton = document.getElementById('removeStatusFilter') as HTMLDivElement;
+const removePriorityFilterButton = document.getElementById('removePriorityFilter') as HTMLDivElement;
+const removeDepartmentFilterButton = document.getElementById('removeDepartmentFilter') as HTMLDivElement;
+const removeEndDateFilterButton = document.getElementById('removeEndDateFilter') as HTMLDivElement;
+const removeAssigneeFilterButton = document.getElementById('removeAssigneeFilter') as HTMLDivElement;
+
+const filterGroupDivs = document.getElementsByClassName('filter-group');
+
+const filterGroups: {
+  checkBoxes: HTMLInputElement[]
+  labelNames: string[]
+}[] = [];
+
+for (let i = 0; i < filterGroupDivs.length; i++) {
+  const checkBoxes: HTMLInputElement[] = [];
+  const labelNames: string[] = [];
+
+  const groupCheckBoxes = filterGroupDivs[i].getElementsByClassName('filter-checkbox');
+  for (let j = 0; j < groupCheckBoxes.length; j++) {
+    const checkBox = groupCheckBoxes[j].getElementsByTagName('input')[0];
+    checkBox.onclick = filterUpdate;
+    checkBoxes.push(checkBox);
+    labelNames.push(groupCheckBoxes[j].getElementsByTagName('label')[0].textContent as string);
+  }
+
+  filterGroups.push({ checkBoxes, labelNames });
+}
+
+/**
+ * Handles the filter updates
+ */
+function filterUpdate() {
+  for (let i = 0; i < filterGroups.length; i++) {
+    const checked: string[] = [];
+    for (let j = 0; j < filterGroups[i].checkBoxes.length; j++) {
+      if (filterGroups[i].checkBoxes[j].checked === true) {
+        checked.push(filterGroups[i].labelNames[j]);
+      }
+    }
+
+    const ticketDivs = document.getElementById('tickets') as HTMLDivElement;
+    for (let j = 0; j < ticketDivs.children.length; j++) {
+      switch (i) {
+        case 0: {
+          const ticketStatus =
+            ticketDivs.children[j].getElementsByClassName('ticket-status')[0].textContent as string;
+
+          if (checked.includes(ticketStatus) === true || checked.length === 0) {
+            ticketDivs.children[j].classList.remove('filter-status');
+          } else {
+            ticketDivs.children[j].classList.add('filter-status');
+          }
+          break;
+        }
+        case 1: {
+          const ticketPriority =
+            ticketDivs.children[j].getElementsByClassName('ticket-priority')[0].textContent as string;
+
+          if (checked.includes(ticketPriority) === true || checked.length === 0) {
+            ticketDivs.children[j].classList.remove('filter-priority');
+          } else {
+            ticketDivs.children[j].classList.add('filter-priority');
+          }
+          break;
+        }
+        case 2: {
+          const ticketDepartment =
+            ticketDivs.children[j].getElementsByClassName('ticket-department')[0].textContent as string;
+
+          if (checked.includes(ticketDepartment) === true || checked.length === 0) {
+            ticketDivs.children[j].classList.remove('filter-department');
+          } else {
+            ticketDivs.children[j].classList.add('filter-department');
+          }
+          break;
+        }
+        case 3: {
+          const ticketEndDate =
+            ticketDivs.children[j].getElementsByClassName('ticket-enddate')[0].textContent as string;
+
+          if (checked.length !== 0) {
+            const ticketEndDateFilters: boolean[] = [false, false, false];
+            for (let k = 0; k < checked.length; k++) {
+              switch (checked[k]) {
+                case 'În termen':
+                  if (ticketEndDate.startsWith('peste') === true) {
+                    ticketEndDateFilters[0] = true;
+                  }
+                  break;
+                case 'Termen depășit':
+                  if (ticketEndDate.startsWith('acum') === true) {
+                    ticketEndDateFilters[1] = true;
+                  }
+                  break;
+                case 'Fără termen limită':
+                  if (ticketEndDate === '~') {
+                    ticketEndDateFilters[2] = true;
+                  }
+                  break;
+              }
+            }
+            if (
+              ticketEndDateFilters[0] === true ||
+              ticketEndDateFilters[1] === true ||
+              ticketEndDateFilters[2] === true
+            ) {
+              ticketDivs.children[j].classList.remove('filter-enddate');
+            } else {
+              ticketDivs.children[j].classList.add('filter-enddate');
+            }
+          } else {
+            ticketDivs.children[j].classList.remove('filter-enddate');
+          }
+          break;
+        }
+        case 4: {
+          const ticketAssignee =
+            ticketDivs.children[j].getElementsByClassName('ticket-assignee')[0].textContent as string;
+
+          if (checked.length !== 0) {
+            const ticketAssigneeFilters: boolean[] = [false, false];
+            for (let k = 0; k < checked.length; k++) {
+              switch (checked[k]) {
+                case 'Cu responsabil':
+                  if (ticketAssignee !== '~') {
+                    ticketAssigneeFilters[0] = true;
+                  }
+                  break;
+                case 'Fără responsabil':
+                  if (ticketAssignee === '~') {
+                    ticketAssigneeFilters[1] = true;
+                  }
+                  break;
+              }
+            }
+            if (ticketAssigneeFilters[0] === true || ticketAssigneeFilters[1] === true) {
+              ticketDivs.children[j].classList.remove('filter-assignee');
+            } else {
+              ticketDivs.children[j].classList.add('filter-assignee');
+            }
+          } else {
+            ticketDivs.children[j].classList.remove('filter-assignee');
+          }
+          break;
+        }
+      }
+    }
+  }
+}
+
+removeStatusFilterButton.onclick = () => {
+  for (let i = 0; i < filterGroups[0].checkBoxes.length; i++) {
+    filterGroups[0].checkBoxes[i].checked = false;
+  }
+  filterUpdate();
+};
+
+removePriorityFilterButton.onclick = () => {
+  for (let i = 0; i < filterGroups[1].checkBoxes.length; i++) {
+    filterGroups[1].checkBoxes[i].checked = false;
+  }
+  filterUpdate();
+};
+
+removeDepartmentFilterButton.onclick = () => {
+  for (let i = 0; i < filterGroups[2].checkBoxes.length; i++) {
+    filterGroups[2].checkBoxes[i].checked = false;
+  }
+  filterUpdate();
+};
+
+removeEndDateFilterButton.onclick = () => {
+  for (let i = 0; i < filterGroups[3].checkBoxes.length; i++) {
+    filterGroups[3].checkBoxes[i].checked = false;
+  }
+  filterUpdate();
+};
+
+removeAssigneeFilterButton.onclick = () => {
+  for (let i = 0; i < filterGroups[4].checkBoxes.length; i++) {
+    filterGroups[4].checkBoxes[i].checked = false;
+  }
+  filterUpdate();
+};
