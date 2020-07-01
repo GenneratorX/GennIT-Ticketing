@@ -32,6 +32,18 @@ export async function addTicket(ticket: {
             if (startDateIsValid(ticket.startDate) === true) {
               if (ticket.endDate === null || endDateIsValid(ticket.endDate, ticket.startDate) === true) {
                 if (ticket.status === '1' || ticket.status === '2') {
+                  if (ticket.status === '1') {
+                    ticket.status = '4';
+                    if (ticket.assignee === null) {
+                      ticket.assignee = ticket.requestor;
+                    }
+                  } else {
+                    if (ticket.assignee === null) {
+                      ticket.status = '1';
+                    } else {
+                      ticket.status = '2';
+                    }
+                  }
                   const conversationId = await util.generateId(9, {
                     query: 'SELECT conversation_id FROM conversation WHERE conversation_id = $1;',
                   }, true);

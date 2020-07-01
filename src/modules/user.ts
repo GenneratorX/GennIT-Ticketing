@@ -93,7 +93,10 @@ export async function updateUserInfo(
  * @retuns User list containing user IDs and user names
  */
 export async function getUserList() {
-  const query = await db.query('SELECT user_id "userId", username "userName" FROM users WHERE active = TRUE;');
+  const query = await db.query(
+    'SELECT user_id "userId", COALESCE(first_name||\' \'||last_name, username) "displayName" ' +
+    'FROM users WHERE active = TRUE;'
+  );
   return query;
 }
 

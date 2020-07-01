@@ -203,10 +203,16 @@ newTicketButton.onclick = () => {
       .then(({ body: response }) => {
         if (response['error'] === undefined) {
           for (let i = 0; i < response['userList'].length; i++) {
-            ticketAssigneeInput.add(new Option(response['userList'][i]['userName'], response['userList'][i]['userId']));
+            ticketAssigneeInput.add(
+              new Option(response['userList'][i]['displayName'], response['userList'][i]['userId'])
+            );
           }
         } else {
-          snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+          if (response['error'] === 'not enough permissions to view the user list') {
+            ticketAssigneeInput.setAttribute('disabled', '');
+          } else {
+            snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');
+          }
         }
       })
       .catch(() => {
