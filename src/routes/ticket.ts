@@ -142,7 +142,10 @@ router.route('/:ticketId')
                 if (sentStatus.status === 'success') {
                   res.json(sentStatus);
                 } else {
-                  if (sentStatus.error === 'user is not allowed to send messages in this conversation') {
+                  if (
+                    sentStatus.error === 'user is not allowed to send messages in this conversation' ||
+                    sentStatus.error === 'ticket status does not allow message sending'
+                  ) {
                     res.status(403);
                   } else {
                     res.status(422);
@@ -163,7 +166,10 @@ router.route('/:ticketId')
                 if (statusChange.status === 'success') {
                   res.json(statusChange);
                 } else {
-                  if (statusChange.error === 'user is not allowed to change ticket status') {
+                  if (
+                    statusChange.error === 'user is not allowed to change ticket status' ||
+                    statusChange.error === 'ticket status does not allow ticket status change'
+                  ) {
                     res.status(403);
                   } else {
                     res.status(422);
@@ -189,7 +195,10 @@ router.route('/:ticketId')
                 if (assigneeChange.status === 'success') {
                   res.json(assigneeChange);
                 } else {
-                  if (assigneeChange.error === 'user is not allowed to change ticket assignee') {
+                  if (
+                    assigneeChange.error === 'user is not allowed to change ticket assignee' ||
+                    assigneeChange.error === 'ticket status does not allow ticket assignee change'
+                  ) {
                     res.status(403);
                   } else {
                     res.status(422);
@@ -210,7 +219,10 @@ router.route('/:ticketId')
                 if (priorityChange.status === 'success') {
                   res.json(priorityChange);
                 } else {
-                  if (priorityChange.error === 'user is not allowed to change ticket priority') {
+                  if (
+                    priorityChange.error === 'user is not allowed to change ticket priority' ||
+                    priorityChange.error === 'ticket status does not allow ticket priority change'
+                  ) {
                     res.status(403);
                   } else {
                     res.status(422);
@@ -231,7 +243,10 @@ router.route('/:ticketId')
                 if (departmentChange.status === 'success') {
                   res.json(departmentChange);
                 } else {
-                  if (departmentChange.error === 'user is not allowed to change ticket department') {
+                  if (
+                    departmentChange.error === 'user is not allowed to change ticket department' ||
+                    departmentChange.error === 'ticket status does not allow ticket department change'
+                  ) {
                     res.status(403);
                   } else {
                     res.status(422);
@@ -252,7 +267,10 @@ router.route('/:ticketId')
                 if (endDateChange.status === 'success') {
                   res.json(endDateChange);
                 } else {
-                  if (endDateChange.error === 'user is not allowed to change ticket end date') {
+                  if (
+                    endDateChange.error === 'user is not allowed to change ticket end date' ||
+                    endDateChange.error === 'ticket status does not allow ticket end date change'
+                  ) {
                     res.status(403);
                   } else {
                     res.status(422);

@@ -228,23 +228,26 @@ export async function getTicketInfo(ticketId: string) {
  */
 export async function addMessageToTicket(ticketId: string, message: string, senderId: string) {
   const query = await db.query(
-    'SELECT created_by "requestorId", assigned_to "assigneeId", conversation_id "conversationId" ' +
+    'SELECT created_by "requestorId",assigned_to "assigneeId",conversation_id "conversationId",status_id "statusId" ' +
     'FROM ticket WHERE ticket_id = $1;',
     [ticketId]
   );
   if (query.length === 1) {
-    if (senderId === query[0].requestorId || senderId === query[0].assigneeId) {
-      message = util.cleanMultilineText(message);
-      if (message.length >= 20 && message.length <= 2000) {
-        await db.query(
-          'INSERT INTO message VALUES (DEFAULT, $1, DEFAULT, $2, $3);',
-          [message, senderId, query[0].conversationId]
-        );
-        return { status: 'success' };
+    if (query[0].statusId !== 4) {
+      if (senderId === query[0].requestorId || senderId === query[0].assigneeId) {
+        message = util.cleanMultilineText(message);
+        if (message.length >= 20 && message.length <= 2000) {
+          await db.query(
+            'INSERT INTO message VALUES (DEFAULT, $1, DEFAULT, $2, $3);',
+            [message, senderId, query[0].conversationId]
+          );
+          return { status: 'success' };
+        }
+        return { error: 'invalid ticket message' };
       }
-      return { error: 'invalid ticket message' };
+      return { error: 'user is not allowed to send messages in this conversation' };
     }
-    return { error: 'user is not allowed to send messages in this conversation' };
+    return { error: 'ticket status does not allow message sending' };
   }
   return { error: 'invalid ticket id' };
 }
@@ -284,7 +287,7 @@ export async function changeTicketStatus(userId: string, ticketId: string, statu
         await db.query('UPDATE ticket SET status_id = $1 WHERE ticket_id = $2;', [statusId, ticketId]);
         return { status: 'success' };
       }
-      return { error: 'ticket status is not allowed on this ticket' };
+      return { error: 'ticket status does not allow ticket status change' };
     }
     return { error: 'user is not allowed to change ticket status' };
   }
@@ -363,7 +366,7 @@ export async function changeTicketPriority(userId: string, ticketId: string, pri
         }
         return { error: 'invalid priority id' };
       }
-      return { error: 'ticket status does not allow the change of ticket priority' };
+      return { error: 'ticket status does not allow ticket priority change' };
     }
     return { error: 'user is not allowed to change ticket priority' };
   }
@@ -402,7 +405,7 @@ export async function changeTicketDepartment(userId: string, ticketId: string, d
         }
         return { error: 'invalid department id' };
       }
-      return { error: 'ticket status does not allow the change of ticket department' };
+      return { error: 'ticket status does not allow ticket department change' };
     }
     return { error: 'user is not allowed to change ticket department' };
   }
@@ -443,7 +446,7 @@ export async function changeTicketEndDate(userId: string, ticketId: string, endD
         }
         return { error: 'invalid ticket end date' };
       }
-      return { error: 'ticket status does not allow the change of ticket end date' };
+      return { error: 'ticket status does not allow ticket end date change' };
     }
     return { error: 'user is not allowed to change ticket end date' };
   }
