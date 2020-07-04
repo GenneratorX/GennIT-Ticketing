@@ -17,7 +17,7 @@ router.route('/list')
         if (res.locals.userData.admin === true) {
           res.json({ userList: userList });
         } else {
-          res.status(403).json({ error: 'not enough permissions to view the user list' });
+          res.status(403).json({ error: 'user is not allowed to view the user list' });
         }
       })
       .catch(next);

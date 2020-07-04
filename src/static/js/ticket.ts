@@ -208,7 +208,7 @@ newTicketButton.onclick = () => {
             );
           }
         } else {
-          if (response['error'] === 'not enough permissions to view the user list') {
+          if (response['error'] === 'user is not allowed to view the user list') {
             ticketAssigneeInput.setAttribute('disabled', '');
           } else {
             snackbar('Ceva nu a mers bine. Încearcă mai târziu!', 'red');

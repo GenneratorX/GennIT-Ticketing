@@ -250,6 +250,283 @@ export async function addMessageToTicket(ticketId: string, message: string, send
 }
 
 /**
+ * Changes the ticket status of a specific ticket
+ * @param userId User ID of the user that wants to change the ticket status
+ * @param ticketId Ticket ID
+ * @param statusId New ticket status ID
+ * @returns Status of the ticket status change
+ */
+export async function changeTicketStatus(userId: string, ticketId: string, statusId: string) {
+  const query = await db.query('SELECT status_id, assigned_to FROM ticket WHERE ticket_id = $1;', [ticketId]);
+  if (query.length === 1) {
+    if (query[0].assigned_to === userId) {
+      const ticketAllowedStatuses =
+        (await getAllowedTicketStatuses(ticketId)) as { statusId: string; statusName: string; }[];
+
+      let isStatusAllowed = false;
+      for (let i = 0; i < ticketAllowedStatuses.length; i++) {
+        if (ticketAllowedStatuses[i].statusId === statusId) {
+          isStatusAllowed = true;
+          i = ticketAllowedStatuses.length;
+        }
+      }
+
+      if (isStatusAllowed === true) {
+        db.query('INSERT INTO ticket_events VALUES(DEFAULT, $1, $2, $3, DEFAULT);', [
+          ticketId,
+          userId,
+          {
+            event: 'changeStatus',
+            from: query[0].status_id.toString(),
+            to: statusId,
+          }
+        ]);
+        await db.query('UPDATE ticket SET status_id = $1 WHERE ticket_id = $2;', [statusId, ticketId]);
+        return { status: 'success' };
+      }
+      return { error: 'ticket status is not allowed on this ticket' };
+    }
+    return { error: 'user is not allowed to change ticket status' };
+  }
+  return { error: 'invalid ticket id' };
+}
+
+/**
+ * Changes the ticket assignee of a specific ticket
+ * @param userId User ID of the user that wants to change the ticket assignee
+ * @param adminStatus Admin status of user
+ * @param ticketId Ticket ID
+ * @param assigneeId New assignee user ID
+ * @returns Status of the ticket assignee change
+ */
+export async function changeTicketAssignee(userId: string, adminStatus: boolean, ticketId: string, assigneeId: string) {
+  if (adminStatus === true) {
+    if ((await user.userIdExists(assigneeId)) === true) {
+      const query = await db.query('SELECT assigned_to, status_id FROM ticket WHERE ticket_id = $1;', [ticketId]);
+      if (query.length === 1) {
+        if (query[0].status_id !== 4) {
+          if (query[0].assigned_to !== assigneeId) {
+            db.query('INSERT INTO ticket_events VALUES(DEFAULT, $1, $2, $3, DEFAULT);', [
+              ticketId,
+              userId,
+              {
+                event: 'changeAssignee',
+                from: query[0].assigned_to,
+                to: assigneeId,
+              }
+            ]);
+            await db.query('UPDATE ticket SET assigned_to = $1 WHERE ticket_id = $2;', [assigneeId, ticketId]);
+            if (query[0].assigned_to === null) {
+              await db.query('UPDATE ticket SET status_id = 2 WHERE ticket_id = $1;', [ticketId]);
+            }
+          }
+          return { status: 'success' };
+        }
+        return { error: 'ticket status does not allow ticket assignee change' };
+      }
+      return { error: 'invalid ticket id' };
+    }
+    return { error: 'invalid assignee user id' };
+  }
+  return { error: 'user is not allowed to change ticket assignee' };
+}
+
+/**
+ * Changes the ticket priority of a specific ticket
+ * @param userId User ID of the user that wants to change the ticket priority
+ * @param ticketId Ticket ID
+ * @param priorityId New ticket priority ID
+ * @returns Status of the ticket priority change
+ */
+export async function changeTicketPriority(userId: string, ticketId: string, priorityId: string) {
+  const query = await db.query(
+    'SELECT assigned_to, priority_id, status_id FROM ticket WHERE ticket_id = $1;', [ticketId]
+  );
+  if (query.length === 1) {
+    if (query[0].assigned_to === userId) {
+      if (query[0].status_id !== 4) {
+        if ((await priorityExists(query[0].priority_id)) === true) {
+          if (query[0].priority_id.toString() !== priorityId) {
+            db.query('INSERT INTO ticket_events VALUES(DEFAULT, $1, $2, $3, DEFAULT);', [
+              ticketId,
+              userId,
+              {
+                event: 'changePriority',
+                from: query[0].priority_id.toString(),
+                to: priorityId,
+              }
+            ]);
+            await db.query('UPDATE ticket SET priority_id = $1 WHERE ticket_id = $2;', [priorityId, ticketId]);
+            return { status: 'success' };
+          }
+          return { error: 'ticket priority is identical with the specified value' };
+        }
+        return { error: 'invalid priority id' };
+      }
+      return { error: 'ticket status does not allow the change of ticket priority' };
+    }
+    return { error: 'user is not allowed to change ticket priority' };
+  }
+  return { error: 'invalid ticket id' };
+}
+
+/**
+ * Changes the ticket department of a specific ticket
+ * @param userId User ID of the user that wants to change the ticket department
+ * @param ticket_id Ticket ID
+ * @param departmentId New ticket department ID
+ * @returns Status of the ticket department change
+ */
+export async function changeTicketDepartment(userId: string, ticketId: string, departmentId: string) {
+  const query = await db.query(
+    'SELECT assigned_to, department_id, status_id FROM ticket WHERE ticket_id = $1;', [ticketId]
+  );
+  if (query.length === 1) {
+    if (query[0].assigned_to === userId) {
+      if (query[0].status_id !== 4) {
+        if ((await departmentExists(departmentId)) === true) {
+          if (query[0].department_id.toString() !== departmentId) {
+            db.query('INSERT INTO ticket_events VALUES(DEFAULT, $1, $2, $3, DEFAULT);', [
+              ticketId,
+              userId,
+              {
+                event: 'changeDepartment',
+                from: query[0].department_id.toString(),
+                to: departmentId,
+              }
+            ]);
+            await db.query('UPDATE ticket SET department_id = $1 WHERE ticket_id = $2;', [departmentId, ticketId]);
+            return { status: 'success' };
+          }
+          return { error: 'ticket department is identical with the specified value' };
+        }
+        return { error: 'invalid department id' };
+      }
+      return { error: 'ticket status does not allow the change of ticket department' };
+    }
+    return { error: 'user is not allowed to change ticket department' };
+  }
+  return { error: 'invalid ticket id' };
+}
+
+/**
+ * Changes the ticket end date of a specific ticket
+ * @param userId User ID of the user that wants to change the ticket end date
+ * @param ticketId Ticket ID
+ * @param endDate New ticket end date
+ * @returns Status of the ticket end date change
+ */
+export async function changeTicketEndDate(userId: string, ticketId: string, endDate: string) {
+  const query = await db.query(
+    'SELECT assigned_to, start_date, end_date, status_id FROM ticket WHERE ticket_id = $1;', [ticketId]
+  );
+  if (query.length === 1) {
+    if (query[0].assigned_to === userId) {
+      if (query[0].status_id !== 4) {
+        if (endDateIsValid(endDate, query[0].start_date) === true) {
+          if (
+            moment(endDate, moment.ISO_8601, true).isSame(moment(query[0].end_date, moment.ISO_8601, true)) === false
+          ) {
+            db.query('INSERT INTO ticket_events VALUES(DEFAULT, $1, $2, $3, DEFAULT);', [
+              ticketId,
+              userId,
+              {
+                event: 'changeEndDate',
+                from: query[0].end_date,
+                to: endDate,
+              }
+            ]);
+            await db.query('UPDATE ticket SET end_date = $1 WHERE ticket_id = $2;', [endDate, ticketId]);
+            return { status: 'success' };
+          }
+          return { error: 'ticket end date is identical with the specified value' };
+        }
+        return { error: 'invalid ticket end date' };
+      }
+      return { error: 'ticket status does not allow the change of ticket end date' };
+    }
+    return { error: 'user is not allowed to change ticket end date' };
+  }
+  return { error: 'invalid ticket id' };
+}
+
+/**
+ * Gets the allowed ticket statuses
+ * @param ticketId Ticket ID
+ * @returns Allowed ticket statuses
+ */
+export async function getAllowedTicketStatuses(ticketId: string) {
+  const query = await db.query('SELECT status_id FROM ticket WHERE ticket_id = $1;', [ticketId]);
+  if (query.length === 1) {
+    switch (query[0].status_id) {
+      case 1:
+        return [{ statusId: '3', statusName: 'În așteptare' }];
+      case 2:
+        return [{ statusId: '3', statusName: 'În așteptare' }, { statusId: '4', statusName: 'Soluționat' }];
+      case 3:
+        return [{ statusId: '2', statusName: 'Atribuit' }, { statusId: '4', statusName: 'Soluționat' }];
+      case 4:
+        return [];
+    }
+  }
+  return { error: 'invalid ticket id' };
+}
+
+/**
+ * Gets the ticket assignee ID of a specific ticket
+ * @param ticketId Ticket ID
+ * @returns Ticket assignee ID
+ */
+export async function getTicketAssignee(ticketId: string) {
+  const query = await db.query('SELECT assigned_to "assigneeId" FROM ticket WHERE ticket_id = $1;', [ticketId]);
+  if (query.length === 1) {
+    return query[0];
+  }
+  return { error: 'invalid ticket id' };
+}
+
+/**
+ * Gets the ticket priority ID of a specific ticket
+ * @param ticketId Ticket ID
+ * @returns Ticket priority ID
+ */
+export async function getTicketPriority(ticketId: string) {
+  const query = await db.query('SELECT priority_id "priorityId" FROM ticket WHERE ticket_id = $1;', [ticketId]);
+  if (query.length === 1) {
+    return query[0];
+  }
+  return { error: 'invalid ticket id' };
+}
+
+/**
+ * Gets the ticket department ID of a specific ticket
+ * @param ticketId Ticket ID
+ * @returns Ticket department ID
+ */
+export async function getTicketDepartment(ticketId: string) {
+  const query = await db.query('SELECT department_id "departmentId" FROM ticket WHERE ticket_id = $1;', [ticketId]);
+  if (query.length === 1) {
+    return query[0];
+  }
+  return { error: 'invalid ticket id' };
+}
+
+/**
+ * Gets the start and end dates of a specific ticket
+ * @param ticketId Ticket ID
+ * @returns Ticket start and end dates
+ */
+export async function getTicketStartAndEndDate(ticketId: string) {
+  const query = await db.query(
+    'SELECT start_date "startDate", end_date "endDate" FROM ticket WHERE ticket_id = $1;', [ticketId]
+  );
+  if (query.length === 1) {
+    return { startDate: query[0].startDate, endDate: query[0].endDate };
+  }
+  return { error: 'invalid ticket id' };
+}
+
+/**
  * Checks if the department exists in the database
  * @param departmentId Department ID
  * @returns Whether the department exists

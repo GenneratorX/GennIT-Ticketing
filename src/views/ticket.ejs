@@ -4,8 +4,11 @@
     <%- include('partials/header') %>
     <title><%= ticket.title %> :: GennIT Ticketing</title>
     <link rel="preload" href="https://static.gennerator.com/css/sTicket.css" as="style">
+    <link rel="preload" href="https://static.gennerator.com/css/flatpickr.css" as="style">
     <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/app.js" defer></script>
     <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/sTicket.js" defer></script>
+    <script nonce="<%- cspNonce %>" src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
+    <script nonce="<%- cspNonce %>" src="https://npmcdn.com/flatpickr/dist/l10n/ro.js" defer></script>
   </head>
   <body>
     <%- include('partials/noJS') %>
@@ -20,7 +23,7 @@
         <div class="messages">
           <div class="messages-title">
             Mesaje
-            <% if (userData.userId === ticket.requestorId || userData.userId === ticket.assigneeId) {%>
+            <% if ((userData.userId === ticket.requestorId || userData.userId === ticket.assigneeId) && ticket.status !== 'Soluționat') {%>
             <form class="message-input">
               <textarea id="messageInput" rows="5" placeholder="Scrie un mesaj..." maxlength="2000" required></textarea>
               <input id="send-message" type="submit" value="Trimite">
@@ -46,11 +49,11 @@
         <div class="info">
           <div class="info-name">
             Statut
-            <% if (ticket.assigneeId === userData.userId) {%>
+            <% if (ticket.assigneeId === userData.userId && ticket.status !== 'Soluționat') {%>
             <img id="statusEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
             <% } %>
           </div>
-          <div class="status status-<%- ticket.statusId %>"><%- ticket.status %></div>
+          <div id="ticketStatus" class="status status-<%- ticket.statusId %>"><%- ticket.status %></div>
         </div>
         <div class="info">
           <div class="info-name">Solicitant</div>
@@ -63,19 +66,22 @@
           <% if (ticket.assigneeId !== null) {%>
           <div class="info-name">
             Responsabil
+            <% if (userData.admin === true && ticket.status !== 'Soluționat') {%>
+            <img id="assigneeEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
+            <% } %>
           </div>
-          <a class="locked" href="/user/<%- ticket.assigneeId %>">
+          <a id="ticketAssignee" class="locked" href="/user/<%- ticket.assigneeId %>">
             <div class="profile-picture"><%= ticket.assigneeNameInitials %></div>
             <span class="profile-name"><%= ticket.assigneeName %></span>
           </a>
           <% } else { %>
           <div class="info-name">
             Responsabil
-            <% if (userData.admin === true) {%>
+            <% if (userData.admin === true && ticket.status !== 'Soluționat') {%>
             <img id="assigneeEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
             <% } %>
           </div>
-          <a class="locked">
+          <a id="ticketAssignee" class="locked">
             <span class="profile-name">~</span>
           </a>
           <% } %>
@@ -83,55 +89,46 @@
         <div class="info">
           <div class="info-name">
             Prioritate
-            <% if (ticket.assigneeId === userData.userId) {%>
+            <% if (ticket.assigneeId === userData.userId && ticket.status !== 'Soluționat') {%>
             <img id="priorityEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
             <% } %>
           </div>
-          <div class="locked">
+          <div id="ticketPriority" class="locked">
             <span class="profile-name"><%- ticket.priority %></span>
           </div>
         </div>
         <div class="info">
-          <div class="info-name">Departament</div>
-          <div class="locked">
+          <div class="info-name">
+            Departament
+            <% if (ticket.assigneeId === userData.userId && ticket.status !== 'Soluționat') {%>
+            <img id="departmentEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
+            <% } %>
+          </div>
+          <div id="ticketDepartment" class="locked">
             <span class="profile-name"><%- ticket.department %></span>
           </div>
         </div>
         <div class="info">
           <div class="info-name">
             Dată început
-            <% if (ticket.assigneeId === userData.userId) {%>
-            <img id="startDateEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
-            <% } %>
           </div>
-          <div class="locked">
+          <div id="ticketStartDate" class="locked">
             <span class="profile-name"><%- ticket.prettyStartDate %></span>
           </div>
         </div>
         <div class="info">
           <div class="info-name">
             Termen limită
-            <% if (ticket.assigneeId === userData.userId) {%>
+            <% if (ticket.assigneeId === userData.userId && ticket.status !== 'Soluționat') {%>
             <img id="endDateEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
             <% } %>
           </div>
-          <div class="locked">
+          <div id="ticketEndDate" class="locked">
             <% if (ticket.endDate !== null) {%>
             <span class="profile-name"><%- ticket.prettyEndDate %></span>
             <% } else {%>
             <span class="profile-name">~</span>
             <% } %>
-          </div>
-        </div>
-        <div class="info">
-          <div class="info-name">
-            Colaboratori
-            <% if (ticket.assigneeId === userData.userId) {%>
-            <img id="collaboratorsEdit" class="edit-button" src="https://static.gennerator.com/img/svg/edit.svg" alt="Editare">
-            <% } %>
-          </div>
-          <div class="locked">
-            <span class="profile-name">~</span>
           </div>
         </div>
       </div>

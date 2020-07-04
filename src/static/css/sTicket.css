@@ -96,10 +96,13 @@
 }
 
 .message-content {
+  display: flex;
+  flex-direction: column;
   width: 100%;
 }
 
 .message-sent-date {
+  align-self: flex-end;
   color: #c0c0c0;
   font-size: 0.9rem;
   margin-right: 0.5rem;
@@ -162,6 +165,7 @@
   background: #363636;
   border-radius: 5px;
   margin-left: 1rem;
+  overflow: auto;
   padding: 1rem;
   width: 20%;
 }
@@ -246,4 +250,33 @@
 
 .status-4 { /* Soluționat */
   background: #09776c;
+}
+
+.ticket-edit-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.ticket-edit-form select {
+  border-radius: 5px;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.ticket-edit-form input {
+  border-radius: 5px;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.ticket-edit-form input[type="submit"] {
+  background: #09776c;
+  border-radius: 5px;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+}
+
+.ticket-edit-form input[type="submit"]:hover {
+  background: #454545;
+  cursor: pointer;
 }

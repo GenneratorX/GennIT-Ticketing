@@ -10,6 +10,70 @@ import ticket = require('../modules/ticket');
  */
 export const router = express.Router();
 
+router.route('/:ticketId/allowedStatuses')
+  .get(function(req, res, next) {
+    ticket.getAllowedTicketStatuses(req.params.ticketId)
+      .then(allowedStatuses => {
+        if ((allowedStatuses as { error: string }).error !== undefined) {
+          res.status(422);
+        }
+        res.json(allowedStatuses);
+      })
+      .catch(next);
+  })
+  .all(util.httpErrorAllowOnlyGet);
+
+router.route('/:ticketId/assignee')
+  .get(function(req, res, next) {
+    ticket.getTicketAssignee(req.params.ticketId)
+      .then(assignee => {
+        if (assignee.error !== undefined) {
+          res.status(422);
+        }
+        res.json(assignee);
+      })
+      .catch(next);
+  })
+  .all(util.httpErrorAllowOnlyGet);
+
+router.route('/:ticketId/priority')
+  .get(function(req, res, next) {
+    ticket.getTicketPriority(req.params.ticketId)
+      .then(priority => {
+        if (priority.error !== undefined) {
+          res.status(422);
+        }
+        res.json(priority);
+      })
+      .catch(next);
+  })
+  .all(util.httpErrorAllowOnlyGet);
+
+router.route('/:ticketId/department')
+  .get(function(req, res, next) {
+    ticket.getTicketDepartment(req.params.ticketId)
+      .then(department => {
+        if (department.error !== undefined) {
+          res.status(422);
+        }
+        res.json(department);
+      })
+      .catch(next);
+  })
+  .all(util.httpErrorAllowOnlyGet);
+
+router.route('/:ticketId/dates')
+  .get(function(req, res, next) {
+    ticket.getTicketStartAndEndDate(req.params.ticketId)
+      .then(dates => {
+        if (dates.error !== undefined) {
+          res.status(422);
+        }
+        res.json(dates);
+      })
+      .catch(next);
+  })
+  .all(util.httpErrorAllowOnlyGet);
 /**
  * Add security headers
  */
@@ -78,10 +142,10 @@ router.route('/:ticketId')
                 if (sentStatus.status === 'success') {
                   res.json(sentStatus);
                 } else {
-                  switch (sentStatus.error) {
-                    case 'invalid ticket id': res.status(422); break;
-                    case 'user is not allowed to send messages in this conversation': res.status(403); break;
-                    case 'invalid ticket message': res.status(422); break;
+                  if (sentStatus.error === 'user is not allowed to send messages in this conversation') {
+                    res.status(403);
+                  } else {
+                    res.status(422);
                   }
                   res.json(sentStatus);
                 }
@@ -89,6 +153,116 @@ router.route('/:ticketId')
               .catch(next);
           } else {
             res.status(422).json({ error: 'invalid message' });
+          }
+          break;
+        }
+        case 'changeStatus': {
+          if (typeof req.body.status === 'string') {
+            ticket.changeTicketStatus(res.locals.userData.userId, req.params.ticketId, req.body.status)
+              .then(statusChange => {
+                if (statusChange.status === 'success') {
+                  res.json(statusChange);
+                } else {
+                  if (statusChange.error === 'user is not allowed to change ticket status') {
+                    res.status(403);
+                  } else {
+                    res.status(422);
+                  }
+                  res.json(statusChange);
+                }
+              })
+              .catch(next);
+          } else {
+            res.status(422).json({ error: 'invalid ticket status' });
+          }
+          break;
+        }
+        case 'changeAssignee': {
+          if (typeof req.body.assigneeId === 'string') {
+            ticket.changeTicketAssignee(
+              res.locals.userData.userId,
+              res.locals.userData.admin,
+              req.params.ticketId,
+              req.body.assigneeId
+            )
+              .then(assigneeChange => {
+                if (assigneeChange.status === 'success') {
+                  res.json(assigneeChange);
+                } else {
+                  if (assigneeChange.error === 'user is not allowed to change ticket assignee') {
+                    res.status(403);
+                  } else {
+                    res.status(422);
+                  }
+                  res.json(assigneeChange);
+                }
+              })
+              .catch(next);
+          } else {
+            res.status(422).json({ error: 'invalid ticket assignee' });
+          }
+          break;
+        }
+        case 'changePriority': {
+          if (typeof req.body.priorityId === 'string') {
+            ticket.changeTicketPriority(res.locals.userData.userId, req.params.ticketId, req.body.priorityId)
+              .then(priorityChange => {
+                if (priorityChange.status === 'success') {
+                  res.json(priorityChange);
+                } else {
+                  if (priorityChange.error === 'user is not allowed to change ticket priority') {
+                    res.status(403);
+                  } else {
+                    res.status(422);
+                  }
+                  res.json(priorityChange);
+                }
+              })
+              .catch(next);
+          } else {
+            res.status(422).json({ error: 'invalid ticket priority' });
+          }
+          break;
+        }
+        case 'changeDepartment': {
+          if (typeof req.body.departmentId === 'string') {
+            ticket.changeTicketDepartment(res.locals.userData.userId, req.params.ticketId, req.body.departmentId)
+              .then(departmentChange => {
+                if (departmentChange.status === 'success') {
+                  res.json(departmentChange);
+                } else {
+                  if (departmentChange.error === 'user is not allowed to change ticket department') {
+                    res.status(403);
+                  } else {
+                    res.status(422);
+                  }
+                  res.json(departmentChange);
+                }
+              })
+              .catch(next);
+          } else {
+            res.status(422).json({ error: 'invalid ticket department' });
+          }
+          break;
+        }
+        case 'changeEndDate': {
+          if (typeof req.body.endDate === 'string') {
+            ticket.changeTicketEndDate(res.locals.userData.userId, req.params.ticketId, req.body.endDate)
+              .then(endDateChange => {
+                if (endDateChange.status === 'success') {
+                  res.json(endDateChange);
+                } else {
+                  if (endDateChange.error === 'user is not allowed to change ticket end date') {
+                    res.status(403);
+                  } else {
+                    res.status(422);
+                  }
+                  res.json(endDateChange);
+                }
+              })
+              .catch(next);
+          } else {
+            res.status(422).json({ error: 'invalid ticket end date' });
           }
           break;
         }
