@@ -33,11 +33,19 @@
           <div class="message-list">
             <% for (let i = 0; i < ticket.messages.length; i++) { %>
             <div class="message">
+              <% if (ticket.messages[i].userId === userData.userId) {%>
               <div class="message-content">
                 <div class="message-sent-date" title="<%- ticket.messages[i].prettyDate %>"><%- ticket.messages[i].relativeSentDate %></div>
-                <div class="message-text<% if (ticket.messages[i].userId === userData.userId) {%> own<% } %>"><%= ticket.messages[i].message %></div>
+                <div class="message-text own"><%= ticket.messages[i].message %></div>
               </div>
               <a class="message-user" href="/user/<%- ticket.messages[i].userId %>"><%= ticket.messages[i].userNameInitials %></a>
+              <% } else {%>
+              <a class="message-user" href="/user/<%- ticket.messages[i].userId %>"><%= ticket.messages[i].userNameInitials %></a>
+              <div class="message-content">
+                <div class="message-sent-date left" title="<%- ticket.messages[i].prettyDate %>"><%- ticket.messages[i].relativeSentDate %></div>
+                <div class="message-text"><%= ticket.messages[i].message %></div>
+              </div>
+              <% } %>
             </div>
             <% } %>
           </div>

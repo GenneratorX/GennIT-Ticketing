@@ -93,6 +93,7 @@
   display: flex;
   flex-direction: row;
   margin-bottom: 0.5rem;
+  padding: 0 0.5rem;
 }
 
 .message-content {
@@ -107,13 +108,18 @@
   font-size: 0.9rem;
   margin-right: 0.5rem;
   margin-top: 0.4rem;
-  text-align: end;
+}
+
+.left {
+  align-self: start;
+  margin-left: 0.5rem;
+  margin-right: 0;
 }
 
 .message-text {
   background: #454545;
   border-radius: 5px;
-  margin-right: 15px;
+  margin-left: 15px;
   padding: 1rem;
   position: relative;
   white-space: pre-wrap;
@@ -122,25 +128,41 @@
 
 .own {
   background: #09776c;
-  z-index: -1;
+}
+
+.message-text.own {
+  margin-left: 0;
+  margin-right: 15px;
 }
 
 .message-text::after {
   border: 15px solid transparent;
-  border-left-color: #454545;
+  border-left: 0;
+  border-right-color: #454545;
+  border-top: 0;
+  content: '';
+  height: 0;
+  left: 0;
+  margin-left: -10px;
+  margin-top: 0;
+  position: absolute;
+  top: 0;
+  width: 0;
+}
+
+.message-text.own::after {
+  border: 15px solid transparent;
+  border-left-color: #09776c;
   border-right: 0;
   border-top: 0;
   content: '';
   height: 0;
+  left: unset;
   margin-right: -10px;
   position: absolute;
   right: 0;
   top: 0;
   width: 0;
-}
-
-.own::after {
-  border-left-color: #09776c;
 }
 
 .message-user {
@@ -151,7 +173,6 @@
   font-weight: 700;
   height: 3rem;
   line-height: 3rem;
-  margin-right: 0.5rem;
   min-height: 3rem;
   min-width: 3rem;
   text-align: center;
