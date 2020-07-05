@@ -547,7 +547,7 @@ export async function changeTicketEndDate(userId: string, ticketId: string, endD
               [
                 ticketId,
                 userId,
-                query[0].end_date,
+                moment(query[0].end_date, moment.ISO_8601, true),
                 endDate
               ]
             );
