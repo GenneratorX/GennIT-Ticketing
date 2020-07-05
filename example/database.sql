@@ -16,51 +16,6 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
-ALTER TABLE ONLY gennit.users_reset DROP CONSTRAINT users_reset_user_id_fkey;
-ALTER TABLE ONLY gennit.users_relationship DROP CONSTRAINT users_relationship_user_2_fkey;
-ALTER TABLE ONLY gennit.users_relationship DROP CONSTRAINT users_relationship_user_1_fkey;
-ALTER TABLE ONLY gennit.users_relationship DROP CONSTRAINT users_relationship_status_fkey;
-ALTER TABLE ONLY gennit.users DROP CONSTRAINT users_gender_fkey;
-ALTER TABLE ONLY gennit.users_activation DROP CONSTRAINT users_activation_user_id_fkey;
-ALTER TABLE ONLY gennit.ticket DROP CONSTRAINT ticket_status_id_fkey;
-ALTER TABLE ONLY gennit.ticket DROP CONSTRAINT ticket_priority_id_fkey;
-ALTER TABLE ONLY gennit.ticket DROP CONSTRAINT ticket_department_id_fkey;
-ALTER TABLE ONLY gennit.ticket DROP CONSTRAINT ticket_created_by_fkey;
-ALTER TABLE ONLY gennit.ticket DROP CONSTRAINT ticket_conversation_id_fkey;
-ALTER TABLE ONLY gennit.ticket DROP CONSTRAINT ticket_assigned_to_fkey;
-ALTER TABLE ONLY gennit.message DROP CONSTRAINT message_user_id_fkey;
-ALTER TABLE ONLY gennit.message DROP CONSTRAINT message_conversation_id_fkey;
-ALTER TABLE ONLY gennit.users DROP CONSTRAINT users_username_key;
-ALTER TABLE ONLY gennit.users_reset DROP CONSTRAINT users_reset_reset_code_key;
-ALTER TABLE ONLY gennit.users_reset DROP CONSTRAINT users_reset_pkey;
-ALTER TABLE ONLY gennit.users_relationship_status DROP CONSTRAINT users_relationship_status_pkey;
-ALTER TABLE ONLY gennit.users_relationship DROP CONSTRAINT users_relationship_pkey;
-ALTER TABLE ONLY gennit.users DROP CONSTRAINT users_pkey;
-ALTER TABLE ONLY gennit.users DROP CONSTRAINT users_email_key;
-ALTER TABLE ONLY gennit.users_activation DROP CONSTRAINT users_activation_pkey;
-ALTER TABLE ONLY gennit.users_activation DROP CONSTRAINT users_activation_activation_code_key;
-ALTER TABLE ONLY gennit.ticket_status DROP CONSTRAINT ticket_status_pkey;
-ALTER TABLE ONLY gennit.ticket_priority DROP CONSTRAINT ticket_priority_pkey;
-ALTER TABLE ONLY gennit.ticket DROP CONSTRAINT ticket_pkey;
-ALTER TABLE ONLY gennit.message DROP CONSTRAINT message_pkey;
-ALTER TABLE ONLY gennit.gender DROP CONSTRAINT gender_pkey;
-ALTER TABLE ONLY gennit.department DROP CONSTRAINT department_pkey;
-ALTER TABLE ONLY gennit.conversation DROP CONSTRAINT conversation_pkey;
-ALTER TABLE gennit.message ALTER COLUMN message_id DROP DEFAULT;
-DROP TABLE gennit.users_reset;
-DROP TABLE gennit.users_relationship_status;
-DROP TABLE gennit.users_relationship;
-DROP TABLE gennit.users_activation;
-DROP TABLE gennit.users;
-DROP TABLE gennit.ticket_status;
-DROP TABLE gennit.ticket_priority;
-DROP TABLE gennit.ticket;
-DROP SEQUENCE gennit.message_message_id_seq;
-DROP TABLE gennit.message;
-DROP TABLE gennit.gender;
-DROP TABLE gennit.department;
-DROP TABLE gennit.conversation;
-DROP SCHEMA gennit;
 --
 -- Name: gennit; Type: SCHEMA; Schema: -; Owner: -
 --
@@ -155,6 +110,59 @@ CREATE TABLE gennit.ticket (
 
 
 --
+-- Name: ticket_event; Type: TABLE; Schema: gennit; Owner: -
+--
+
+CREATE TABLE gennit.ticket_event (
+    event_id integer NOT NULL,
+    ticket_id character(12) NOT NULL,
+    user_id character(12) NOT NULL,
+    event_type smallint NOT NULL,
+    event_date timestamp without time zone DEFAULT now() NOT NULL,
+    assignee_from character(12),
+    assignee_to character(12),
+    status_from smallint,
+    status_to smallint,
+    priority_from smallint,
+    priority_to smallint,
+    department_from smallint,
+    department_to smallint,
+    end_date_from timestamp without time zone,
+    end_date_to timestamp without time zone
+);
+
+
+--
+-- Name: ticket_event_event_id_seq; Type: SEQUENCE; Schema: gennit; Owner: -
+--
+
+CREATE SEQUENCE gennit.ticket_event_event_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ticket_event_event_id_seq; Type: SEQUENCE OWNED BY; Schema: gennit; Owner: -
+--
+
+ALTER SEQUENCE gennit.ticket_event_event_id_seq OWNED BY gennit.ticket_event.event_id;
+
+
+--
+-- Name: ticket_event_type; Type: TABLE; Schema: gennit; Owner: -
+--
+
+CREATE TABLE gennit.ticket_event_type (
+    event_type smallint NOT NULL,
+    event_description character varying(16) NOT NULL
+);
+
+
+--
 -- Name: ticket_priority; Type: TABLE; Schema: gennit; Owner: -
 --
 
@@ -244,6 +252,13 @@ ALTER TABLE ONLY gennit.message ALTER COLUMN message_id SET DEFAULT nextval('gen
 
 
 --
+-- Name: ticket_event event_id; Type: DEFAULT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event ALTER COLUMN event_id SET DEFAULT nextval('gennit.ticket_event_event_id_seq'::regclass);
+
+
+--
 -- Name: conversation conversation_pkey; Type: CONSTRAINT; Schema: gennit; Owner: -
 --
 
@@ -273,6 +288,22 @@ ALTER TABLE ONLY gennit.gender
 
 ALTER TABLE ONLY gennit.message
     ADD CONSTRAINT message_pkey PRIMARY KEY (message_id);
+
+
+--
+-- Name: ticket_event ticket_event_pkey; Type: CONSTRAINT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event
+    ADD CONSTRAINT ticket_event_pkey PRIMARY KEY (event_id);
+
+
+--
+-- Name: ticket_event_type ticket_event_types_pkey; Type: CONSTRAINT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event_type
+    ADD CONSTRAINT ticket_event_types_pkey PRIMARY KEY (event_type);
 
 
 --
@@ -420,6 +451,94 @@ ALTER TABLE ONLY gennit.ticket
 
 
 --
+-- Name: ticket_event ticket_event_assignee_from_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event
+    ADD CONSTRAINT ticket_event_assignee_from_fkey FOREIGN KEY (assignee_from) REFERENCES gennit.users(user_id);
+
+
+--
+-- Name: ticket_event ticket_event_assignee_to_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event
+    ADD CONSTRAINT ticket_event_assignee_to_fkey FOREIGN KEY (assignee_to) REFERENCES gennit.users(user_id);
+
+
+--
+-- Name: ticket_event ticket_event_department_from_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event
+    ADD CONSTRAINT ticket_event_department_from_fkey FOREIGN KEY (department_from) REFERENCES gennit.department(department_id);
+
+
+--
+-- Name: ticket_event ticket_event_department_to_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event
+    ADD CONSTRAINT ticket_event_department_to_fkey FOREIGN KEY (department_to) REFERENCES gennit.department(department_id);
+
+
+--
+-- Name: ticket_event ticket_event_event_type_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event
+    ADD CONSTRAINT ticket_event_event_type_fkey FOREIGN KEY (event_type) REFERENCES gennit.ticket_event_type(event_type);
+
+
+--
+-- Name: ticket_event ticket_event_priority_from_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event
+    ADD CONSTRAINT ticket_event_priority_from_fkey FOREIGN KEY (priority_from) REFERENCES gennit.ticket_priority(priority_id);
+
+
+--
+-- Name: ticket_event ticket_event_priority_to_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event
+    ADD CONSTRAINT ticket_event_priority_to_fkey FOREIGN KEY (priority_to) REFERENCES gennit.ticket_priority(priority_id);
+
+
+--
+-- Name: ticket_event ticket_event_status_from_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event
+    ADD CONSTRAINT ticket_event_status_from_fkey FOREIGN KEY (status_from) REFERENCES gennit.ticket_status(status_id);
+
+
+--
+-- Name: ticket_event ticket_event_status_to_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event
+    ADD CONSTRAINT ticket_event_status_to_fkey FOREIGN KEY (status_to) REFERENCES gennit.ticket_status(status_id);
+
+
+--
+-- Name: ticket_event ticket_event_ticket_id_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event
+    ADD CONSTRAINT ticket_event_ticket_id_fkey FOREIGN KEY (ticket_id) REFERENCES gennit.ticket(ticket_id) ON DELETE CASCADE;
+
+
+--
+-- Name: ticket_event ticket_event_user_id_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: -
+--
+
+ALTER TABLE ONLY gennit.ticket_event
+    ADD CONSTRAINT ticket_event_user_id_fkey FOREIGN KEY (user_id) REFERENCES gennit.users(user_id);
+
+
+--
 -- Name: ticket ticket_priority_id_fkey; Type: FK CONSTRAINT; Schema: gennit; Owner: -
 --
 
@@ -481,120 +600,6 @@ ALTER TABLE ONLY gennit.users_relationship
 
 ALTER TABLE ONLY gennit.users_reset
     ADD CONSTRAINT users_reset_user_id_fkey FOREIGN KEY (user_id) REFERENCES gennit.users(user_id) ON DELETE CASCADE;
-
-
---
--- Name: SCHEMA gennit; Type: ACL; Schema: -; Owner: -
---
-
-GRANT USAGE ON SCHEMA gennit TO production;
-
-
---
--- Name: TABLE conversation; Type: ACL; Schema: gennit; Owner: -
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE gennit.conversation TO production;
-
-
---
--- Name: TABLE department; Type: ACL; Schema: gennit; Owner: -
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE gennit.department TO production;
-
-
---
--- Name: TABLE gender; Type: ACL; Schema: gennit; Owner: -
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE gennit.gender TO production;
-
-
---
--- Name: TABLE message; Type: ACL; Schema: gennit; Owner: -
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE gennit.message TO production;
-
-
---
--- Name: SEQUENCE message_message_id_seq; Type: ACL; Schema: gennit; Owner: -
---
-
-GRANT USAGE ON SEQUENCE gennit.message_message_id_seq TO production;
-
-
---
--- Name: TABLE ticket; Type: ACL; Schema: gennit; Owner: -
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE gennit.ticket TO production;
-
-
---
--- Name: TABLE ticket_priority; Type: ACL; Schema: gennit; Owner: -
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE gennit.ticket_priority TO production;
-
-
---
--- Name: TABLE ticket_status; Type: ACL; Schema: gennit; Owner: -
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE gennit.ticket_status TO production;
-
-
---
--- Name: TABLE users; Type: ACL; Schema: gennit; Owner: -
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE gennit.users TO production;
-
-
---
--- Name: TABLE users_activation; Type: ACL; Schema: gennit; Owner: -
---
-
-GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE gennit.users_activation TO production;
-
-
---
--- Name: TABLE users_relationship; Type: ACL; Schema: gennit; Owner: -
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE gennit.users_relationship TO production;
-
-
---
--- Name: TABLE users_relationship_status; Type: ACL; Schema: gennit; Owner: -
---
-
-GRANT SELECT,INSERT,UPDATE ON TABLE gennit.users_relationship_status TO production;
-
-
---
--- Name: TABLE users_reset; Type: ACL; Schema: gennit; Owner: -
---
-
-GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE gennit.users_reset TO production;
-
-
---
--- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: gennit; Owner: -
---
-
-ALTER DEFAULT PRIVILEGES FOR ROLE "Gennerator" IN SCHEMA gennit REVOKE ALL ON SEQUENCES  FROM "Gennerator";
-ALTER DEFAULT PRIVILEGES FOR ROLE "Gennerator" IN SCHEMA gennit GRANT USAGE ON SEQUENCES  TO production;
-
-
---
--- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: gennit; Owner: -
---
-
-ALTER DEFAULT PRIVILEGES FOR ROLE "Gennerator" IN SCHEMA gennit REVOKE ALL ON TABLES  FROM "Gennerator";
-ALTER DEFAULT PRIVILEGES FOR ROLE "Gennerator" IN SCHEMA gennit GRANT SELECT,INSERT,UPDATE ON TABLES  TO production;
 
 
 --

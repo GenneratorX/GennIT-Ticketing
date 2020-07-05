@@ -31,23 +31,76 @@
             <% } %>
           </div>
           <div class="message-list">
-            <% for (let i = 0; i < ticket.messages.length; i++) { %>
+            <% for (let i = 0; i < ticket.messagesAndEvents.length; i++) { %>
+            <% if (ticket.messagesAndEvents[i].type === 'msg') {%>
             <div class="message">
-              <% if (ticket.messages[i].userId === userData.userId) {%>
+              <% if (ticket.messagesAndEvents[i].userId === userData.userId) {%>
               <div class="message-content">
-                <div class="message-sent-date" title="<%- ticket.messages[i].prettyDate %>"><%- ticket.messages[i].relativeSentDate %></div>
-                <div class="message-text own"><%= ticket.messages[i].message %></div>
+                <div class="message-sent-date" title="<%- ticket.messagesAndEvents[i].prettyDate %>"><%- ticket.messagesAndEvents[i].relativeSentDate %></div>
+                <div class="message-text own"><%= ticket.messagesAndEvents[i].message %></div>
               </div>
-              <a class="message-user" href="/user/<%- ticket.messages[i].userId %>"><%= ticket.messages[i].userNameInitials %></a>
+              <a class="message-user" href="/user/<%- ticket.messagesAndEvents[i].userId %>"><%= ticket.messagesAndEvents[i].displayNameInitials %></a>
               <% } else {%>
-              <a class="message-user" href="/user/<%- ticket.messages[i].userId %>"><%= ticket.messages[i].userNameInitials %></a>
+              <a class="message-user" href="/user/<%- ticket.messagesAndEvents[i].userId %>"><%= ticket.messagesAndEvents[i].displayNameInitials %></a>
               <div class="message-content">
-                <div class="message-sent-date left" title="<%- ticket.messages[i].prettyDate %>"><%- ticket.messages[i].relativeSentDate %></div>
-                <div class="message-text"><%= ticket.messages[i].message %></div>
+                <div class="message-sent-date left" title="<%- ticket.messagesAndEvents[i].prettyDate %>"><%- ticket.messagesAndEvents[i].relativeSentDate %></div>
+                <div class="message-text"><%= ticket.messagesAndEvents[i].message %></div>
               </div>
               <% } %>
             </div>
+            <% } else { %>
+            <div class="event">
+              <div class="event-date" title="<%- ticket.messagesAndEvents[i].prettyCreateDate %>"><%- ticket.messagesAndEvents[i].relativeCreateDate %></div>
+              <div class="event-message">
+                <a class="event-bold" href="/user/<%- ticket.messagesAndEvents[i].userId %>"><%= ticket.messagesAndEvents[i].displayName %></a>
+                <% switch(ticket.messagesAndEvents[i].event) { case 'changeAssignee':%>
+                <% if (ticket.messagesAndEvents[i].from.assigneeId === null) { %>
+                <span>a desemnat pe</span>
+                <a class="event-bold" href="/user/<%- ticket.messagesAndEvents[i].to.assigneeId %>"><%= ticket.messagesAndEvents[i].to.assigneeDisplayName %></a>
+                <span>&nbsp;ca responsabil al acestui tichet.</span>
+                <div>Statutul tichetului a fost modificat automat în <span class="event-bold">Atribuit</span>.</div>
+                <% } else { %>
+                <span>a modificat responsabilul tichetului din</span>
+                <a class="event-bold" href="/user/<%- ticket.messagesAndEvents[i].from.assigneeId %>"><%= ticket.messagesAndEvents[i].from.assigneeDisplayName %></a>
+                <span>&nbsp;în</span>
+                <a class="event-bold" href="/user/<%- ticket.messagesAndEvents[i].to.assigneeId %>"><%= ticket.messagesAndEvents[i].to.assigneeDisplayName %></a>
+                <span>.</span>
+                <% } %>
+                <% break; case 'changeStatus':%>
+                <span>a modificat statutul tichetului din</span>
+                <span class="event-bold"><%- ticket.messagesAndEvents[i].from %></span>
+                <span>&nbsp;în</span>
+                <span class="event-bold"><%- ticket.messagesAndEvents[i].to %></span>
+                <span>.</span>
+                <% break; case 'changePriority':%>
+                <span>a modificat prioritatea tichetului din</span>
+                <span class="event-bold"><%- ticket.messagesAndEvents[i].from %></span>
+                <span>&nbsp;în</span>
+                <span class="event-bold"><%- ticket.messagesAndEvents[i].to %></span>
+                <span>.</span>
+                <% break; case 'changeDepartment':%>
+                <span>a modificat departamentul aferent tichetului din</span>
+                <span class="event-bold"><%- ticket.messagesAndEvents[i].from %></span>
+                <span>&nbsp;în</span>
+                <span class="event-bold"><%- ticket.messagesAndEvents[i].to %></span>
+                <span>.</span>
+                <% break; case 'changeEndDate':%>
+                <% if (ticket.messagesAndEvents[i].from !== null) {%>
+                <span>a modificat termenul limită din</span>
+                <span class="event-bold"><%- ticket.messagesAndEvents[i].from %></span>
+                <span>&nbsp;în</span>
+                <span class="event-bold"><%- ticket.messagesAndEvents[i].to %></span>
+                <span>.</span>
+                <% } else { %>
+                <span>a adăugat un termen limită acestui tichet. Noul termen limită este </span>
+                <span class="event-bold"><%- ticket.messagesAndEvents[i].to %></span>
+                <span>.</span>
+                <% } %>
+                <% break; } %>
+              </div>
+            </div>
             <% } %>
+            <% }%>
           </div>
         </div>
       </div>

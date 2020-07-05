@@ -123,7 +123,6 @@
   padding: 1rem;
   position: relative;
   white-space: pre-wrap;
-  z-index: -1;
 }
 
 .own {
@@ -133,6 +132,10 @@
 .message-text.own {
   margin-left: 0;
   margin-right: 15px;
+}
+
+.message-text.own::selection {
+  background: #454545;
 }
 
 .message-text::after {
@@ -179,6 +182,33 @@
   text-decoration: none;
   user-select: none;
   width: 3rem;
+}
+
+.event {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+}
+
+.event-date {
+  color: #c0c0c0;
+  font-size: 0.9rem;
+}
+
+.event-message {
+  background: #267992;
+  border-radius: 5px;
+  max-width: 75%;
+  padding: 1rem;
+  text-align: center;
+}
+
+.event-bold {
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 /* Ticket Info */

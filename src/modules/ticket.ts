@@ -181,15 +181,129 @@ export async function getTicketInfo(ticketId: string) {
     [ticketId]
   );
   if (ticketInfo.length === 1) {
+    const messagesAndEvents: ({
+      type: 'evt',
+      createDate: Date,
+      prettyCreateDate: string,
+      relativeCreateDate: string,
+      userId: string,
+      displayName: string,
+      event: string,
+      from: any
+      to: any,
+    } | {
+      type: 'msg',
+      createDate: Date,
+      userId: string,
+      displayName: string
+      displayNameInitials: string,
+      prettyDate: string,
+      relativeSentDate: string,
+      message: string
+    })[] = [];
+
     const messages = await db.query(
       'SELECT a.message, a.create_date "createDate", a.user_id "userId", ' +
       'COALESCE(b.first_name ||\' \'||b.last_name, b.username) "userName" ' +
       'FROM message a ' +
       'INNER JOIN users b ON a.user_id = b.user_id ' +
-      'WHERE a.conversation_id = $1 ' +
-      'ORDER BY a.create_date',
+      'WHERE a.conversation_id = $1;',
       [ticketInfo[0].conversationId]
     );
+
+    for (let i = 0; i < messages.length; i++) {
+      messagesAndEvents.push({
+        type: 'msg',
+        createDate: messages[i].createDate,
+        userId: messages[i].userId,
+        displayName: messages[i].userName,
+        displayNameInitials: util.getUserInitials(messages[i].userName),
+        prettyDate: moment(messages[i].createDate).format('D MMMM YYYY [ora] HH:mm'),
+        relativeSentDate: moment(messages[i].createDate).fromNow(),
+        message: messages[i].message,
+      });
+    }
+
+    const events = await db.query(
+      'SELECT a.user_id "userId", COALESCE(b.first_name ||\' \'||b.last_name, b.username) "userName", ' +
+      'c.event_description "eventType", a.event_date "eventDate", d.user_id "assigneeFromId", ' +
+      'COALESCE(d.first_name ||\' \'||d.last_name, d.username) "assigneeFromDisplayName",e.user_id "assigneeToId", ' +
+      'COALESCE(e.first_name ||\' \'||e.last_name, e.username) "assigneeToDisplayName", f.status "statusFrom", ' +
+      'g.status "statusTo", h.priority "priorityFrom", i.priority "priorityTo", j.name "departmentFrom", ' +
+      'k.name "departmentTo", end_date_from "endDateFrom", end_date_to "endDateTo" ' +
+      'FROM ticket_event a ' +
+      'INNER JOIN users b ON a.user_id = b.user_id ' +
+      'INNER JOIN ticket_event_type c ON a.event_type = c.event_type ' +
+      'LEFT JOIN users d ON a.assignee_from = d.user_id ' +
+      'LEFT JOIN users e ON a.assignee_to = e.user_id ' +
+      'LEFT JOIN ticket_status f ON a.status_from = f.status_id ' +
+      'LEFT JOIN ticket_status g ON a.status_to = g.status_id ' +
+      'LEFT JOIN ticket_priority h ON a.priority_from = h.priority_id ' +
+      'LEFT JOIN ticket_priority i ON a.priority_to = i.priority_id ' +
+      'LEFT JOIN department j ON a.department_from = j.department_id ' +
+      'LEFT JOIN department k ON a.department_to = k.department_id ' +
+      'WHERE a.ticket_id = $1;',
+      [ticketId]
+    );
+
+    for (let i = 0; i < events.length; i++) {
+      const event: {
+        type: 'evt',
+        createDate: Date,
+        prettyCreateDate: string,
+        relativeCreateDate: string,
+        userId: string,
+        displayName: string,
+        event: string,
+        from: any,
+        to: any
+      } = {
+        type: 'evt',
+        createDate: events[i].eventDate,
+        prettyCreateDate: moment(events[i].eventDate).format('D MMMM YYYY [ora] HH:mm'),
+        relativeCreateDate: moment(events[i].eventDate).fromNow(),
+        userId: events[i].userId,
+        displayName: events[i].userName,
+        event: events[i].eventType,
+        from: {
+          assigneeId: '',
+          assigneeDisplayName: '',
+        },
+        to: {
+          assigneeId: '',
+          assigneeDisplayName: '',
+        },
+      };
+
+      switch (events[i].eventType) {
+        case 'changeAssignee':
+          event.from.assigneeId = events[i].assigneeFromId;
+          event.from.assigneeDisplayName = events[i].assigneeFromDisplayName;
+          event.to.assigneeId = events[i].assigneeToId;
+          event.to.assigneeDisplayName = events[i].assigneeToDisplayName;
+          break;
+        case 'changeStatus':
+          event.from = events[i].statusFrom;
+          event.to = events[i].statusTo;
+          break;
+        case 'changePriority':
+          event.from = events[i].priorityFrom;
+          event.to = events[i].priorityTo;
+          break;
+        case 'changeDepartment':
+          event.from = events[i].departmentFrom;
+          event.to = events[i].departmentTo;
+          break;
+        case 'changeEndDate':
+          event.from =
+            events[i].endDateFrom !== null ? moment(events[i].endDateFrom).format('D MMMM YYYY [ora] HH:mm') : null;
+          event.to = moment(events[i].endDateTo).format('D MMMM YYYY [ora] HH:mm');
+          break;
+      }
+      messagesAndEvents.push(event);
+    }
+
+    messagesAndEvents.sort((a, b) => a.createDate.getTime() - b.createDate.getTime());
 
     const prettyStartDate = moment(ticketInfo[0].startDate).format('D MMMM YYYY [ora] HH:mm');
     const relativeStartDate = moment(ticketInfo[0].startDate).fromNow();
@@ -199,12 +313,6 @@ export async function getTicketInfo(ticketId: string) {
     const assigneeNameInitials =
       ticketInfo[0].assigneeName === null ? null : util.getUserInitials(ticketInfo[0].assigneeName);
 
-    for (let i = 0; i < messages.length; i++) {
-      messages[i].userNameInitials = util.getUserInitials(messages[i].userName);
-      messages[i].prettyDate = moment(messages[i].createDate).format('D MMMM YYYY [ora] HH:mm');
-      messages[i].relativeSentDate = moment(messages[i].createDate).fromNow();
-    }
-
     return {
       ...ticketInfo[0],
       prettyStartDate,
@@ -213,7 +321,7 @@ export async function getTicketInfo(ticketId: string) {
       relativeEndDate,
       requestorNameInitials,
       assigneeNameInitials,
-      messages,
+      messagesAndEvents,
     };
   }
   return { error: 'invalid ticket' };
@@ -253,6 +361,47 @@ export async function addMessageToTicket(ticketId: string, message: string, send
 }
 
 /**
+ * Changes the ticket assignee of a specific ticket
+ * @param userId User ID of the user that wants to change the ticket assignee
+ * @param adminStatus Admin status of user
+ * @param ticketId Ticket ID
+ * @param assigneeId New assignee user ID
+ * @returns Status of the ticket assignee change
+ */
+export async function changeTicketAssignee(userId: string, adminStatus: boolean, ticketId: string, assigneeId: string) {
+  if (adminStatus === true) {
+    if ((await user.userIdExists(assigneeId)) === true) {
+      const query = await db.query('SELECT assigned_to, status_id FROM ticket WHERE ticket_id = $1;', [ticketId]);
+      if (query.length === 1) {
+        if (query[0].status_id !== 4) {
+          if (query[0].assigned_to !== assigneeId) {
+            db.query(
+              'INSERT INTO ticket_event(ticket_id, user_id, event_type, assignee_from, assignee_to) ' +
+              'VALUES($1, $2, 1, $3, $4);',
+              [
+                ticketId,
+                userId,
+                query[0].assigned_to,
+                assigneeId
+              ]
+            );
+            await db.query('UPDATE ticket SET assigned_to = $1 WHERE ticket_id = $2;', [assigneeId, ticketId]);
+            if (query[0].assigned_to === null) {
+              await db.query('UPDATE ticket SET status_id = 2 WHERE ticket_id = $1;', [ticketId]);
+            }
+          }
+          return { status: 'success' };
+        }
+        return { error: 'ticket status does not allow ticket assignee change' };
+      }
+      return { error: 'invalid ticket id' };
+    }
+    return { error: 'invalid assignee user id' };
+  }
+  return { error: 'user is not allowed to change ticket assignee' };
+}
+
+/**
  * Changes the ticket status of a specific ticket
  * @param userId User ID of the user that wants to change the ticket status
  * @param ticketId Ticket ID
@@ -275,15 +424,15 @@ export async function changeTicketStatus(userId: string, ticketId: string, statu
       }
 
       if (isStatusAllowed === true) {
-        db.query('INSERT INTO ticket_events VALUES(DEFAULT, $1, $2, $3, DEFAULT);', [
-          ticketId,
-          userId,
-          {
-            event: 'changeStatus',
-            from: query[0].status_id.toString(),
-            to: statusId,
-          }
-        ]);
+        db.query(
+          'INSERT INTO ticket_event(ticket_id, user_id, event_type, status_from, status_to) VALUES($1, $2, 2, $3, $4);',
+          [
+            ticketId,
+            userId,
+            query[0].status_id,
+            statusId
+          ]
+        );
         await db.query('UPDATE ticket SET status_id = $1 WHERE ticket_id = $2;', [statusId, ticketId]);
         return { status: 'success' };
       }
@@ -292,46 +441,6 @@ export async function changeTicketStatus(userId: string, ticketId: string, statu
     return { error: 'user is not allowed to change ticket status' };
   }
   return { error: 'invalid ticket id' };
-}
-
-/**
- * Changes the ticket assignee of a specific ticket
- * @param userId User ID of the user that wants to change the ticket assignee
- * @param adminStatus Admin status of user
- * @param ticketId Ticket ID
- * @param assigneeId New assignee user ID
- * @returns Status of the ticket assignee change
- */
-export async function changeTicketAssignee(userId: string, adminStatus: boolean, ticketId: string, assigneeId: string) {
-  if (adminStatus === true) {
-    if ((await user.userIdExists(assigneeId)) === true) {
-      const query = await db.query('SELECT assigned_to, status_id FROM ticket WHERE ticket_id = $1;', [ticketId]);
-      if (query.length === 1) {
-        if (query[0].status_id !== 4) {
-          if (query[0].assigned_to !== assigneeId) {
-            db.query('INSERT INTO ticket_events VALUES(DEFAULT, $1, $2, $3, DEFAULT);', [
-              ticketId,
-              userId,
-              {
-                event: 'changeAssignee',
-                from: query[0].assigned_to,
-                to: assigneeId,
-              }
-            ]);
-            await db.query('UPDATE ticket SET assigned_to = $1 WHERE ticket_id = $2;', [assigneeId, ticketId]);
-            if (query[0].assigned_to === null) {
-              await db.query('UPDATE ticket SET status_id = 2 WHERE ticket_id = $1;', [ticketId]);
-            }
-          }
-          return { status: 'success' };
-        }
-        return { error: 'ticket status does not allow ticket assignee change' };
-      }
-      return { error: 'invalid ticket id' };
-    }
-    return { error: 'invalid assignee user id' };
-  }
-  return { error: 'user is not allowed to change ticket assignee' };
 }
 
 /**
@@ -350,15 +459,16 @@ export async function changeTicketPriority(userId: string, ticketId: string, pri
       if (query[0].status_id !== 4) {
         if ((await priorityExists(query[0].priority_id)) === true) {
           if (query[0].priority_id.toString() !== priorityId) {
-            db.query('INSERT INTO ticket_events VALUES(DEFAULT, $1, $2, $3, DEFAULT);', [
-              ticketId,
-              userId,
-              {
-                event: 'changePriority',
-                from: query[0].priority_id.toString(),
-                to: priorityId,
-              }
-            ]);
+            db.query(
+              'INSERT INTO ticket_event(ticket_id, user_id, event_type, priority_from, priority_to) ' +
+              'VALUES($1, $2, 3, $3, $4);',
+              [
+                ticketId,
+                userId,
+                query[0].priority_id,
+                priorityId
+              ]
+            );
             await db.query('UPDATE ticket SET priority_id = $1 WHERE ticket_id = $2;', [priorityId, ticketId]);
             return { status: 'success' };
           }
@@ -389,15 +499,16 @@ export async function changeTicketDepartment(userId: string, ticketId: string, d
       if (query[0].status_id !== 4) {
         if ((await departmentExists(departmentId)) === true) {
           if (query[0].department_id.toString() !== departmentId) {
-            db.query('INSERT INTO ticket_events VALUES(DEFAULT, $1, $2, $3, DEFAULT);', [
-              ticketId,
-              userId,
-              {
-                event: 'changeDepartment',
-                from: query[0].department_id.toString(),
-                to: departmentId,
-              }
-            ]);
+            db.query(
+              'INSERT INTO ticket_event(ticket_id, user_id, event_type, department_from, department_to) ' +
+              'VALUES($1, $2, 4, $3, $4); ',
+              [
+                ticketId,
+                userId,
+                query[0].department_id,
+                departmentId
+              ]
+            );
             await db.query('UPDATE ticket SET department_id = $1 WHERE ticket_id = $2;', [departmentId, ticketId]);
             return { status: 'success' };
           }
@@ -430,15 +541,16 @@ export async function changeTicketEndDate(userId: string, ticketId: string, endD
           if (
             moment(endDate, moment.ISO_8601, true).isSame(moment(query[0].end_date, moment.ISO_8601, true)) === false
           ) {
-            db.query('INSERT INTO ticket_events VALUES(DEFAULT, $1, $2, $3, DEFAULT);', [
-              ticketId,
-              userId,
-              {
-                event: 'changeEndDate',
-                from: query[0].end_date,
-                to: endDate,
-              }
-            ]);
+            db.query(
+              'INSERT INTO ticket_event(ticket_id, user_id, event_type, end_date_from, end_date_to) ' +
+              'VALUES($1, $2, 5, $3, $4); ',
+              [
+                ticketId,
+                userId,
+                query[0].end_date,
+                endDate
+              ]
+            );
             await db.query('UPDATE ticket SET end_date = $1 WHERE ticket_id = $2;', [endDate, ticketId]);
             return { status: 'success' };
           }
