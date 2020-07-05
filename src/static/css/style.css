@@ -226,6 +226,7 @@ div.main {
   right: 0;
   user-select: none;
   visibility: hidden;
+  z-index: 20;
 }
 
 #snackC {

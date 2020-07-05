@@ -12,25 +12,20 @@
   background: #363636;
   border-radius: 5px;
   margin-bottom: 1rem;
+  max-height: 50%;
+  overflow: auto;
   padding: 1rem;
 }
 
 .description-title,
 .info-title {
-  -webkit-box-orient: vertical;
-  display: -webkit-box;
   font-size: 1.5rem;
   font-weight: 700;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
 }
 
 .description-message {
-  -webkit-box-orient: vertical;
-  display: -webkit-box;
-  -webkit-line-clamp: 20;
   line-height: 1.3rem;
-  overflow: hidden;
+  overflow: auto;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -265,6 +260,7 @@
 
 .edit-button {
   border-radius: 5px;
+  height: 1.2rem;
   margin-left: 0.2rem;
   padding: 0.2rem;
   width: 1.2rem;
@@ -330,4 +326,64 @@
 .ticket-edit-form input[type="submit"]:hover {
   background: #454545;
   cursor: pointer;
+}
+
+@media only screen and (max-width: 1400px) {
+  .ticket-description-messages {
+    width: 75%;
+  }
+
+  .ticket-info {
+    width: 25%;
+  }
+}
+
+@media only screen and (max-width: 1140px) {
+  .ticket-description-messages {
+    width: 72%;
+  }
+
+  .ticket-info {
+    width: 28%;
+  }
+}
+
+@media only screen and (max-width: 1024px) {
+  .ticket-description-messages {
+    width: 70%;
+  }
+
+  .ticket-info {
+    width: 30%;
+  }
+}
+
+@media only screen and (max-width: 960px) {
+  .ticket-description-messages {
+    width: 67%;
+  }
+
+  .ticket-info {
+    width: 33%;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .ticket {
+    flex-wrap: wrap;
+  }
+
+  .ticket-description-messages {
+    width: 100%;
+  }
+
+  .ticket-info {
+    margin-left: 0;
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  .description {
+    max-height: 75%;
+  }
 }
