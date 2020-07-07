@@ -90,7 +90,7 @@ router.route('/:userId')
     user.getUserInfo(req.params.userId)
       .then(userInfo => {
         if (userInfo.error === undefined) {
-          res.render('user', userInfo.userInfo);
+          res.render('user', { userInfo: userInfo.userInfo, userReport: userInfo.userReport });
         } else {
           res.setHeader('location', '/main');
           res.status(302).end();

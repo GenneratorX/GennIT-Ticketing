@@ -2,7 +2,7 @@
 <html lang="ro">
   <head>
     <%- include('partials/header') %>
-    <title><%= userName %> :: GennIT Ticketing</title>
+    <title><%= userInfo.userName %> :: GennIT Ticketing</title>
     <link rel="preload" href="https://static.gennerator.com/css/user.css" as="style">
     <link rel="preload" href="https://static.gennerator.com/css/flatpickr.css" as="style">
     <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/app.js" defer></script>
@@ -15,46 +15,95 @@
     <%- include('partials/navbar') %>
     <div class="main user-page">
       <div class="profile">
-        <div class="profile-picture"><%= userName.charAt(0).toUpperCase() %></div>
-        <div class="profile-name" id="username"><%= userName %></div>
+        <div class="profile-picture"><%= userInfo.userName.charAt(0).toUpperCase() %></div>
+        <div class="profile-name" id="username"><%= userInfo.userName %></div>
       </div>
       <div class="user-info info-box" id="userInfoDiv">
         <div class="box-title" id="userInfo">
           <div class="box-title-description">Informații utilizator</div>
         </div>
-        <% if (firstName !== null) {%>
-        <div><span class="bold">Prenume: </span><%= firstName %></div>
+        <% if (userInfo.firstName !== null) {%>
+        <div><span class="bold">Prenume: </span><%= userInfo.firstName %></div>
         <% } %>
-        <% if (lastName !== null) {%>
-        <div><span class="bold">Nume: </span><%= lastName %></div>
+        <% if (userInfo.lastName !== null) {%>
+        <div><span class="bold">Nume: </span><%= userInfo.lastName %></div>
         <% } %>
-        <% if (birthDate !== null) {%>
-        <div><span class="bold">Data nașterii: </span><%- birthDate.toLocaleDateString('ro-RO') %></div>
+        <% if (userInfo.birthDate !== null) {%>
+        <div><span class="bold">Data nașterii: </span><%- userInfo.birthDate.toLocaleDateString('ro-RO') %></div>
         <% } %>
-        <% if (gender !== null) {%>
+        <% if (userInfo.gender !== null) {%>
         <div>
           <span class="bold">Sex: </span>
-          <% if (gender === 0) {%> Masculin <% } else { %>
-          <% if (gender === 1) {%> Feminin <% } else { %>
+          <% if (userInfo.gender === 0) {%> Masculin <% } else { %>
+          <% if (userInfo.gender === 1) {%> Feminin <% } else { %>
           Nespecificat <% } %> <% } %>
         </div>
         <% } %>
-        <% if (phoneNumber !== null) {%>
-        <div><span class="bold">Număr telefon: </span><%- phoneNumber %></div>
+        <% if (userInfo.phoneNumber !== null) {%>
+        <div><span class="bold">Număr telefon: </span><%- userInfo.phoneNumber %></div>
         <% } %>
-        <div><span class="bold">Adresă e-mail: </span><%= email %></div>
-        <div><span class="bold">Cont creat: </span><%- createDate.toLocaleString('ro-RO') %></div>
-        <% if (lastLogin !== null) {%>
-        <div><span class="bold">Văzut ultima dată: </span><%- lastLogin.toLocaleString('ro-RO') %></div>
+        <div><span class="bold">Adresă e-mail: </span><%= userInfo.email %></div>
+        <div><span class="bold">Cont creat: </span><%- userInfo.createDate.toLocaleString('ro-RO') %></div>
+        <% if (userInfo.lastLogin !== null) {%>
+        <div><span class="bold">Văzut ultima dată: </span><%- userInfo.lastLogin.toLocaleString('ro-RO') %></div>
         <% } %>
       </div>
       <div class="user-performance info-box">
         <div class="box-title">
-          <div class="box-title-description">Performanță</div>
+          <div class="box-title-description">Detalii utilizator</div>
         </div>
-        <div>Tichete rezolvate</div>
-        <div>Tichete deschise</div>
-        <div>Tichete întârziate</div>
+        <div class="performance-section">
+          <div class="performance-title">Tichete deschise</div>
+          <div class="performance"><%- userReport.openedTickets %></div>
+        </div>
+        <div>
+          <div class="performance-section">
+            <div class="performance-title">Tichete atribuite</div>
+            <div class="performance"><%- userReport.assignedTickets %></div>
+          </div>
+        </div>
+        <div>
+          <div class="performance-section">
+            <div class="performance-title">Tichete în așteptare</div>
+            <div class="performance"><%- userReport.pendingTickets %></div>
+          </div>
+        </div>
+        <div>
+          <div class="performance-section">
+            <div class="performance-title">Tichete soluționate</div>
+            <div class="performance"><%- userReport.solvedTickets %></div>
+          </div>
+        </div>
+        <div>
+          <div class="performance-section">
+            <div class="performance-title">Tichete atribuite utilizatorului</div>
+            <div class="performance"><%- userReport.allTickets %></div>
+          </div>
+        </div>
+        <div>
+          <div class="performance-section">
+            <div class="performance-title">Tichete cu termen depășit</div>
+            <div class="performance"><%- userReport.expiredTickets %></div>
+          </div>
+        </div>
+        <div>
+          <div class="performance-section">
+            <div class="performance-title">Mesaje trimise</div>
+            <div class="performance"><%- userReport.sentMessages %></div>
+          </div>
+        </div>
+        <div>
+          <div class="performance-section">
+            <div class="performance-title">Pondere tichete soluționate</div>
+            <div class="performance"><%- userReport.solvedTicketsPercentage %></div>
+          </div>
+        </div>
+        <div>
+          <div class="performance-section">
+            <div class="performance-title">Medie mesaje trimise pe conversație</div>
+            <div class="performance"><%- userReport.sentMessagesAverageByConversation %></div>
+          </div>
+        </div>
       </div>
       <div class="user-friends info-box">
         <div class="box-title" id="userFriends">

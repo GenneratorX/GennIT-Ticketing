@@ -1,8 +1,11 @@
 'use strict';
 
 import db = require('./db');
-import util = require('./util');
 
+/**
+ * Gets user and ticket information from the database
+ * @returns User and ticket reports
+ */
 export async function getReports() {
   const userQuery = db.query(
     'SELECT a.user_id "userId", COALESCE(first_name ||\' \'||last_name, username) "userName", ' +
