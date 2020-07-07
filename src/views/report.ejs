@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ro">
+  <head>
+    <%- include('partials/header') %>
+    <title>Rapoarte :: GennIT Ticketing</title>
+    <link rel="preload" href="https://static.gennerator.com/css/report.css" as="style">
+    <script nonce="<%- cspNonce %>" src="https://static.gennerator.com/js/app.js" defer></script>
+  </head>
+  <body>
+    <%- include('partials/noJS') %>
+    <%- include('partials/navbar') %>
+    <div class="main report-page">
+      <div class="section user-reports">
+        <div class="section-title">
+          Raport utilizatori
+        </div>
+        <div class="table">
+          <div class="table-header">
+            <div class="table-section user">
+              Utilizator
+            </div>
+            <div class="table-section open-tickets">
+              Tichete deschise
+            </div>
+            <div class="table-section assigned-tickets">
+              Tichete atribuite
+            </div>
+            <div class="table-section pending-tickets">
+              Tichete în așteptare
+            </div>
+            <div class="table-section resolved-tickets">
+              Tichete soluționate
+            </div>
+            <div class="table-section total-tickets">
+              Tichete responsabil
+            </div>
+            <div class="table-section expired-tickets">
+              Tichete termen depășit
+            </div>
+            <div class="table-section resolved-tickets-percentage">
+              % Tichete soluționate
+            </div>
+            <div class="table-section sent-messages">
+              Mesaje trimise
+            </div>
+            <div class="table-section average-messages">
+              Mesaje pe conversație
+            </div>
+          </div>
+          <div class="table-contents">
+            <% for (let i = 0; i < userReport.length; i++) {%>
+            <div class="table-element">
+              <div class="element-section user"><a href="/user/<%- userReport[i].userId %>"><%= userReport[i].userName %></a></div>
+              <div class="element-section open-tickets"><%- userReport[i].openedTickets %></div>
+              <div class="element-section assigned-tickets"><%- userReport[i].assignedTickets %></div>
+              <div class="element-section pending-tickets"><%- userReport[i].pendingTickets %></div>
+              <div class="element-section resolved-tickets"><%- userReport[i].solvedTickets %></div>
+              <div class="element-section total-tickets"><%- userReport[i].allTickets %></div>
+              <div class="element-section expired-tickets"><%- userReport[i].expiredTickets %></div>
+              <div class="element-section resolved-tickets-percentage"><%- userReport[i].solvedTicketsPercentage %></div>
+              <div class="element-section sent-messages"><%- userReport[i].sentMessages %></div>
+              <div class="element-section average-messages"><%- userReport[i].sentMessagesAverageByConversation %></div>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      <div class="section department-reports">
+        <div class="section-title">
+          Raport tichete
+        </div>
+        <div class="table">
+          <div class="table-header clm">
+            <div class="table-section header">
+              <span class="show">Departament</span>
+              <span class="hidden">Dept.</span>
+            </div>
+            <div class="table-section column">
+              <span class="show">Dezvoltare software</span>
+              <span class="hidden">SOFT</span>
+            </div>
+            <div class="table-section column it">
+              <span class="show">IT</span>
+              <span class="hidden">IT</span>
+            </div>
+            <div class="table-section column">
+              <span class="show">Marketing</span>
+              <span class="hidden">MK</span>
+            </div>
+            <div class="table-section column">
+              <span class="show">Operațiuni</span>
+              <span class="hidden">OP</span>
+            </div>
+            <div class="table-section column ru">
+              <span class="show">Resurse umane</span>
+              <span class="hidden">HR</span>
+            </div>
+            <div class="table-section column last">
+              TOTAL
+            </div>
+          </div>
+          <div class="table-contents-column">
+            <div class="table-element-column header">
+              <div class="element-section-column">
+                <span class="show">Total tichete</span>
+                <span class="hidden">Total</span>
+              </div>
+              <div class="element-section-column">
+                <span class="show">Statut - Nou</span>
+                <span class="hidden">Stat. Nou</span>
+              </div>
+              <div class="element-section-column">
+                <span class="show">Statut - Atribuit</span>
+                <span class="hidden">Stat. Atr</span>
+              </div>
+              <div class="element-section-column">
+                <span class="show">Statut - În așteptare</span>
+                <span class="hidden">Stat. Aștep</span>
+              </div>
+              <div class="element-section-column">
+                <span class="show">Statut - Soluționat</span>
+                <span class="hidden">Stat. Sol</span>
+              </div>
+              <div class="element-section-column">
+                <span class="show">Prioritate - Scăzut</span>
+                <span class="hidden">Prio. Scz</span>
+              </div>
+              <div class="element-section-column">
+                <span class="show">Prioritate - Mediu</span>
+                <span class="hidden">Prio. Med</span>
+              </div>
+              <div class="element-section-column">
+                <span class="show">Prioritate - Ridicat</span>
+                <span class="hidden">Prio. Rid</span>
+              </div>
+              <div class="element-section-column">
+                <span class="show">Prioritate - Urgent</span>
+                <span class="hidden">Prio. Urg</span>
+              </div>
+              <div class="element-section-column">
+                <span class="show">În termen</span>
+                <span class="hidden">Term.</span>
+              </div>
+              <div class="element-section-column">
+                <span class="show">Termen depășit</span>
+                <span class="hidden">Term. dep.</span>
+              </div>
+              <div class="element-section-column">
+                <span class="show">Fără termen limită</span>
+                <span class="hidden">Fără term.</span>
+              </div>
+              <div class="element-section-column">
+                <span class="show">Cu responsabil</span>
+                <span class="hidden">Cu resp.</span>
+              </div>
+              <div class="element-section-column">
+                <span class="show">Fără responsabil</span>
+                <span class="hidden">Fără resp.</span>
+              </div>
+            </div>
+            <% for (let i = 0; i < ticketReport.length; i++) {%>
+            <div class="table-element-column <% if (i === 1) {%>it<%} else if (i===4) {%>ru<%}%>">
+              <div class="element-section-column"><%- ticketReport[i].ticketCount %></div>
+              <div class=" element-section-column"><%- ticketReport[i].statusNew %></div>
+            <div class="element-section-column"><%- ticketReport[i].statusAssigned %></div>
+            <div class="element-section-column"><%- ticketReport[i].statusPending %></div>
+            <div class="element-section-column"><%- ticketReport[i].statusSolved %></div>
+            <div class="element-section-column"><%- ticketReport[i].priorityLow %></div>
+            <div class="element-section-column"><%- ticketReport[i].priorityMedium %></div>
+            <div class="element-section-column"><%- ticketReport[i].priorityHigh %></div>
+            <div class="element-section-column"><%- ticketReport[i].priorityUrgent %></div>
+            <div class="element-section-column"><%- ticketReport[i].onTime %></div>
+            <div class="element-section-column"><%- ticketReport[i].notOnTime %></div>
+            <div class="element-section-column"><%- ticketReport[i].noEndDate %></div>
+            <div class="element-section-column"><%- ticketReport[i].hasAssignee %></div>
+            <div class="element-section-column"><%- ticketReport[i].doesntHaveAssignee %></div>
+          </div>
+          <% } %>
+          <div class="table-element-column last">
+            <div class="element-section-column"><%- ticketStatistics.ticketCount %></div>
+            <div class="element-section-column"><%- ticketStatistics.statusNew %></div>
+            <div class="element-section-column"><%- ticketStatistics.statusAssigned %></div>
+            <div class="element-section-column"><%- ticketStatistics.statusPending %></div>
+            <div class="element-section-column"><%- ticketStatistics.statusSolved %></div>
+            <div class="element-section-column"><%- ticketStatistics.priorityLow %></div>
+            <div class="element-section-column"><%- ticketStatistics.priorityMedium %></div>
+            <div class="element-section-column"><%- ticketStatistics.priorityHigh %></div>
+            <div class="element-section-column"><%- ticketStatistics.priorityUrgent %></div>
+            <div class="element-section-column"><%- ticketStatistics.onTime %></div>
+            <div class="element-section-column"><%- ticketStatistics.notOnTime %></div>
+            <div class="element-section-column"><%- ticketStatistics.noEndDate %></div>
+            <div class="element-section-column"><%- ticketStatistics.hasAssignee %></div>
+            <div class="element-section-column"><%- ticketStatistics.doesntHaveAssignee %></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </body>
+</html>
