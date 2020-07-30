@@ -66,7 +66,7 @@ newTicketButton.onclick = () => {
     setAttributes(ticketSubmitButton, {
       'id': 'submitButton',
       'type': 'submit',
-      'value': 'Adaugă tichet',
+      'value': 'Creează tichet',
     });
 
     /**
